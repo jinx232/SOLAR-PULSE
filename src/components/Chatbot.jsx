@@ -17,6 +17,7 @@ export default function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   
   // Settings Panel States
   const [showSettings, setShowSettings] = useState(false);
@@ -25,6 +26,8 @@ export default function Chatbot() {
   const [isKeyValid, setIsKeyValid] = useState(null);
 
   const chatEndRef = useRef(null);
+
+  const getProfessionalGreeting = () => `Welcome to Solar Pulse AI Advisor. I can help you explore solar panel options, system sizing, battery storage, incentives, and energy savings with clear, practical guidance.`;
 
   // Suggested prompt chips
   const suggestions = [
@@ -56,15 +59,15 @@ export default function Chatbot() {
       const initialGreeting = {
         id: 1,
         sender: 'bot',
-        text: `Hello! I'm your **Solar Pulse AI Advisor**. ☀️
+        text: `${getProfessionalGreeting()}
 
-I'm loaded with solar intelligence and can help you with:
-* Choosing panel types (**Monocrystalline vs Polycrystalline**)
-* Explaining financial incentives (**30% Tax Credits, SRECs**)
-* Detailing **Net Metering** and Grid interactions
-* Sizing your system or understanding battery storage.
+I can assist with:
+* Comparing panel types such as **Monocrystalline vs Polycrystalline**
+* Explaining incentives like **tax credits and SRECs**
+* Clarifying **net metering** and grid interactions
+* Estimating system size and battery backup needs
 
-Ask me anything or select a prompt suggestion below to begin!`,
+Ask a question or choose a prompt below to get started.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages([initialGreeting]);
@@ -208,19 +211,26 @@ Ask me anything or select a prompt suggestion below to begin!`,
     }
   };
 
-  // Clear chat logs
+  // Clear chat logs (in-app confirmation)
   const clearChatLogs = () => {
-    if (window.confirm("Clear all active chat logs?")) {
-      const initialGreeting = {
-        id: 1,
-        sender: 'bot',
-        text: `Hello! Chat log has been reset. Ask me any solar monitoring questions.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages([initialGreeting]);
-      localStorage.removeItem('solar_pulse_chat_history');
-    }
+    setShowClearConfirm(true);
   };
+
+  const confirmClear = () => {
+    const initialGreeting = {
+      id: 1,
+      sender: 'bot',
+      text: `${getProfessionalGreeting()}
+
+Conversation cleared. How can I assist you with your next solar inquiry?`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages([initialGreeting]);
+    localStorage.removeItem('solar_pulse_chat_history');
+    setShowClearConfirm(false);
+  };
+
+  const cancelClear = () => setShowClearConfirm(false);
 
   // Simple Markdown UI Parser (renders bold, headers, list items nicely in UI)
   const renderMarkdown = (text) => {
@@ -301,7 +311,7 @@ Ask me anything or select a prompt suggestion below to begin!`,
         </div>
         
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn-outline" onClick={clearChatLogs} style={{ padding: '8px', borderRadius: '50%', width: '38px', height: '38px' }} title="Reset Chat Logs" aria-label="Reset chat logs">
+          <button className="btn-outline" onClick={clearChatLogs} style={{ padding: '8px', borderRadius: '50%', width: '38px', height: '38px' }} title="Clear conversation history" aria-label="Clear conversation history">
             <RotateCcw size={16} />
           </button>
           <button 
@@ -322,6 +332,20 @@ Ask me anything or select a prompt suggestion below to begin!`,
           </button>
         </div>
       </div>
+
+      {/* In-app confirmation modal to avoid browser native confirm */}
+      {showClearConfirm && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Clear conversation confirmation">
+          <div className="modal-card">
+            <h3 style={{ margin: 0, fontSize: '1.05rem' }}>Clear conversation?</h3>
+            <p style={{ marginTop: '8px', color: 'var(--text-secondary)' }}>This will permanently remove all messages in this chat. This action cannot be undone.</p>
+            <div className="modal-actions">
+              <button className="btn-outline" onClick={cancelClear}>Cancel</button>
+              <button className="btn-danger" onClick={confirmClear}>Clear Conversation</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main chat window container */}
       <div className="premium-card" style={{ 

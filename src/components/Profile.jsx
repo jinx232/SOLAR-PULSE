@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, User, Clock3, Hash, Edit3, Check, X, Camera, Trash2, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Mail, User, Clock3, Hash, Edit3, Check, X, Camera, Trash2, KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 
 export default function Profile({ user, setUser }) {
@@ -30,6 +30,18 @@ export default function Profile({ user, setUser }) {
 
   const fileInputRef = useRef(null);
   const avatarUrl = user?.user_metadata?.avatar_url;
+
+  const getStatusTone = (message) => {
+    if (!message) return 'info';
+    const lowered = message.toLowerCase();
+    if (lowered.includes('success') || lowered.includes('updated') || lowered.includes('removed') || lowered.includes('created')) {
+      return 'success';
+    }
+    if (lowered.includes('error') || lowered.includes('do not match') || lowered.includes('must') || lowered.includes('cannot') || lowered.includes('invalid')) {
+      return 'error';
+    }
+    return 'info';
+  };
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -295,7 +307,18 @@ export default function Profile({ user, setUser }) {
         </div>
       </div>
 
-      {statusMessage && <p className="profile-status">{statusMessage}</p>}
+      {statusMessage && (
+        <div className={`status-banner status-banner-${getStatusTone(statusMessage)}`} role="status" aria-live="polite">
+          {getStatusTone(statusMessage) === 'success' ? (
+            <CheckCircle2 size={18} />
+          ) : getStatusTone(statusMessage) === 'error' ? (
+            <AlertCircle size={18} />
+          ) : (
+            <Info size={18} />
+          )}
+          <span>{statusMessage}</span>
+        </div>
+      )}
 
       <div className="profile-details">
         <div className="profile-row">
@@ -387,7 +410,16 @@ export default function Profile({ user, setUser }) {
               {passwordLoading ? 'Updating...' : 'Update Password'}
             </button>
             {passwordStatus && (
-              <p className="profile-status" style={{ marginTop: '4px' }}>{passwordStatus}</p>
+              <div className={`status-banner status-banner-${getStatusTone(passwordStatus)}`} style={{ marginTop: '8px' }} role="status" aria-live="polite">
+                {getStatusTone(passwordStatus) === 'success' ? (
+                  <CheckCircle2 size={18} />
+                ) : getStatusTone(passwordStatus) === 'error' ? (
+                  <AlertCircle size={18} />
+                ) : (
+                  <Info size={18} />
+                )}
+                <span>{passwordStatus}</span>
+              </div>
             )}
           </div>
         )}

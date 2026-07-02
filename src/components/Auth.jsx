@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Leaf } from 'lucide-react';
+import { Sun, Leaf, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 
 export default function Auth({ authView, setAuthView, onAuthenticate }) {
@@ -9,6 +9,18 @@ export default function Auth({ authView, setAuthView, onAuthenticate }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const getStatusTone = (message) => {
+    if (!message) return 'info';
+    const lowered = message.toLowerCase();
+    if (lowered.includes('success') || lowered.includes('signed in') || lowered.includes('created')) {
+      return 'success';
+    }
+    if (lowered.includes('error') || lowered.includes('do not match') || lowered.includes('must') || lowered.includes('cannot') || lowered.includes('invalid')) {
+      return 'error';
+    }
+    return 'info';
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -139,7 +151,20 @@ export default function Auth({ authView, setAuthView, onAuthenticate }) {
           </button>
 
           {statusMessage && (
-            <p className="auth-status-message">{statusMessage}</p>
+            <div
+              className={`status-banner status-banner-${getStatusTone(statusMessage)}`}
+              role="status"
+              aria-live="polite"
+            >
+              {getStatusTone(statusMessage) === 'success' ? (
+                <CheckCircle2 size={18} />
+              ) : getStatusTone(statusMessage) === 'error' ? (
+                <AlertCircle size={18} />
+              ) : (
+                <Info size={18} />
+              )}
+              <span>{statusMessage}</span>
+            </div>
           )}
         </form>
 

@@ -63,6 +63,15 @@
   --profile-status-bg: rgba(16, 185, 129, 0.1);
   --profile-status-border: rgba(16, 185, 129, 0.2);
   --profile-status-text: #065f46;
+  --status-success-bg: rgba(16, 185, 129, 0.12);
+  --status-success-border: rgba(16, 185, 129, 0.24);
+  --status-success-text: #065f46;
+  --status-error-bg: rgba(239, 68, 68, 0.12);
+  --status-error-border: rgba(239, 68, 68, 0.24);
+  --status-error-text: #991b1b;
+  --status-info-bg: rgba(6, 182, 212, 0.12);
+  --status-info-border: rgba(6, 182, 212, 0.24);
+  --status-info-text: #0f766e;
 }
 
 /* Dark Theme Variables */
@@ -112,6 +121,15 @@
   --profile-status-bg: rgba(255, 255, 255, 0.06);
   --profile-status-border: rgba(255, 255, 255, 0.08);
   --profile-status-text: var(--text-light);
+  --status-success-bg: rgba(16, 185, 129, 0.16);
+  --status-success-border: rgba(16, 185, 129, 0.28);
+  --status-success-text: #dcfce7;
+  --status-error-bg: rgba(248, 113, 113, 0.16);
+  --status-error-border: rgba(248, 113, 113, 0.28);
+  --status-error-text: #ffe4e6;
+  --status-info-bg: rgba(34, 211, 238, 0.16);
+  --status-info-border: rgba(34, 211, 238, 0.28);
+  --status-info-text: #cffafe;
 }
 
 /* Resets */
@@ -531,13 +549,74 @@ button, input, select, textarea {
   transform: translateY(-1px);
 }
 
-.profile-status {
+.profile-status,
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--profile-status-border);
   color: var(--profile-status-text);
   background: var(--profile-status-bg);
-  border: 1px solid var(--profile-status-border);
-  padding: 14px 18px;
-  border-radius: 18px;
+  box-shadow: 0 10px 24px -16px rgba(15, 23, 42, 0.35);
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
+
+.status-banner-success {
+  background: var(--status-success-bg);
+  border-color: var(--status-success-border);
+  color: var(--status-success-text);
+}
+
+.status-banner-error {
+  background: var(--status-error-bg);
+  border-color: var(--status-error-border);
+  color: var(--status-error-text);
+}
+
+.status-banner-info {
+  background: var(--status-info-bg);
+  border-color: var(--status-info-border);
+  color: var(--status-info-text);
+}
+
+/* In-app modal for confirmations */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2,6,23,0.5);
+  z-index: 60;
+}
+.modal-card {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 18px 20px;
+  border-radius: 12px;
+  width: 420px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+.btn-danger {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.btn-danger:hover { transform: translateY(-1px); }
 
 /* Responsive Grid System */
 .grid-cols-4 {
@@ -627,13 +706,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .auth-status-message {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-light);
   font-size: 0.94rem;
   line-height: 1.5;
-  padding: 10px 14px;
+  padding: 12px 14px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 24px -16px rgba(15, 23, 42, 0.35);
 }
 
 /* Primary Button */
