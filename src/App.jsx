@@ -165,6 +165,25 @@ export default function App() {
 
   const avatarUrl = user?.user_metadata?.avatar_url;
 
+  const isSupabaseConfigured = Boolean(
+    import.meta.env.VITE_SUPABASE_URL &&
+    (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)
+  );
+
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="app-error-screen">
+        <div className="app-error-card">
+          <h1>Configuration Required</h1>
+          <p>
+            The application cannot connect because Supabase environment variables are missing.
+            Please add <code>VITE_SUPABASE_URL</code> and either <code>VITE_SUPABASE_ANON_KEY</code> or <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> in a <code>.env</code> file.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <Auth
