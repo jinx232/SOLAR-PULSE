@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, User, Clock3, Hash, Edit3, Check, X, Camera, Trash2, KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, Info } from 'lucide-react';
-import { supabase } from '../utils/supabase';
+import { auth, getDownloadURL, ref, storage, updatePassword, updateProfile, uploadBytes } from '../utils/firebase';
 
 export default function Profile({ user, setUser }) {
   const initialName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Solar Analyst';
@@ -60,62 +60,35 @@ export default function Profile({ user, setUser }) {
     setStatusMessage('');
 
     try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const img = new Image();
-        img.onload = async () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 150;
-          const MAX_HEIGHT = 150;
-          let width = img.width;
-          let height = img.height;
+      if (!auth.currentUser) throw new Error('No active auth session. Please sign in again.');
 
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
+      const imageUrl = URL.createObjectURL(file);
+      const image = new Image();
+      image.src = imageUrl;
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = () => reject(new Error('Invalid image file.'));
+      });
 
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
+      const maxDimension = 400;
+      const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(imageUrl);
 
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+      const compressedBlob = await new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Could not process image.')), 'image/jpeg', 0.85);
+      });
+      const avatarRef = ref(storage, `users/${auth.currentUser.uid}/avatar.jpg`);
+      await uploadBytes(avatarRef, compressedBlob, { contentType: 'image/jpeg' });
+      const downloadUrl = await getDownloadURL(avatarRef);
+      await updateProfile(auth.currentUser, { photoURL: downloadUrl });
 
-          const { data, error } = await supabase.auth.updateUser({
-            data: { avatar_url: compressedBase64 }
-          });
-
-          setLoading(false);
-
-          if (error) {
-            setStatusMessage(error.message);
-            return;
-          }
-
-          setStatusMessage('Profile picture updated successfully.');
-          if (data?.user) {
-            setUser?.(data.user);
-          }
-        };
-        img.onerror = () => {
-          setLoading(false);
-          setStatusMessage('Invalid image file.');
-        };
-        img.src = e.target.result;
-      };
-      reader.onerror = () => {
-        setLoading(false);
-        setStatusMessage('Error reading file.');
-      };
-      reader.readAsDataURL(file);
+      setLoading(false);
+      setStatusMessage('Profile picture updated successfully.');
+      setUser?.({ ...user, photoURL: downloadUrl, user_metadata: { ...user.user_metadata, avatar_url: downloadUrl } });
     } catch (err) {
       setLoading(false);
       setStatusMessage('Error processing image: ' + err.message);
@@ -127,21 +100,12 @@ export default function Profile({ user, setUser }) {
     setStatusMessage('');
 
     try {
-      const { data, error } = await supabase.auth.updateUser({
-        data: { avatar_url: null }
-      });
+      await updateProfile(auth.currentUser, { photoURL: null });
 
       setLoading(false);
 
-      if (error) {
-        setStatusMessage(error.message);
-        return;
-      }
-
       setStatusMessage('Profile picture removed.');
-      if (data?.user) {
-        setUser?.(data.user);
-      }
+      setUser?.({ ...user, photoURL: null, user_metadata: { ...user.user_metadata, avatar_url: null } });
     } catch (err) {
       setLoading(false);
       setStatusMessage('Error removing image: ' + err.message);
@@ -165,16 +129,18 @@ export default function Profile({ user, setUser }) {
       return;
     }
     setPasswordLoading(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    setPasswordLoading(false);
-    if (error) {
+    try {
+      await updatePassword(auth.currentUser, newPassword);
+    } catch (error) {
+      setPasswordLoading(false);
       setPasswordStatus(error.message);
-    } else {
-      setPasswordStatus('Password updated successfully!');
-      setNewPassword('');
-      setConfirmNewPassword('');
-      setShowPasswordForm(false);
+      return;
     }
+    setPasswordLoading(false);
+    setPasswordStatus('Password updated successfully!');
+    setNewPassword('');
+    setConfirmNewPassword('');
+    setShowPasswordForm(false);
   };
 
   const handleEditToggle = () => {
@@ -190,36 +156,27 @@ export default function Profile({ user, setUser }) {
     }
 
     setLoading(true);
-    const { data: sessionData } = await supabase.auth.getSession();
-
-    if (!sessionData?.session) {
+    if (!auth.currentUser) {
       setLoading(false);
       setStatusMessage('No active auth session. Please sign out and sign in again.');
       return;
     }
 
-    const { data, error } = await supabase.auth.updateUser({
-      data: { full_name: nameInput.trim() },
-    });
-
-    setLoading(false);
-
-    if (error) {
+    try {
+      await updateProfile(auth.currentUser, { displayName: nameInput.trim() });
+    } catch (error) {
+      setLoading(false);
       setStatusMessage(error.message);
       return;
     }
+
+    setLoading(false);
 
     setProfileName(nameInput.trim());
     setStatusMessage('Profile updated successfully.');
     setIsEditing(false);
 
-    if (data?.user) {
-      const updatedName = data.user.user_metadata?.full_name;
-      if (updatedName) {
-        setProfileName(updatedName);
-        setUser?.(data.user);
-      }
-    }
+    setUser?.({ ...user, displayName: nameInput.trim(), user_metadata: { ...user.user_metadata, full_name: nameInput.trim() } });
   };
 
   return (

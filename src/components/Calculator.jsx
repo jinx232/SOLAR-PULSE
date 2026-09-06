@@ -21,6 +21,7 @@ import {
   Plus,
   Trash2
 } from 'lucide-react';
+import { loadSolarProject, saveSolarProject, auth } from '../utils/firebase';
 
 const initialAppliances = [
   // Kitchen
@@ -39,7 +40,26 @@ const initialAppliances = [
   { id: 10, name: 'Clothes Dryer', category: 'Laundry', watts: 3000, hours: 0.5, qty: 1, icon: 'laundry', isCritical: false },
 ];
 
+const globalSolarZones = [
+  { value: 'West Africa', label: 'West Africa (Nigeria, Ghana) — 5.4h', sunHours: 5.4, postal: '101001' },
+  { value: 'East Africa', label: 'East Africa (Kenya, Tanzania) — 5.8h', sunHours: 5.8, postal: '00100' },
+  { value: 'Southern Africa', label: 'Southern Africa (South Africa) — 5.6h', sunHours: 5.6, postal: '0001' },
+  { value: 'North Africa', label: 'North Africa (Egypt, Morocco) — 6.0h', sunHours: 6.0, postal: '10000' },
+  { value: 'Europe', label: 'Europe (Central and Western) — 3.8h', sunHours: 3.8, postal: '10115' },
+  { value: 'Southern Europe', label: 'Southern Europe (Spain, Italy, Greece) — 5.2h', sunHours: 5.2, postal: '00100' },
+  { value: 'Middle East', label: 'Middle East (Saudi Arabia, UAE) — 6.2h', sunHours: 6.2, postal: '11564' },
+  { value: 'South Asia', label: 'South Asia (India, Bangladesh) — 5.0h', sunHours: 5.0, postal: '110001' },
+  { value: 'East Asia', label: 'East Asia (China, Japan, Korea) — 4.2h', sunHours: 4.2, postal: '100000' },
+  { value: 'Southeast Asia', label: 'Southeast Asia (Singapore, Indonesia) — 4.8h', sunHours: 4.8, postal: '018989' },
+  { value: 'Australia and Oceania', label: 'Australia and Oceania — 5.5h', sunHours: 5.5, postal: '2000' },
+  { value: 'North America', label: 'North America (Canada, United States) — 4.8h', sunHours: 4.8, postal: '90210' },
+  { value: 'Latin America', label: 'Latin America (Brazil, Mexico) — 5.3h', sunHours: 5.3, postal: '01000' },
+  { value: 'Caribbean', label: 'Caribbean — 5.7h', sunHours: 5.7, postal: '10001' },
+];
+
 export default function Calculator({ 
+  user,
+  subscription,
   setActiveView, 
   setRecommendation,
   region,
@@ -59,6 +79,43 @@ export default function Calculator({
   // Grid Outage Simulator states
   const [isOutageActive, setIsOutageActive] = useState(false);
   const [batterySoc, setBatterySoc] = useState(100);
+  const [projectStatus, setProjectStatus] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    loadSolarProject(auth.currentUser).then((savedProject) => {
+      if (cancelled || !savedProject) return;
+      setAppliances(savedProject.appliances || initialAppliances);
+      setGridRate(savedProject.gridRate ?? 0.16);
+      setRegion(savedProject.region || 'West Africa');
+      setSunHours(savedProject.sunHours ?? 5.4);
+      setZipCode(savedProject.zipCode || '101001');
+      setProjectStatus('Saved project restored.');
+    }).catch(() => {
+      if (!cancelled) setProjectStatus('Saved project is unavailable until Firestore is enabled.');
+    });
+    return () => { cancelled = true; };
+  }, [user, setRegion, setSunHours, setZipCode]);
+
+  const handleSaveProject = async () => {
+    setProjectStatus('Saving project...');
+    try {
+      await saveSolarProject(auth.currentUser, {
+        appliances,
+        gridRate,
+        region,
+        sunHours,
+        zipCode,
+        dailyKwh: Math.round(totalDailyKwh * 100) / 100,
+        recommendedSystemSizeKw,
+        recommendedPanelCount,
+        recommendedBatteryKwh,
+      });
+      setProjectStatus('Project saved successfully.');
+    } catch (error) {
+      setProjectStatus(error.message);
+    }
+  };
 
   // Toggle appliance parameters
   const updateAppliance = (id, field, value) => {
@@ -86,9 +143,9 @@ export default function Calculator({
     setNextId(initialAppliances.length + 1);
     setIsOutageActive(false);
     setBatterySoc(100);
-    setRegion('Southwest');
-    setSunHours(5.8);
-    setZipCode('90210');
+    setRegion('West Africa');
+    setSunHours(5.4);
+    setZipCode('101001');
     setShowAddForm(false);
   };
 
@@ -221,77 +278,12 @@ export default function Calculator({
     return () => clearInterval(interval);
   }, [isOutageActive, batterySoc, simulatedOutageWatts]);
 
-  // Handle offline ZIP code parsing
-  useEffect(() => {
-    const cleanZip = zipCode.trim();
-    if (/^\d{5}$/.test(cleanZip)) {
-      const firstDigit = cleanZip.charAt(0);
-      let matchedRegion = 'Midwest';
-      let matchedHours = 4.5;
-
-      switch (firstDigit) {
-        case '0':
-        case '1':
-        case '2':
-          matchedRegion = 'Northeast';
-          matchedHours = 3.8;
-          break;
-        case '3':
-        case '7':
-          matchedRegion = 'Southeast';
-          matchedHours = 5.2;
-          break;
-        case '8':
-        case '9':
-          matchedRegion = 'Southwest';
-          matchedHours = 6.0;
-          break;
-        case '4':
-        case '5':
-        case '6':
-        default:
-          matchedRegion = 'Midwest';
-          matchedHours = 4.5;
-          break;
-      }
-
-      setRegion(matchedRegion);
-      setSunHours(matchedHours);
-    }
-  }, [zipCode]);
-
-  // Handle manual region selection dropdown changes
+  // Handle worldwide solar-zone selection.
   const handleRegionChange = (selectedRegion) => {
+    const selectedZone = globalSolarZones.find((zone) => zone.value === selectedRegion);
     setRegion(selectedRegion);
-    let matchedHours = 4.5;
-    let sampleZip = '60601';
-
-    switch (selectedRegion) {
-      case 'Southwest':
-        matchedHours = 6.0;
-        sampleZip = '90210';
-        break;
-      case 'Southeast':
-        matchedHours = 5.2;
-        sampleZip = '30301';
-        break;
-      case 'Midwest':
-        matchedHours = 4.5;
-        sampleZip = '60601';
-        break;
-      case 'Northeast':
-        matchedHours = 3.8;
-        sampleZip = '10001';
-        break;
-      case 'Pacific Northwest':
-        matchedHours = 3.2;
-        sampleZip = '98101';
-        break;
-      default:
-        matchedHours = 4.5;
-    }
-    setSunHours(matchedHours);
-    setZipCode(sampleZip); 
+    setSunHours(selectedZone?.sunHours || 4.5);
+    if (selectedZone) setZipCode(selectedZone.postal);
   };
 
   // Trigger Cost Estimator with Recommendation
@@ -356,6 +348,14 @@ export default function Calculator({
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Active Household Appliances</h3>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
+                className="btn-primary"
+                onClick={handleSaveProject}
+                style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                aria-label="Save solar project"
+              >
+                Save Project
+              </button>
+              <button
                 className="btn-outline"
                 onClick={() => setShowAddForm(prev => !prev)}
                 style={{ padding: '8px 14px', fontSize: '0.85rem' }}
@@ -368,6 +368,11 @@ export default function Calculator({
               </button>
             </div>
           </div>
+          {projectStatus && (
+            <p role="status" style={{ color: projectStatus.includes('successfully') || projectStatus.includes('restored') ? 'hsl(var(--color-gen))' : 'var(--text-muted)', fontSize: '0.8rem' }}>
+              {projectStatus}
+            </p>
+          )}
 
           {/* Add Appliance Form */}
           {showAddForm && (
@@ -564,7 +569,7 @@ export default function Calculator({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.85rem' }}>
               <div className="form-group">
                 <label className="form-label">
-                  <span>Target US Region</span>
+                  <span>Global solar zone</span>
                   <span style={{ color: 'hsl(var(--color-solar))', fontWeight: 'bold' }}>{sunHours} peak hrs</span>
                 </label>
                 <select
@@ -580,25 +585,21 @@ export default function Calculator({
                     outline: 'none'
                   }}
                 >
-                  <option value="Southwest">Southwest US (Desert/Sun — 6.0h)</option>
-                  <option value="Southeast">Southeast US (Sunny/Humid — 5.2h)</option>
-                  <option value="Midwest">Midwest US (Standard — 4.5h)</option>
-                  <option value="Northeast">Northeast US (Moderate — 3.8h)</option>
-                  <option value="Pacific Northwest">Pacific Northwest (Cloudy — 3.2h)</option>
+                  {globalSolarZones.map((zone) => <option key={zone.value} value={zone.value}>{zone.label}</option>)}
                 </select>
               </div>
 
               <div className="form-group">
                 <label className="form-label">
-                  <span>US ZIP Code Sizer</span>
-                  <span style={{ color: 'var(--text-muted)' }}>offline auto-match</span>
+                  <span>Postal code (optional)</span>
+                  <span style={{ color: 'var(--text-muted)' }}>global reference</span>
                 </label>
                 <input
                   type="text"
-                  maxLength="5"
+                  maxLength="12"
                   value={zipCode}
-                  onChange={(e) => setZipCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="e.g. 90210"
+                  onChange={(e) => setZipCode(e.target.value)}
+                  placeholder="e.g. 101001 or SW1A 1AA"
                   className="form-input"
                   style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '0.85rem' }}
                 />

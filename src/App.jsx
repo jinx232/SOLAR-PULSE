@@ -12,10 +12,12 @@ import {
   Compass,
   UserCircle,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  ShieldCheck,
+  CreditCard
 } from 'lucide-react';
 
-import { supabase } from './utils/supabase';
+import { auth, isAdminUser, onAuthStateChanged, signOut, startPresence, subscribeToUserPlan, toAppUser } from './utils/firebase';
 
 // Subcomponents
 import Dashboard from './components/Dashboard';
@@ -25,6 +27,10 @@ import Chatbot from './components/Chatbot';
 import Orientation from './components/Orientation';
 import Profile from './components/Profile';
 import Auth from './components/Auth';
+import Admin from './components/Admin';
+import Plans from './components/Plans';
+import PaymentMethods from './components/PaymentMethods';
+import Checkout from './components/Checkout';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,14 +40,17 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false);
+  const [subscription, setSubscription] = useState({ plan: 'free', status: 'inactive' });
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   
   // Shared state: passed from Calculator to Estimator
   const [calculatorRecommendation, setCalculatorRecommendation] = useState(null);
 
   // Geographic Location & Irradiance Shared States
-  const [region, setRegion] = useState('Southwest');
-  const [sunHours, setSunHours] = useState(5.8);
-  const [zipCode, setZipCode] = useState('90210');
+  const [region, setRegion] = useState('West Africa');
+  const [sunHours, setSunHours] = useState(5.4);
+  const [zipCode, setZipCode] = useState('101001');
 
   // Sync theme with HTML data-theme attribute
   useEffect(() => {
@@ -56,7 +65,11 @@ export default function App() {
       estimator: 'Cost & ROI',
       orientation: 'Orientation Tuning',
       chatbot: 'AI Chatbot',
-      profile: 'Profile'
+      profile: 'Profile',
+      admin: 'Admin',
+      plans: 'Plans'
+      ,paymentMethods: 'Payment methods'
+      ,checkout: 'Checkout'
     };
     document.title = `${viewNames[activeView] || 'Solar Pulse'} | Solar Pulse`;
   }, [activeView]);
@@ -75,27 +88,32 @@ export default function App() {
 
   useEffect(() => {
     const initAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      const session = data.session;
-      setIsAuthenticated(Boolean(session));
-      setUser(session?.user ?? null);
+      let stopPresence = () => {};
+      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        stopPresence();
+        setIsAuthenticated(Boolean(firebaseUser));
+        setUser(toAppUser(firebaseUser));
+        setActiveView(isAdminUser(firebaseUser) ? 'admin' : 'dashboard');
+        stopPresence = startPresence(firebaseUser);
+      });
+
+      return () => {
+        stopPresence();
+        unsubscribe();
+      };
     };
 
-    initAuth();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(Boolean(session));
-      setUser(session?.user ?? null);
-      if (!session) {
-        setActiveView('dashboard');
-      }
+    let unsubscribe;
+    initAuth().then((cleanup) => {
+      unsubscribe = cleanup;
     });
-
-    return () => authListener?.subscription?.unsubscribe();
+    return () => unsubscribe?.();
   }, []);
 
+  useEffect(() => subscribeToUserPlan(auth.currentUser, setSubscription), [user]);
+
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await signOut(auth);
     setUser(null);
   };
 
@@ -117,6 +135,8 @@ export default function App() {
       case 'calculator':
         return (
           <ConsumptionCalculator 
+            user={user}
+            subscription={subscription}
             setActiveView={setActiveView} 
             setRecommendation={setCalculatorRecommendation} 
             region={region}
@@ -146,17 +166,24 @@ export default function App() {
         return <Chatbot />;
       case 'profile':
         return <Profile user={user} setUser={setUser} />;
+      case 'admin':
+        return isAdminUser(user) ? <Admin user={user} /> : <Dashboard user={user} />;
+      case 'plans':
+        return <Plans user={user} subscription={subscription} onSelectPlan={(plan) => { setSelectedPlan(plan); setActiveView('paymentMethods'); }} />;
+      case 'paymentMethods':
+        return <PaymentMethods plan={selectedPlan} onBack={() => setActiveView('plans')} onContinue={(method) => { setSelectedPaymentMethod(method); setActiveView('checkout'); }} />;
+      case 'checkout':
+        return <Checkout plan={selectedPlan} method={selectedPaymentMethod} user={user} onBack={() => setActiveView('paymentMethods')} onComplete={() => setActiveView('plans')} />;
       default:
         return <Dashboard />;
     }
   };
 
   const handleAuthenticated = async () => {
-    const { data } = await supabase.auth.getSession();
-    const session = data.session;
-    setIsAuthenticated(Boolean(session));
-    setUser(session?.user ?? null);
-    setActiveView('dashboard');
+    const firebaseUser = auth.currentUser;
+    setIsAuthenticated(Boolean(firebaseUser));
+    setUser(toAppUser(firebaseUser));
+    setActiveView(isAdminUser(firebaseUser) ? 'admin' : 'dashboard');
   };
 
   const profileInitial = user?.user_metadata?.full_name
@@ -164,25 +191,7 @@ export default function App() {
     : user?.email?.charAt(0).toUpperCase() || 'S';
 
   const avatarUrl = user?.user_metadata?.avatar_url;
-
-  const isSupabaseConfigured = Boolean(
-    import.meta.env.VITE_SUPABASE_URL &&
-    (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)
-  );
-
-  if (!isSupabaseConfigured) {
-    return (
-      <div className="app-error-screen">
-        <div className="app-error-card">
-          <h1>Configuration Required</h1>
-          <p>
-            The application cannot connect because Supabase environment variables are missing.
-            Please add <code>VITE_SUPABASE_URL</code> and either <code>VITE_SUPABASE_ANON_KEY</code> or <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> in a <code>.env</code> file.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const isAdmin = isAdminUser(user);
 
   if (!isAuthenticated) {
     return (
@@ -196,6 +205,8 @@ export default function App() {
 
   // Nav items details
   const navItems = [
+    ...(isAdmin ? [{ id: 'admin', name: 'Admin', icon: <ShieldCheck size={20} /> }] : []),
+    { id: 'plans', name: 'Plans', icon: <CreditCard size={20} /> },
     { id: 'dashboard', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },    { id: 'calculator', name: 'Consumption', icon: <Calculator size={20} /> },
     { id: 'estimator', name: 'Cost & ROI', icon: <DollarSign size={20} /> },
     { id: 'orientation', name: 'Orientation Tuning', icon: <Compass size={20} /> },

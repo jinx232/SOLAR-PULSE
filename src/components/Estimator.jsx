@@ -145,7 +145,7 @@ export default function Estimator({
             fontWeight: 'bold',
             marginTop: '8px'
           }}>
-            <span>📍 Active Location: {region} US (ZIP {zipCode}) — Sun Exposure: {sunHours} peak hrs/day</span>
+            <span>📍 Active Location: {region} (Postal code {zipCode}) — Sun Exposure: {sunHours} peak hrs/day</span>
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
@@ -170,7 +170,7 @@ export default function Estimator({
             onClick={() => {
               const summary = [
                 `☀️ Solar Pulse — ROI Summary`,
-                `Location: ${region} US (ZIP ${zipCode}) | ${sunHours} peak hrs/day`,
+                `Location: ${region} (Postal code ${zipCode}) | ${sunHours} peak hrs/day`,
                 ``,
                 `📌 System Size: ${recommendedSystemSizeKw} kW (${recommendedPanelCount} x 400W panels)`,
                 `💰 Gross Cost: $${Math.round(grossCost).toLocaleString()}`,

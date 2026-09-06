@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { Sun, Leaf } from 'lucide-react';
-import { supabase } from '../utils/supabase';
+import {
+  auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from '../utils/firebase';
 
 export default function Auth({ authView, setAuthView, onAuthenticate }) {
   const [name, setName] = useState('');
@@ -21,41 +26,23 @@ export default function Auth({ authView, setAuthView, onAuthenticate }) {
 
     setLoading(true);
 
-    if (authView === 'signin') {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        setStatusMessage(error.message);
-      } else {
+    try {
+      if (authView === 'signin') {
+        await signInWithEmailAndPassword(auth, email, password);
         setStatusMessage('Signed in successfully. Redirecting...');
         onAuthenticate();
-      }
-    } else {
-      const { data, error } = await supabase.auth.signUp(
-        {
-          email,
-          password,
-        },
-        {
-          data: { full_name: name },
-        }
-      );
-
-      if (error) {
-        setStatusMessage(error.message);
-      } else if (data?.session) {
+      } else {
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(credential.user, { displayName: name.trim() });
         setStatusMessage('Account created and signed in successfully. Redirecting...');
         onAuthenticate();
-      } else {
-        setStatusMessage('Account created. Please confirm your email before signing in.');
-        setAuthView('signin');
       }
-    }
 
-    setLoading(false);
+      setLoading(false);
+    } catch (error) {
+      setStatusMessage(error.message);
+      setLoading(false);
+    }
   };
 
   return (
