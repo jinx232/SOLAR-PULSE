@@ -23,7 +23,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const ADMIN_EMAIL = 'odumesamuel52@gmail.com';
+export const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'odumesamuel52@gmail.com').toLowerCase();
 export const storage = getStorage(app);
 export const db = getFirestore(app);
 
