@@ -8,8 +8,10 @@ import {
   ShieldCheck,
   Award,
   Copy,
-  Check
+  Check,
+  Globe
 } from 'lucide-react';
+import { globalSolarZones, normalizeSolarZone } from './Calculator';
 
 export default function Estimator({ 
   recommendation, 
@@ -139,13 +141,49 @@ export default function Estimator({
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: '8px', 
+            flexWrap: 'wrap',
+            gap: '12px', 
             fontSize: '0.85rem', 
             color: 'hsl(var(--color-solar))',
             fontWeight: 'bold',
             marginTop: '8px'
           }}>
-            <span>📍 Active Location: {region} (Postal code {zipCode}) — Sun Exposure: {sunHours} peak hrs/day</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Globe size={16} /> Global Solar Zone:
+            </span>
+            <select
+              value={region}
+              onChange={(e) => {
+                const zone = globalSolarZones.find((z) => z.value === e.target.value) || normalizeSolarZone(e.target.value);
+                setRegion(zone.value);
+                setSunHours(zone.sunHours);
+                if (zone.postal) setZipCode(zone.postal);
+              }}
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                fontSize: '0.85rem',
+                fontWeight: 600
+              }}
+            >
+              {Array.from(new Set(globalSolarZones.map((z) => z.continent))).map((continent) => (
+                <optgroup key={continent} label={continent}>
+                  {globalSolarZones
+                    .filter((zone) => zone.continent === continent)
+                    .map((zone) => (
+                      <option key={zone.value} value={zone.value}>
+                        {zone.label}
+                      </option>
+                    ))}
+                </optgroup>
+              ))}
+            </select>
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 'normal', fontSize: '0.8rem' }}>
+              ({sunHours} peak hrs/day • Postal code {zipCode})
+            </span>
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
@@ -174,7 +212,7 @@ export default function Estimator({
                 ``,
                 `📌 System Size: ${recommendedSystemSizeKw} kW (${recommendedPanelCount} x 400W panels)`,
                 `💰 Gross Cost: $${Math.round(grossCost).toLocaleString()}`,
-                `✅ Federal ITC (30%): -$${Math.round(federalItcDiscount).toLocaleString()}`,
+                `✅ Clean Energy Incentive / Tax Credit (30%): -$${Math.round(federalItcDiscount).toLocaleString()}`,
                 `💳 Net Capital Outlay: $${Math.round(netSystemCost).toLocaleString()}`,
                 ``,
                 `📅 Year 1 Savings: $${Math.round(annualSavingsYear1).toLocaleString()}/yr`,
@@ -497,7 +535,7 @@ export default function Estimator({
             
             <div style={{ display: 'flex', justifyContent: 'space-between', color: 'hsl(var(--color-gen))', fontWeight: 600 }}>
               <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                Federal ITC Discount (30%) <Percent size={12} />
+                Clean Energy Incentive / Credit (30%) <Percent size={12} />
               </span>
               <span>-${Math.round(federalItcDiscount).toLocaleString()}</span>
             </div>

@@ -40,22 +40,74 @@ const initialAppliances = [
   { id: 10, name: 'Clothes Dryer', category: 'Laundry', watts: 3000, hours: 0.5, qty: 1, icon: 'laundry', isCritical: false },
 ];
 
-const globalSolarZones = [
-  { value: 'West Africa', label: 'West Africa (Nigeria, Ghana) — 5.4h', sunHours: 5.4, postal: '101001' },
-  { value: 'East Africa', label: 'East Africa (Kenya, Tanzania) — 5.8h', sunHours: 5.8, postal: '00100' },
-  { value: 'Southern Africa', label: 'Southern Africa (South Africa) — 5.6h', sunHours: 5.6, postal: '0001' },
-  { value: 'North Africa', label: 'North Africa (Egypt, Morocco) — 6.0h', sunHours: 6.0, postal: '10000' },
-  { value: 'Europe', label: 'Europe (Central and Western) — 3.8h', sunHours: 3.8, postal: '10115' },
-  { value: 'Southern Europe', label: 'Southern Europe (Spain, Italy, Greece) — 5.2h', sunHours: 5.2, postal: '00100' },
-  { value: 'Middle East', label: 'Middle East (Saudi Arabia, UAE) — 6.2h', sunHours: 6.2, postal: '11564' },
-  { value: 'South Asia', label: 'South Asia (India, Bangladesh) — 5.0h', sunHours: 5.0, postal: '110001' },
-  { value: 'East Asia', label: 'East Asia (China, Japan, Korea) — 4.2h', sunHours: 4.2, postal: '100000' },
-  { value: 'Southeast Asia', label: 'Southeast Asia (Singapore, Indonesia) — 4.8h', sunHours: 4.8, postal: '018989' },
-  { value: 'Australia and Oceania', label: 'Australia and Oceania — 5.5h', sunHours: 5.5, postal: '2000' },
-  { value: 'North America', label: 'North America (Canada, United States) — 4.8h', sunHours: 4.8, postal: '90210' },
-  { value: 'Latin America', label: 'Latin America (Brazil, Mexico) — 5.3h', sunHours: 5.3, postal: '01000' },
-  { value: 'Caribbean', label: 'Caribbean — 5.7h', sunHours: 5.7, postal: '10001' },
+export const globalSolarZones = [
+  // Africa
+  { continent: 'Africa', value: 'West Africa', label: 'West Africa (Nigeria, Ghana, Senegal, Côte d\'Ivoire) — 5.4h', sunHours: 5.4, postal: '101001' },
+  { continent: 'Africa', value: 'East Africa', label: 'East Africa (Kenya, Tanzania, Ethiopia, Uganda) — 5.8h', sunHours: 5.8, postal: '00100' },
+  { continent: 'Africa', value: 'Southern Africa', label: 'Southern Africa (South Africa, Namibia, Botswana) — 5.6h', sunHours: 5.6, postal: '0001' },
+  { continent: 'Africa', value: 'North Africa', label: 'North Africa (Egypt, Morocco, Algeria, Tunisia) — 6.0h', sunHours: 6.0, postal: '10000' },
+  { continent: 'Africa', value: 'Central Africa', label: 'Central Africa (DR Congo, Cameroon, Gabon) — 4.8h', sunHours: 4.8, postal: 'B.P. 100' },
+
+  // Europe
+  { continent: 'Europe', value: 'Southern Europe', label: 'Southern Europe & Med (Spain, Italy, Greece, Portugal) — 5.2h', sunHours: 5.2, postal: '28001' },
+  { continent: 'Europe', value: 'Western Europe', label: 'Western Europe (UK, France, Germany, Netherlands, Belgium) — 3.8h', sunHours: 3.8, postal: 'SW1A 1AA' },
+  { continent: 'Europe', value: 'Northern Europe', label: 'Northern Europe (Sweden, Norway, Denmark, Finland) — 3.2h', sunHours: 3.2, postal: '11122' },
+  { continent: 'Europe', value: 'Central & Eastern Europe', label: 'Central & Eastern Europe (Poland, Czechia, Austria, Romania) — 4.0h', sunHours: 4.0, postal: '00-001' },
+
+  // Americas
+  { continent: 'Americas', value: 'North America - Sun Belt', label: 'North America — US Sun Belt & Desert (CA, AZ, TX, NV, FL) — 5.8h', sunHours: 5.8, postal: '90210' },
+  { continent: 'Americas', value: 'North America - Central & East', label: 'North America — US Midwest & Northeast (NY, IL, PA, OH) — 4.3h', sunHours: 4.3, postal: '10001' },
+  { continent: 'Americas', value: 'North America - Northwest & Canada', label: 'North America — Pacific Northwest & Canada (WA, OR, BC, ON) — 3.6h', sunHours: 3.6, postal: 'V6B 1A1' },
+  { continent: 'Americas', value: 'Central America & Mexico', label: 'Central America & Mexico (Mexico City, Costa Rica, Panama) — 5.5h', sunHours: 5.5, postal: '06000' },
+  { continent: 'Americas', value: 'Caribbean', label: 'Caribbean Islands (Jamaica, Dominican Rep, Puerto Rico, Bahamas) — 5.7h', sunHours: 5.7, postal: '10001' },
+  { continent: 'Americas', value: 'South America - Tropical & Brazil', label: 'South America — Brazil & Tropical (São Paulo, Rio, Salvador) — 5.3h', sunHours: 5.3, postal: '01000' },
+  { continent: 'Americas', value: 'South America - Andes & Southern Cone', label: 'South America — Andes & South (Chile, Argentina, Colombia, Peru) — 5.6h', sunHours: 5.6, postal: '8320000' },
+
+  // Middle East
+  { continent: 'Middle East', value: 'Middle East - Arabian Gulf', label: 'Middle East — Arabian Gulf (Saudi Arabia, UAE, Qatar, Kuwait) — 6.2h', sunHours: 6.2, postal: '11564' },
+  { continent: 'Middle East', value: 'Middle East - Levant', label: 'Middle East — Levant (Jordan, Lebanon, Israel, Iraq) — 5.8h', sunHours: 5.8, postal: '11118' },
+
+  // Asia
+  { continent: 'Asia', value: 'South Asia', label: 'South Asia (India, Pakistan, Bangladesh, Sri Lanka) — 5.2h', sunHours: 5.2, postal: '110001' },
+  { continent: 'Asia', value: 'Southeast Asia', label: 'Southeast Asia (Singapore, Indonesia, Philippines, Thailand, Vietnam) — 4.8h', sunHours: 4.8, postal: '018989' },
+  { continent: 'Asia', value: 'East Asia', label: 'East Asia (China, Japan, South Korea, Taiwan) — 4.3h', sunHours: 4.3, postal: '100000' },
+  { continent: 'Asia', value: 'Central Asia', label: 'Central Asia (Kazakhstan, Uzbekistan, Kyrgyzstan) — 4.6h', sunHours: 4.6, postal: '010000' },
+
+  // Oceania & Pacific
+  { continent: 'Oceania & Pacific', value: 'Australia - Sun Belt & Outback', label: 'Australia — Sun Belt & Outback (QLD, WA, NSW) — 5.8h', sunHours: 5.8, postal: '2000' },
+  { continent: 'Oceania & Pacific', value: 'Australia - Southern & Victoria', label: 'Australia — Southern & Victoria (Melbourne, Adelaide, TAS) — 4.4h', sunHours: 4.4, postal: '3000' },
+  { continent: 'Oceania & Pacific', value: 'New Zealand & Pacific Islands', label: 'New Zealand & Pacific Islands (Auckland, Fiji, Samoa) — 4.6h', sunHours: 4.6, postal: '1010' },
 ];
+
+export const normalizeSolarZone = (regionValue) => {
+  if (!regionValue) return globalSolarZones[0];
+  const directMatch = globalSolarZones.find((z) => z.value.toLowerCase() === regionValue.toLowerCase());
+  if (directMatch) return directMatch;
+
+  const lower = regionValue.toLowerCase();
+  if (lower.includes('southwest') || lower.includes('sun belt')) {
+    return globalSolarZones.find((z) => z.value === 'North America - Sun Belt');
+  }
+  if (lower.includes('southeast')) {
+    return globalSolarZones.find((z) => z.value === 'North America - Sun Belt');
+  }
+  if (lower.includes('midwest') || lower.includes('northeast') || lower.includes('east')) {
+    return globalSolarZones.find((z) => z.value === 'North America - Central & East');
+  }
+  if (lower.includes('pacific') || lower.includes('northwest') || lower.includes('canada')) {
+    return globalSolarZones.find((z) => z.value === 'North America - Northwest & Canada');
+  }
+  if (lower === 'north america' || lower.includes('united states') || lower === 'us') {
+    return globalSolarZones.find((z) => z.value === 'North America - Sun Belt');
+  }
+  if (lower === 'europe') {
+    return globalSolarZones.find((z) => z.value === 'Western Europe');
+  }
+  const labelMatch = globalSolarZones.find((z) => z.label.toLowerCase().includes(lower) || z.value.toLowerCase().includes(lower));
+  if (labelMatch) return labelMatch;
+
+  return globalSolarZones[0];
+};
 
 export default function Calculator({ 
   user,
@@ -87,10 +139,11 @@ export default function Calculator({
       if (cancelled || !savedProject) return;
       setAppliances(savedProject.appliances || initialAppliances);
       setGridRate(savedProject.gridRate ?? 0.16);
-      setRegion(savedProject.region || 'West Africa');
-      setSunHours(savedProject.sunHours ?? 5.4);
-      setZipCode(savedProject.zipCode || '101001');
-      setProjectStatus('Saved project restored.');
+      const matchedZone = normalizeSolarZone(savedProject.region);
+      setRegion(matchedZone.value);
+      setSunHours(savedProject.sunHours ?? matchedZone.sunHours);
+      setZipCode(savedProject.zipCode || matchedZone.postal);
+      setProjectStatus('Saved project restored from Firebase.');
     }).catch(() => {
       if (!cancelled) setProjectStatus('Saved project is unavailable until Firestore is enabled.');
     });
@@ -98,7 +151,7 @@ export default function Calculator({
   }, [user, setRegion, setSunHours, setZipCode]);
 
   const handleSaveProject = async () => {
-    setProjectStatus('Saving project...');
+    setProjectStatus('Saving project to Firebase...');
     try {
       await saveSolarProject(auth.currentUser, {
         appliances,
@@ -111,7 +164,7 @@ export default function Calculator({
         recommendedPanelCount,
         recommendedBatteryKwh,
       });
-      setProjectStatus('Project saved successfully.');
+      setProjectStatus('Project saved successfully in Firebase.');
     } catch (error) {
       setProjectStatus(error.message);
     }
@@ -278,12 +331,28 @@ export default function Calculator({
     return () => clearInterval(interval);
   }, [isOutageActive, batterySoc, simulatedOutageWatts]);
 
-  // Handle worldwide solar-zone selection.
+  // Handle worldwide solar-zone selection and auto-sync with Firebase
   const handleRegionChange = (selectedRegion) => {
-    const selectedZone = globalSolarZones.find((zone) => zone.value === selectedRegion);
-    setRegion(selectedRegion);
-    setSunHours(selectedZone?.sunHours || 4.5);
-    if (selectedZone) setZipCode(selectedZone.postal);
+    const selectedZone = globalSolarZones.find((zone) => zone.value === selectedRegion) || normalizeSolarZone(selectedRegion);
+    setRegion(selectedZone.value);
+    setSunHours(selectedZone.sunHours);
+    if (selectedZone.postal) setZipCode(selectedZone.postal);
+
+    if (auth.currentUser) {
+      saveSolarProject(auth.currentUser, {
+        appliances,
+        gridRate,
+        region: selectedZone.value,
+        sunHours: selectedZone.sunHours,
+        zipCode: selectedZone.postal,
+        dailyKwh: Math.round(totalDailyKwh * 100) / 100,
+        recommendedSystemSizeKw,
+        recommendedPanelCount,
+        recommendedBatteryKwh,
+      }).then(() => {
+        setProjectStatus(`Zone updated to ${selectedZone.value} & saved in Firebase.`);
+      }).catch(() => {});
+    }
   };
 
   // Trigger Cost Estimator with Recommendation
@@ -585,7 +654,17 @@ export default function Calculator({
                     outline: 'none'
                   }}
                 >
-                  {globalSolarZones.map((zone) => <option key={zone.value} value={zone.value}>{zone.label}</option>)}
+                  {Array.from(new Set(globalSolarZones.map((z) => z.continent))).map((continent) => (
+                    <optgroup key={continent} label={continent} style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontWeight: 'bold' }}>
+                      {globalSolarZones
+                        .filter((zone) => zone.continent === continent)
+                        .map((zone) => (
+                          <option key={zone.value} value={zone.value} style={{ fontWeight: 'normal' }}>
+                            {zone.label}
+                          </option>
+                        ))}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
 
