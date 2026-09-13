@@ -288,15 +288,15 @@ export default function Profile({ user, setUser }) {
 
         <div className="profile-row">
           <Mail size={18} />
-          <div>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <span>Email</span>
-            <p>{email}</p>
+            <p style={{ wordBreak: 'break-word' }}>{email}</p>
           </div>
         </div>
 
         <div className="profile-row">
           <Clock3 size={18} />
-          <div>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <span>Member since</span>
             <p>{createdAt}</p>
           </div>
@@ -304,9 +304,9 @@ export default function Profile({ user, setUser }) {
 
         <div className="profile-row">
           <Hash size={18} />
-          <div>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <span>User ID</span>
-            <p>{userId}</p>
+            <p style={{ wordBreak: 'break-all', fontSize: '0.85rem' }}>{userId}</p>
           </div>
         </div>
       </div>

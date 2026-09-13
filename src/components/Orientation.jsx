@@ -117,7 +117,7 @@ export default function Orientation() {
         <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Solar Cell Classifications</h3>
         
         {/* Chips row to toggle */}
-        <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--border-color)', pb: '12px', paddingBottom: '12px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
           {panelTypes.map(panel => (
             <button
               key={panel.name}
@@ -127,9 +127,10 @@ export default function Orientation() {
                 borderColor: activePanelType === panel.name ? 'hsl(var(--color-solar))' : 'var(--border-color)',
                 color: activePanelType === panel.name ? 'white' : 'var(--text-primary)',
                 backgroundColor: activePanelType === panel.name ? 'hsl(var(--color-solar))' : 'transparent',
-                padding: '8px 20px',
-                fontSize: '0.9rem',
-                borderRadius: '99px'
+                padding: '8px 16px',
+                fontSize: '0.85rem',
+                borderRadius: '99px',
+                minHeight: '38px'
               }}
             >
               {panel.name} {panel.recommended && '⭐'}

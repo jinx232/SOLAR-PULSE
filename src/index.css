@@ -141,6 +141,14 @@
   scrollbar-color: var(--border-color) transparent;
 }
 
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
@@ -149,6 +157,12 @@ body {
   -webkit-font-smoothing: antialiased;
   transition: background-color var(--transition-normal), color var(--transition-normal);
   overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+button, a, input, select, textarea {
+  touch-action: manipulation;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -232,8 +246,11 @@ button, input, select, textarea {
 .app-container {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Sidebar Styling */
@@ -244,6 +261,7 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   position: fixed;
   left: 0;
   top: 0;
@@ -282,6 +300,8 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .nav-item {
@@ -296,6 +316,7 @@ button, input, select, textarea {
   cursor: pointer;
   transition: all var(--transition-fast);
   border: 1px solid transparent;
+  min-height: 44px;
 }
 
 .nav-item:hover {
@@ -319,9 +340,13 @@ button, input, select, textarea {
   flex: 1;
   margin-left: 260px;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   transition: margin var(--transition-normal);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Topbar Header */
@@ -595,9 +620,10 @@ button, input, select, textarea {
 .modal-card {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  padding: 18px 20px;
-  border-radius: 12px;
-  width: 420px;
+  padding: 20px;
+  border-radius: 14px;
+  width: min(420px, calc(100vw - 32px));
+  margin: 16px;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
 }
@@ -998,30 +1024,114 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 @media (max-width: 768px) {
+  /* Prevent iOS Safari auto-zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
   .sidebar {
     transform: translateX(-100%);
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.6);
   }
   .sidebar.open {
     transform: translateX(0);
   }
   .main-wrapper {
     margin-left: 0;
+    width: 100%;
+    max-width: 100%;
   }
   .mobile-menu-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
   }
   .content-container {
-    padding: 16px;
-    gap: 16px;
+    padding: 16px 14px;
+    gap: 20px;
+  }
+  .premium-card {
+    padding: 18px 16px;
+    border-radius: 14px;
   }
   .grid-cols-4, .grid-cols-3, .grid-cols-2 {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   .grid-span-2 {
     grid-column: span 1;
   }
   .topbar {
+    height: 64px;
     padding: 0 16px;
+  }
+  .topbar-title {
+    font-size: 1.15rem;
+    max-width: calc(100vw - 155px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .topbar-actions {
+    gap: 10px;
+  }
+  .profile-hero {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+    align-items: center;
+  }
+  .profile-actions {
+    margin-left: 0;
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-container {
+    padding: 12px 10px;
+    gap: 16px;
+  }
+  .premium-card {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+  .topbar {
+    height: 58px;
+    padding: 0 12px;
+  }
+  .topbar-title {
+    font-size: 1.05rem;
+    max-width: calc(100vw - 145px);
+  }
+  .app-footer {
+    padding: 18px 12px;
+    font-size: 0.78rem;
+  }
+  .auth-page {
+    padding: 14px;
+  }
+  .auth-artboard {
+    width: 110px;
+    height: 110px;
+  }
+  .auth-icon-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+  }
+  .auth-card {
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+  .auth-card h1 {
+    font-size: 1.55rem;
   }
 }
 
@@ -1269,15 +1379,27 @@ select option {
   color: var(--text-primary);
 }
 
-/* Mobile overlay backdrop to close menu */
+/* Dedicated mobile backdrop overlay with smooth fade */
+.sidebar-backdrop {
+  display: none;
+}
+
 @media (max-width: 768px) {
-  .sidebar.open::after {
-    content: '';
+  .sidebar-backdrop {
+    display: block;
     position: fixed;
     inset: 0;
-    left: 260px;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 99;
+    background: rgba(2, 6, 23, 0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 95;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-normal);
+  }
+  .sidebar-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 

@@ -86,6 +86,18 @@ export default function App() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Prevent background scrolling when mobile menu drawer is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   useEffect(() => {
     const initAuth = async () => {
       let stopPresence = () => {};
@@ -248,6 +260,13 @@ export default function App() {
         </div>
       </aside>
 
+      {/* Tap-to-Close Backdrop for Mobile Drawer */}
+      <div 
+        className={`sidebar-backdrop ${mobileMenuOpen ? 'visible' : ''}`} 
+        onClick={() => setMobileMenuOpen(false)} 
+        aria-hidden="true" 
+      />
+
       {/* Main Content Wrapper */}
       <div className="main-wrapper">
         
@@ -257,8 +276,10 @@ export default function App() {
             <button 
               className="mobile-menu-btn" 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close navigation drawer' : 'Open navigation menu'}
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
             <h1 className="topbar-title">
               {navItems.find(item => item.id === activeView)?.name}

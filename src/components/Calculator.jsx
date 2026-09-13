@@ -391,16 +391,18 @@ export default function Calculator({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '16px 24px',
+          flexWrap: 'wrap',
+          gap: '12px',
+          padding: '14px 18px',
           backgroundColor: 'rgba(239, 68, 68, 0.08)',
           border: '1px solid rgba(239, 68, 68, 0.25)',
           borderRadius: '12px',
-          fontSize: '0.95rem',
+          fontSize: '0.92rem',
           color: '#f43f5e',
           animation: 'pulseGlow 2s infinite'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Activity size={18} className="logo-icon" style={{ color: '#f43f5e' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 280px' }}>
+            <Activity size={18} className="logo-icon" style={{ color: '#f43f5e', flexShrink: 0 }} />
             <span><strong>GRID BLACKOUT ACTIVE</strong>: Main power utility offline. The home is now running on backup battery reserves!</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f43f5e', fontWeight: 'bold' }}>
@@ -413,9 +415,9 @@ export default function Calculator({
         
         {/* Sliders Input Workstation */}
         <div className="premium-card grid-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Active Household Appliances</h3>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button
                 className="btn-primary"
                 onClick={handleSaveProject}
@@ -462,9 +464,9 @@ export default function Calculator({
                   value={newAppName}
                   onChange={(e) => setNewAppName(e.target.value)}
                   className="form-input"
-                  style={{ flex: 2, minWidth: '150px', padding: '8px 12px', fontSize: '0.85rem' }}
+                  style={{ flex: '2 1 200px', minWidth: '140px', padding: '10px 12px', fontSize: '0.9rem' }}
                 />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1, minWidth: '120px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1 1 120px', minWidth: '100px' }}>
                   <input
                     type="number"
                     placeholder="Watts"
@@ -473,7 +475,7 @@ export default function Calculator({
                     max={10000}
                     onChange={(e) => setNewAppWatts(parseInt(e.target.value) || 0)}
                     className="form-input"
-                    style={{ width: '100%', padding: '8px 12px', fontSize: '0.85rem' }}
+                    style={{ width: '100%', padding: '10px 12px', fontSize: '0.9rem' }}
                   />
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>W</span>
                 </div>
@@ -481,7 +483,7 @@ export default function Calculator({
                   className="btn-primary"
                   onClick={handleAddAppliance}
                   disabled={!newAppName.trim() || newAppWatts <= 0}
-                  style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                  style={{ padding: '10px 18px', fontSize: '0.85rem', flex: '0 0 auto' }}
                 >
                   <Plus size={14} /> Add
                 </button>
@@ -490,7 +492,7 @@ export default function Calculator({
           )}
 
           {/* Table list of appliances */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxHeight: '600px', overflowY: 'auto', paddingRight: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '600px', overflowY: 'auto', paddingRight: '4px' }}>
             {appliances.map(app => {
               const currentKwh = Math.round(calculateKwh(app) * 100) / 100;
               return (
@@ -506,8 +508,8 @@ export default function Calculator({
                   position: 'relative',
                   transition: 'all var(--transition-fast)'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                       <span style={{
                         display: 'inline-block',
                         width: '8px',
@@ -522,7 +524,7 @@ export default function Calculator({
                     </div>
                     
                     {/* Critical Load Shield Toggle Button */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: 'auto' }}>
                       <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                         {currentKwh} <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>kWh/day</span>
                       </span>
@@ -538,9 +540,11 @@ export default function Calculator({
                           alignItems: 'center',
                           justifyContent: 'center',
                           color: app.isCritical ? 'hsl(var(--color-gen))' : 'var(--text-muted)',
-                          padding: '4px',
-                          borderRadius: '6px',
-                          backgroundColor: app.isCritical ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+                          padding: '8px',
+                          minWidth: '36px',
+                          minHeight: '36px',
+                          borderRadius: '8px',
+                          backgroundColor: app.isCritical ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
                           transition: 'all var(--transition-fast)'
                         }}
                       >
@@ -556,16 +560,19 @@ export default function Calculator({
                           border: 'none',
                           cursor: 'pointer',
                           color: 'var(--text-muted)',
-                          padding: '4px',
-                          borderRadius: '6px',
+                          padding: '8px',
+                          minWidth: '36px',
+                          minHeight: '36px',
+                          borderRadius: '8px',
                           display: 'flex',
                           alignItems: 'center',
+                          justifyContent: 'center',
                           transition: 'all var(--transition-fast)'
                         }}
                         onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
                         onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </div>
@@ -920,11 +927,11 @@ export default function Calculator({
                 )}
 
                 {/* Control Action Buttons */}
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <button 
                     className="btn-outline" 
                     onClick={() => setBatterySoc(100)}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                    style={{ flex: '1 1 130px', minHeight: '40px', padding: '10px 14px', fontSize: '0.85rem' }}
                   >
                     Recharge Battery
                   </button>
@@ -932,9 +939,10 @@ export default function Calculator({
                     className="btn-outline" 
                     onClick={() => setIsOutageActive(false)}
                     style={{ 
-                      flex: 1, 
-                      padding: '8px 12px', 
-                      fontSize: '0.8rem',
+                      flex: '1 1 130px',
+                      minHeight: '40px',
+                      padding: '10px 14px', 
+                      fontSize: '0.85rem',
                       borderColor: '#f43f5e',
                       color: '#f43f5e'
                     }}

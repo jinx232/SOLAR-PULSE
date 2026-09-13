@@ -74,10 +74,10 @@ export default function Plans({ user, subscription, onSelectPlan }) {
               ))}
             </div>
             {plan.name === 'Free' || plan.name.toLowerCase() === currentPlan ? (
-              <button className="btn-outline" disabled style={{ width: '100%', marginTop: 'auto' }}>Current plan</button>
+              <button className="btn-outline" disabled style={{ width: '100%', minHeight: '44px', marginTop: 'auto' }}>Current plan</button>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
-                <button className={plan.featured ? 'btn-primary' : 'btn-outline'} onClick={() => onSelectPlan(plan)} style={{ width: '100%' }}>Pay</button>
+                <button className={plan.featured ? 'btn-primary' : 'btn-outline'} onClick={() => onSelectPlan(plan)} style={{ width: '100%', minHeight: '44px' }}>Pay</button>
               </div>
             )}
           </article>

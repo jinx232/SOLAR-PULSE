@@ -294,7 +294,8 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
     <div className="animate-slide-up" style={{ 
       display: 'flex', 
       flexDirection: 'column', 
-      height: 'calc(100vh - 130px)',
+      height: 'calc(100dvh - 120px)',
+      minHeight: '460px',
       position: 'relative'
     }}>
       
@@ -512,12 +513,13 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
           <div style={{
             position: 'absolute',
             top: 0, right: 0, bottom: 0,
-            width: '320px',
+            width: 'min(320px, 100%)',
+            maxWidth: '100%',
             backgroundColor: 'var(--bg-secondary)',
             borderLeft: '1px solid var(--border-color)',
             boxShadow: 'var(--shadow-lg)',
             zIndex: 30,
-            padding: '24px',
+            padding: '20px',
             display: 'flex',
             flexDirection: 'column',
             gap: '20px',
@@ -525,7 +527,7 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Advisor Engine Config</h3>
-              <button onClick={() => setShowSettings(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <button onClick={() => setShowSettings(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }} aria-label="Close settings">
                 <X size={20} />
               </button>
             </div>

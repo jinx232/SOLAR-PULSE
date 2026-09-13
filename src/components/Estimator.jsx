@@ -134,7 +134,7 @@ export default function Estimator({
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       
       {/* Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Financial Cost & ROI Projections</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Simulate system pricing, apply government incentives, and plot your 25-year solar wealth and payback path.</p>
@@ -160,8 +160,8 @@ export default function Estimator({
                 if (zone.postal) setZipCode(zone.postal);
               }}
               style={{
-                padding: '4px 10px',
-                borderRadius: '6px',
+                padding: '6px 12px',
+                borderRadius: '8px',
                 border: '1px solid var(--border-color)',
                 backgroundColor: 'var(--bg-primary)',
                 color: 'var(--text-primary)',
@@ -186,7 +186,7 @@ export default function Estimator({
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
           {recommendation && (
             <button 
               className="btn-outline" 
@@ -196,7 +196,8 @@ export default function Estimator({
                 borderColor: '#10b981', 
                 color: '#059669', 
                 fontSize: '0.8rem',
-                padding: '6px 12px'
+                padding: '8px 14px',
+                minHeight: '38px'
               }}
             >
               ✓ Linked with Calculator Data
@@ -226,7 +227,7 @@ export default function Estimator({
                 setTimeout(() => setCopied(false), 2500);
               });
             }}
-            style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+            style={{ fontSize: '0.85rem', padding: '8px 14px', minHeight: '38px' }}
             aria-label="Copy ROI summary to clipboard"
           >
             {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -470,7 +471,7 @@ export default function Estimator({
               <div style={{
                 position: 'absolute',
                 top: '20px',
-                left: `${20 + selectedYearPoint.index * 13}%`,
+                left: `${Math.min(75, Math.max(25, 20 + selectedYearPoint.index * 13))}%`,
                 transform: 'translateX(-50%)',
                 backgroundColor: 'var(--bg-secondary)',
                 border: '1px solid var(--border-color)',
@@ -479,7 +480,8 @@ export default function Estimator({
                 boxShadow: 'var(--shadow-md)',
                 zIndex: 10,
                 fontSize: '0.8rem',
-                minWidth: '170px',
+                minWidth: '160px',
+                maxWidth: 'calc(100vw - 64px)',
                 pointerEvents: 'none',
                 display: 'flex',
                 flexDirection: 'column',
