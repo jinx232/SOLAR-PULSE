@@ -10,10 +10,13 @@ import {
   Activity, 
   AlertCircle,
   User,
-  Mail
+  Mail,
+  Download,
+  MessageSquare,
+  ExternalLink
 } from 'lucide-react';
 
-export default function Dashboard({ user }) {
+export default function Dashboard({ user, onNavigate, onComplaint }) {
   // Live Simulation States
   const [time, setTime] = useState(new Date());
   const [solarGen, setSolarGen] = useState(4.28); // in kW
@@ -121,61 +124,75 @@ export default function Dashboard({ user }) {
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       
       {/* Profile Summary Card */}
-      <div className="premium-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-          <div style={{
-            width: '72px',
-            height: '72px',
-            borderRadius: '22px',
-            display: 'grid',
-            placeItems: 'center',
-            background: 'linear-gradient(135deg, hsl(var(--color-solar)) 0%, hsl(var(--color-gen)) 100%)',
-            color: '#fff',
-            fontSize: '1.8rem',
-            fontWeight: 800,
-            boxShadow: '0 18px 40px -30px rgba(249, 115, 22, 0.8)',
-            overflow: 'hidden'
-          }}>
+      <div className="premium-card dashboard-profile-card">
+        <div className="dashboard-profile-main">
+          <div className="dashboard-avatar" style={{ cursor: 'pointer' }} onClick={() => onNavigate?.('profile')} title="View your profile">
             {avatarUrl ? (
               <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
               userName.charAt(0).toUpperCase()
             )}
           </div>
-          <div>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.14em' }}>Profile Summary</p>
-            <h2 style={{ margin: '8px 0 4px', fontSize: '1.75rem', fontWeight: 800 }}>{userName}</h2>
-            <p style={{ margin: 0, color: 'var(--text-muted)' }}>{userEmail}</p>
+          <div className="dashboard-profile-text">
+            <p className="dashboard-profile-eyebrow">Profile Summary</p>
+            <h2 className="dashboard-profile-name">{userName}</h2>
+            <p className="dashboard-profile-email">{userEmail}</p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', color: 'var(--text-secondary)' }}>
-          <div style={{ display: 'grid', placeItems: 'center', width: '54px', height: '54px', borderRadius: '16px', background: 'rgba(255,255,255,0.06)' }}>
-            <User size={24} />
-          </div>
-          <div style={{ display: 'grid', placeItems: 'center', width: '54px', height: '54px', borderRadius: '16px', background: 'rgba(255,255,255,0.06)' }}>
-            <Mail size={24} />
-          </div>
+        <div className="dashboard-profile-badges">
+          {/* View Profile */}
+          <button
+            className="dashboard-badge-icon"
+            title="View Profile"
+            onClick={() => onNavigate?.('profile')}
+            aria-label="Go to profile page"
+            style={{ cursor: 'pointer', border: 'none', background: 'transparent' }}
+          >
+            <User size={20} />
+          </button>
+          {/* Send Email */}
+          <a
+            className="dashboard-badge-icon"
+            href={`mailto:${userEmail}`}
+            title={`Email ${userEmail}`}
+            aria-label={`Send email to ${userEmail}`}
+            style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
+          >
+            <Mail size={20} />
+          </a>
+          {/* Submit Complaint */}
+          <button
+            className="dashboard-badge-icon"
+            title="Contact Support / Submit Complaint"
+            onClick={() => onComplaint?.()}
+            aria-label="Open support and complaint form"
+            style={{ cursor: 'pointer', border: 'none', background: 'transparent' }}
+          >
+            <MessageSquare size={20} />
+          </button>
+          {/* Download App */}
+          <a
+            className="dashboard-badge-icon"
+            href="/landing/index.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Download Solar Pulse App"
+            aria-label="Download Solar Pulse mobile app"
+            style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
+          >
+            <Download size={20} />
+          </a>
         </div>
       </div>
 
       {/* Simulation Header Alerts */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '16px 24px',
-        backgroundColor: 'rgba(249, 115, 22, 0.05)',
-        border: '1px solid rgba(249, 115, 22, 0.15)',
-        borderRadius: '12px',
-        fontSize: '0.9rem',
-        color: 'var(--text-secondary)'
-      }}>
-        <div style={{ display: 'flex', alignContent: 'center', alignItems: 'center', gap: '10px' }}>
-          <Activity size={18} className="logo-icon" />
+      <div className="dashboard-sim-alert">
+        <div className="dashboard-sim-content">
+          <Activity size={18} className="logo-icon flex-shrink-0" />
           <span><strong>Live Simulation Active</strong>: Solar metrics and battery state are fluctuating in real time. Try modifying weather variables below!</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
+        <div className="dashboard-sim-time">
           <Clock size={16} />
           <span>{time.toLocaleTimeString()}</span>
         </div>
@@ -386,9 +403,15 @@ export default function Dashboard({ user }) {
                 const yCon = 170 - (d.consumption / 6.5) * 150;
 
                 return (
-                  <g key={index} style={{ cursor: 'pointer' }} onMouseEnter={() => setSelectedChartPoint({ index, ...d })}>
-                    {/* Hover Trigger bar */}
-                    <rect x={x - 20} y="10" width="40" height="170" fill="transparent" />
+                  <g 
+                    key={index} 
+                    style={{ cursor: 'pointer' }} 
+                    onMouseEnter={() => setSelectedChartPoint({ index, ...d })}
+                    onClick={() => setSelectedChartPoint(prev => prev?.index === index ? null : { index, ...d })}
+                    onTouchStart={() => setSelectedChartPoint({ index, ...d })}
+                  >
+                    {/* Hover & Touch Trigger bar */}
+                    <rect x={x - 24} y="10" width="48" height="170" fill="transparent" />
 
                     {/* Solar Point */}
                     <circle cx={x} cy={ySolar} r="4" fill="hsl(var(--color-solar))" stroke="var(--bg-secondary)" strokeWidth="2" className="chart-dot-pulse" style={{ animationDelay: `${index * 0.1}s` }} />
@@ -406,27 +429,35 @@ export default function Dashboard({ user }) {
 
             {/* Custom Interactive Floating Tooltip */}
             {selectedChartPoint && (
-              <div style={{
-                position: 'absolute',
-                top: '10px',
-                left: `${30 + selectedChartPoint.index * 9.5}%`,
-                transform: 'translateX(-50%)',
-                backgroundColor: 'var(--bg-secondary)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '8px',
-                padding: '10px 14px',
-                boxShadow: 'var(--shadow-md)',
-                zIndex: 10,
-                fontSize: '0.8rem',
-                minWidth: '150px',
-                pointerEvents: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '4px',
-                backdropFilter: 'blur(8px)'
-              }}>
-                <div style={{ fontWeight: 'bold', borderBottom: '1px solid var(--border-color)', pb: '4px', mb: '4px', color: 'var(--text-primary)' }}>
-                  Time: {selectedChartPoint.hour}
+              <div 
+                className="chart-floating-tooltip"
+                style={{
+                  position: 'absolute',
+                  top: '10px',
+                  left: `${Math.max(22, Math.min(78, 14 + selectedChartPoint.index * 8.8))}%`,
+                  transform: 'translateX(-50%)',
+                  backgroundColor: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px',
+                  padding: '10px 14px',
+                  boxShadow: 'var(--shadow-lg)',
+                  zIndex: 10,
+                  fontSize: '0.8rem',
+                  minWidth: '150px',
+                  maxWidth: 'calc(100vw - 48px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 'bold', borderBottom: '1px solid var(--border-color)', paddingBottom: '4px', marginBottom: '2px', color: 'var(--text-primary)' }}>
+                  <span>Time: {selectedChartPoint.hour}</span>
+                  <button 
+                    onClick={() => setSelectedChartPoint(null)} 
+                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '11px', padding: '0 2px' }}
+                    aria-label="Close tooltip"
+                  >✕</button>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'hsl(var(--color-solar))', fontWeight: 600 }}>
                   <span>Generation:</span>

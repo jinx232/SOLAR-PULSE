@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, User, Clock3, Hash, Edit3, Check, X, Camera, Trash2, KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { Mail, User, Clock3, Hash, Edit3, Check, X, Camera, Trash2, KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, Info, Download, MessageSquare, ExternalLink } from 'lucide-react';
 import { auth, getDownloadURL, ref, storage, updatePassword, updateProfile, uploadBytes } from '../utils/firebase';
 
-export default function Profile({ user, setUser }) {
+export default function Profile({ user, setUser, onComplaint }) {
   const initialName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Solar Analyst';
   const email = user?.email || 'Unknown email';
   const createdAt = user?.created_at
@@ -380,6 +380,40 @@ export default function Profile({ user, setUser }) {
             )}
           </div>
         )}
+      </div>
+
+      {/* Support & Download Hub Card */}
+      <div className="premium-card profile-card" style={{ marginTop: '24px' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '8px', color: 'var(--text-primary)' }}>
+          Help, Support &amp; Mobile Access
+        </h3>
+        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+          Encountering an issue or want to take Solar Pulse with you on mobile? Access direct customer support or download the native mobile application.
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => onComplaint?.()}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 18px', fontSize: '0.875rem' }}
+            aria-label="Submit a complaint or support ticket"
+          >
+            <MessageSquare size={16} />
+            Submit Complaint / Support
+          </button>
+          <a
+            href="/landing/index.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 18px', fontSize: '0.875rem', textDecoration: 'none' }}
+            aria-label="Open download website for Solar Pulse"
+          >
+            <Download size={16} />
+            Download Solar Pulse App
+            <ExternalLink size={14} style={{ opacity: 0.7 }} />
+          </a>
+        </div>
       </div>
     </section>
   );

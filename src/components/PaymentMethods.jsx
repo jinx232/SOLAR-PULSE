@@ -2,13 +2,15 @@ import React from 'react';
 import { ArrowRight, CreditCard, Landmark, Smartphone } from 'lucide-react';
 
 export default function PaymentMethods({ plan, onBack, onContinue }) {
+  const safePlan = plan || { name: 'Pro', price: 'NGN 5,000', cadence: 'per month' };
+
   return (
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '28px', maxWidth: '760px' }}>
       <div>
         <button className="btn-outline" onClick={onBack} style={{ marginBottom: '22px' }}>Back to plans</button>
         <p style={{ color: 'hsl(var(--color-solar))', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Payment methods</p>
         <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '8px' }}>How would you like to pay?</h2>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '4px' }}>Choose a payment route for the {plan.name} plan. You will review the order before any payment begins.</p>
+        <p style={{ color: 'var(--text-secondary)', marginTop: '4px' }}>Choose a payment route for the {safePlan.name} plan. You will review the order before any payment begins.</p>
       </div>
 
       <div className="grid-cols-3">

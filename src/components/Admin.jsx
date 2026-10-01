@@ -108,12 +108,12 @@ export default function Admin({ user }) {
         {presenceError && <p style={{ color: '#f59e0b', fontSize: '0.85rem' }}>{presenceError}</p>}
         {!presenceError && activeUsers.length === 0 && <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No active sessions detected yet.</p>}
         {activeUsers.map((activeUser) => (
-          <div key={activeUser.uid} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-            <div>
-              <strong style={{ display: 'block' }}>{activeUser.displayName || 'Solar User'}</strong>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{activeUser.email || 'Email unavailable'}</span>
+          <div key={activeUser.uid} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <strong style={{ display: 'block', wordBreak: 'break-word' }}>{activeUser.displayName || 'Solar User'}</strong>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', wordBreak: 'break-all', display: 'block' }}>{activeUser.email || 'Email unavailable'}</span>
             </div>
-            <span style={{ color: 'hsl(var(--color-gen))', fontSize: '0.8rem', fontWeight: 700 }}>Active now</span>
+            <span style={{ color: 'hsl(var(--color-gen))', fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>Active now</span>
           </div>
         ))}
       </div>
@@ -126,12 +126,12 @@ export default function Admin({ user }) {
         {subscriptionError && <p style={{ color: '#f59e0b', fontSize: '0.85rem' }}>{subscriptionError}</p>}
         {!subscriptionError && paidUsers.length === 0 && <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No paid subscriptions recorded.</p>}
         {paidUsers.map((paidUser) => (
-          <div key={paidUser.uid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '12px', gap: '16px' }}>
-            <div>
-              <strong style={{ display: 'block' }}>{paidUser.email || paidUser.uid}</strong>
+          <div key={paidUser.uid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '12px', gap: '12px' }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <strong style={{ display: 'block', wordBreak: 'break-all' }}>{paidUser.email || paidUser.uid}</strong>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{paidUser.plan || 'pro'} plan</span>
             </div>
-            <span style={{ color: 'hsl(var(--color-gen))', fontSize: '0.8rem', fontWeight: 700 }}>{paidUser.status}</span>
+            <span style={{ color: 'hsl(var(--color-gen))', fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>{paidUser.status}</span>
           </div>
         ))}
       </div>

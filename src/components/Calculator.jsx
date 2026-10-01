@@ -417,11 +417,11 @@ export default function Calculator({
         <div className="premium-card grid-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Active Household Appliances</h3>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: 'auto' }}>
               <button
                 className="btn-primary"
                 onClick={handleSaveProject}
-                style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                style={{ padding: '9px 14px', fontSize: '0.85rem', minHeight: '40px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 aria-label="Save solar project"
               >
                 Save Project
@@ -429,12 +429,17 @@ export default function Calculator({
               <button
                 className="btn-outline"
                 onClick={() => setShowAddForm(prev => !prev)}
-                style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                style={{ padding: '9px 14px', fontSize: '0.85rem', minHeight: '40px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 aria-label="Add custom appliance"
               >
                 <Plus size={14} /> Add Appliance
               </button>
-              <button className="btn-outline" onClick={resetToDefault} style={{ padding: '8px 14px', fontSize: '0.85rem' }} aria-label="Reset to defaults">
+              <button 
+                className="btn-outline" 
+                onClick={resetToDefault} 
+                style={{ padding: '9px 14px', fontSize: '0.85rem', minHeight: '40px', display: 'inline-flex', alignItems: 'center', gap: '6px' }} 
+                aria-label="Reset to defaults"
+              >
                 <RotateCcw size={14} /> Reset
               </button>
             </div>

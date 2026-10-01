@@ -14,7 +14,9 @@ import {
   LogOut,
   ChevronDown,
   ShieldCheck,
-  CreditCard
+  CreditCard,
+  Download,
+  HelpCircle
 } from 'lucide-react';
 
 import { auth, isAdminUser, onAuthStateChanged, signOut, startPresence, subscribeToUserPlan, toAppUser } from './utils/firebase';
@@ -31,6 +33,7 @@ import Admin from './components/Admin';
 import Plans from './components/Plans';
 import PaymentMethods from './components/PaymentMethods';
 import Checkout from './components/Checkout';
+import ComplaintModal from './components/ComplaintModal';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -43,6 +46,7 @@ export default function App() {
   const [subscription, setSubscription] = useState({ plan: 'free', status: 'inactive' });
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [complaintOpen, setComplaintOpen] = useState(false);
   
   // Shared state: passed from Calculator to Estimator
   const [calculatorRecommendation, setCalculatorRecommendation] = useState(null);
@@ -143,7 +147,7 @@ export default function App() {
   const renderContent = () => {
     switch (activeView) {
       case 'dashboard':
-        return <Dashboard user={user} />;
+        return <Dashboard user={user} onNavigate={setActiveView} onComplaint={() => setComplaintOpen(true)} />;
       case 'calculator':
         return (
           <ConsumptionCalculator 
@@ -175,9 +179,9 @@ export default function App() {
       case 'orientation':
         return <Orientation />;
       case 'chatbot':
-        return <Chatbot />;
+        return <Chatbot user={user} subscription={subscription} region={region} sunHours={sunHours} />;
       case 'profile':
-        return <Profile user={user} setUser={setUser} />;
+        return <Profile user={user} setUser={setUser} onComplaint={() => setComplaintOpen(true)} />;
       case 'admin':
         return isAdminUser(user) ? <Admin user={user} /> : <Dashboard user={user} />;
       case 'plans':
@@ -198,6 +202,17 @@ export default function App() {
     setActiveView(isAdminUser(firebaseUser) ? 'admin' : 'dashboard');
   };
 
+  const handleGuestLogin = () => {
+    setUser({
+      id: 'demo-guest',
+      email: 'guest@solarpulse.io',
+      user_metadata: { full_name: 'Solar Guest Analyst' },
+      created_at: new Date().toISOString()
+    });
+    setIsAuthenticated(true);
+    setActiveView('dashboard');
+  };
+
   const profileInitial = user?.user_metadata?.full_name
     ? user.user_metadata.full_name.charAt(0).toUpperCase()
     : user?.email?.charAt(0).toUpperCase() || 'S';
@@ -211,6 +226,7 @@ export default function App() {
         authView={authView}
         setAuthView={setAuthView}
         onAuthenticate={handleAuthenticated}
+        onGuestLogin={handleGuestLogin}
       />
     );
   }
@@ -219,7 +235,8 @@ export default function App() {
   const navItems = [
     ...(isAdmin ? [{ id: 'admin', name: 'Admin', icon: <ShieldCheck size={20} /> }] : []),
     { id: 'plans', name: 'Plans', icon: <CreditCard size={20} /> },
-    { id: 'dashboard', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },    { id: 'calculator', name: 'Consumption', icon: <Calculator size={20} /> },
+    { id: 'dashboard', name: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+    { id: 'calculator', name: 'Consumption', icon: <Calculator size={20} /> },
     { id: 'estimator', name: 'Cost & ROI', icon: <DollarSign size={20} /> },
     { id: 'orientation', name: 'Orientation Tuning', icon: <Compass size={20} /> },
     { id: 'chatbot', name: 'AI Chatbot', icon: <MessageSquare size={20} /> },
@@ -231,9 +248,18 @@ export default function App() {
       
       {/* Sidebar Navigation */}
       <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo">
-          <Sun className="logo-icon" size={28} />
-          <span className="sidebar-brand">Solar Pulse</span>
+        <div className="sidebar-header-bar">
+          <div className="sidebar-logo">
+            <Sun className="logo-icon" size={28} />
+            <span className="sidebar-brand">Solar Pulse</span>
+          </div>
+          <button 
+            className="sidebar-close-btn"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close menu drawer"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -253,9 +279,43 @@ export default function App() {
         </nav>
 
         <div className="sidebar-footer">
+          {/* Download App Button */}
+          <a
+            href="/landing/index.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 14px', borderRadius: '10px', marginBottom: '8px',
+              background: 'linear-gradient(135deg, hsl(var(--color-solar)), #ef4444)',
+              color: '#000', fontWeight: 700, fontSize: '0.8rem',
+              textDecoration: 'none', transition: 'opacity 0.2s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+            aria-label="Download Solar Pulse mobile app"
+          >
+            <Download size={14} /> Download App
+          </a>
+          {/* Support Button */}
+          <button
+            onClick={() => { setComplaintOpen(true); setMobileMenuOpen(false); }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px', width: '100%',
+              padding: '9px 14px', borderRadius: '10px', marginBottom: '10px',
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+              color: 'rgba(255,255,255,0.7)', fontWeight: 600, fontSize: '0.8rem',
+              cursor: 'pointer', transition: 'background 0.2s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+            aria-label="Open support and feedback form"
+          >
+            <HelpCircle size={14} /> Support &amp; Feedback
+          </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.4)' }}>
             <Leaf size={14} style={{ color: '#10b981' }} />
-            <span>Solar Pulse v1.0</span>
+            <span>Solar Pulse v2.0</span>
           </div>
         </div>
       </aside>
@@ -344,6 +404,36 @@ export default function App() {
                   >
                     <UserCircle size={16} /> View Profile
                   </button>
+                  {/* Support / Complaint */}
+                  <button
+                    onClick={() => { setComplaintOpen(true); setAvatarDropdownOpen(false); }}
+                    style={{
+                      width: '100%', padding: '12px 16px', background: 'none', border: 'none',
+                      textAlign: 'left', cursor: 'pointer', fontSize: '0.875rem',
+                      color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px',
+                      transition: 'background var(--transition-fast)'
+                    }}
+                    className="dropdown-item"
+                  >
+                    <HelpCircle size={16} /> Support &amp; Feedback
+                  </button>
+                  {/* Download App */}
+                  <a
+                    href="/landing/index.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setAvatarDropdownOpen(false)}
+                    style={{
+                      width: '100%', padding: '12px 16px', background: 'none',
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      fontSize: '0.875rem', color: 'var(--text-primary)', textDecoration: 'none',
+                      transition: 'background var(--transition-fast)'
+                    }}
+                    className="dropdown-item"
+                  >
+                    <Download size={16} /> Download App
+                  </a>
+
                   {/* Sign Out */}
                   <button
                     onClick={() => { handleSignOut(); setAvatarDropdownOpen(false); }}
@@ -373,10 +463,89 @@ export default function App() {
         <footer className="app-footer">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <Leaf size={16} style={{ color: '#10b981' }} />
-            <span><strong>Solar Pulse</strong> — A premium green engineering simulation platform. Engineered with React and optimized for sustainability.</span>          </div>
+            <span><strong>Solar Pulse</strong> — A premium green engineering simulation platform. Engineered with React and optimized for sustainability.</span>
+          </div>
         </footer>
 
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
+        <button
+          className={`mobile-nav-btn ${activeView === 'dashboard' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveView('dashboard');
+            setMobileMenuOpen(false);
+          }}
+          aria-label="Dashboard"
+        >
+          <div className="mobile-nav-icon-wrap">
+            <LayoutDashboard size={20} />
+          </div>
+          <span>Dashboard</span>
+        </button>
+
+        <button
+          className={`mobile-nav-btn ${activeView === 'calculator' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveView('calculator');
+            setMobileMenuOpen(false);
+          }}
+          aria-label="Consumption Calculator"
+        >
+          <div className="mobile-nav-icon-wrap">
+            <Calculator size={20} />
+          </div>
+          <span>Sizing</span>
+        </button>
+
+        <button
+          className={`mobile-nav-btn ${activeView === 'estimator' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveView('estimator');
+            setMobileMenuOpen(false);
+          }}
+          aria-label="Cost and ROI"
+        >
+          <div className="mobile-nav-icon-wrap">
+            <DollarSign size={20} />
+          </div>
+          <span>Cost & ROI</span>
+        </button>
+
+        <button
+          className={`mobile-nav-btn ${activeView === 'chatbot' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveView('chatbot');
+            setMobileMenuOpen(false);
+          }}
+          aria-label="AI Chatbot Advisor"
+        >
+          <div className="mobile-nav-icon-wrap">
+            <MessageSquare size={20} />
+          </div>
+          <span>AI Advisor</span>
+        </button>
+
+        <button
+          className={`mobile-nav-btn ${['plans', 'orientation', 'profile', 'admin', 'paymentMethods', 'checkout'].includes(activeView) || mobileMenuOpen ? 'active' : ''}`}
+          onClick={() => setMobileMenuOpen(prev => !prev)}
+          aria-label="More navigation options"
+          aria-expanded={mobileMenuOpen}
+        >
+          <div className="mobile-nav-icon-wrap">
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </div>
+          <span>More</span>
+        </button>
+      </nav>
+
+      {/* Global Complaint / Support Modal */}
+      <ComplaintModal
+        isOpen={complaintOpen}
+        onClose={() => setComplaintOpen(false)}
+        user={user}
+      />
 
     </div>
   );

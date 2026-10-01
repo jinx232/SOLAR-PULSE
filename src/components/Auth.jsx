@@ -7,7 +7,7 @@ import {
   updateProfile,
 } from '../utils/firebase';
 
-export default function Auth({ authView, setAuthView, onAuthenticate }) {
+export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLogin }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -144,6 +144,29 @@ export default function Auth({ authView, setAuthView, onAuthenticate }) {
             </button>
           </p>
 
+          {onGuestLogin && (
+            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', width: '100%' }}>
+              <button
+                type="button"
+                className="btn-outline auth-guest-btn"
+                onClick={onGuestLogin}
+                style={{
+                  width: '100%',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontSize: '0.88rem',
+                  fontWeight: 600,
+                  color: 'hsl(var(--color-solar))',
+                  borderColor: 'rgba(249, 115, 22, 0.4)'
+                }}
+              >
+                ⚡ Explore Platform in Demo Mode
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

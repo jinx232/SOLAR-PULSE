@@ -134,21 +134,12 @@ export default function Estimator({
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       
       {/* Title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="estimator-header">
         <div>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Financial Cost & ROI Projections</h2>
           <p style={{ color: 'var(--text-secondary)' }}>Simulate system pricing, apply government incentives, and plot your 25-year solar wealth and payback path.</p>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            flexWrap: 'wrap',
-            gap: '12px', 
-            fontSize: '0.85rem', 
-            color: 'hsl(var(--color-solar))',
-            fontWeight: 'bold',
-            marginTop: '8px'
-          }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="estimator-zone-select-wrap">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
               <Globe size={16} /> Global Solar Zone:
             </span>
             <select
@@ -166,7 +157,8 @@ export default function Estimator({
                 backgroundColor: 'var(--bg-primary)',
                 color: 'var(--text-primary)',
                 fontSize: '0.85rem',
-                fontWeight: 600
+                fontWeight: 600,
+                maxWidth: '100%'
               }}
             >
               {Array.from(new Set(globalSolarZones.map((z) => z.continent))).map((continent) => (
@@ -450,7 +442,13 @@ export default function Estimator({
                 const ySolar = 170 - (data.withSolar / 120000) * 150;
 
                 return (
-                  <g key={year} style={{ cursor: 'pointer' }} onMouseEnter={() => setSelectedYearPoint({ year, ...data, index: idx })}>
+                  <g 
+                    key={year} 
+                    style={{ cursor: 'pointer' }} 
+                    onMouseEnter={() => setSelectedYearPoint({ year, ...data, index: idx })}
+                    onClick={() => setSelectedYearPoint(prev => prev?.year === year ? null : { year, ...data, index: idx })}
+                    onTouchStart={() => setSelectedYearPoint({ year, ...data, index: idx })}
+                  >
                     <rect x={x - 25} y="10" width="50" height="170" fill="transparent" />
                     
                     {/* Dots */}
@@ -468,28 +466,35 @@ export default function Estimator({
 
             {/* Cumulative Cashflow floating tooltip */}
             {selectedYearPoint && (
-              <div style={{
-                position: 'absolute',
-                top: '20px',
-                left: `${Math.min(75, Math.max(25, 20 + selectedYearPoint.index * 13))}%`,
-                transform: 'translateX(-50%)',
-                backgroundColor: 'var(--bg-secondary)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '8px',
-                padding: '10px 14px',
-                boxShadow: 'var(--shadow-md)',
-                zIndex: 10,
-                fontSize: '0.8rem',
-                minWidth: '160px',
-                maxWidth: 'calc(100vw - 64px)',
-                pointerEvents: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '4px',
-                backdropFilter: 'blur(8px)'
-              }}>
-                <div style={{ fontWeight: 'bold', borderBottom: '1px solid var(--border-color)', pb: '4px', mb: '4px', color: 'var(--text-primary)' }}>
-                  Cumulative Cost: Year {selectedYearPoint.year}
+              <div 
+                className="chart-floating-tooltip"
+                style={{
+                  position: 'absolute',
+                  top: '20px',
+                  left: `${Math.min(75, Math.max(25, 20 + selectedYearPoint.index * 13))}%`,
+                  transform: 'translateX(-50%)',
+                  backgroundColor: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px',
+                  padding: '10px 14px',
+                  boxShadow: 'var(--shadow-lg)',
+                  zIndex: 10,
+                  fontSize: '0.8rem',
+                  minWidth: '160px',
+                  maxWidth: 'calc(100vw - 48px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 'bold', borderBottom: '1px solid var(--border-color)', paddingBottom: '4px', marginBottom: '2px', color: 'var(--text-primary)' }}>
+                  <span>Cumulative: Year {selectedYearPoint.year}</span>
+                  <button 
+                    onClick={() => setSelectedYearPoint(null)} 
+                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '11px', padding: '0 2px' }}
+                    aria-label="Close tooltip"
+                  >✕</button>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#f43f5e', fontWeight: 600 }}>
                   <span>Utility Only:</span>

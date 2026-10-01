@@ -285,7 +285,15 @@ export default function Orientation() {
                   placeholder="Enter postal code, city or address"
                   value={postalQuery}
                   onChange={(e) => setPostalQuery(e.target.value)}
-                  style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)' }}
+                  style={{
+                    flex: 1,
+                    minHeight: '44px',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-primary)',
+                    color: 'var(--text-primary)'
+                  }}
                 />
                 <button
                   onClick={async () => {
@@ -302,7 +310,7 @@ export default function Orientation() {
                     }
                   }}
                   className="btn-primary"
-                  style={{ padding: '8px 14px', borderRadius: '8px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                  style={{ minHeight: '44px', padding: '10px 18px', borderRadius: '10px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
                   aria-label="Search for location"
                 >
                   {lookupLoading ? 'Searching...' : 'Search'}
@@ -312,7 +320,7 @@ export default function Orientation() {
               {lookupError && <div style={{ color: 'var(--color-con)', marginTop: '8px' }}>{lookupError}</div>}
 
               {suggestions && suggestions.length > 0 && (
-                <div style={{ marginTop: '8px', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'var(--bg-primary)', maxHeight: '180px', overflow: 'auto' }}>
+                <div style={{ marginTop: '8px', border: '1px solid var(--border-color)', borderRadius: '10px', background: 'var(--bg-primary)', maxHeight: '200px', overflowY: 'auto' }}>
                   {suggestions.map((s, idx) => (
                     <button key={idx} onClick={() => {
                       setSelectedLocation(s);
@@ -323,8 +331,8 @@ export default function Orientation() {
                       setAzimuth(lat < 0 ? 'North' : 'South');
                       setPostalQuery(s.display_name);
                       setSuggestions([]);
-                    }} className="btn-ghost" style={{ display: 'block', textAlign: 'left', width: '100%', padding: '8px 12px', border: 'none', background: 'transparent' }}>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{s.display_name.split(',')[0]}</div>
+                    }} className="btn-ghost" style={{ display: 'block', textAlign: 'left', width: '100%', minHeight: '44px', padding: '10px 14px', border: 'none', background: 'transparent', cursor: 'pointer', borderBottom: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>{s.display_name.split(',')[0]}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{s.display_name}</div>
                     </button>
                   ))}

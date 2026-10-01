@@ -9,11 +9,13 @@ import {
   Info, 
   X, 
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  BookOpen,
+  Zap
 } from 'lucide-react';
 import { queryLocalExpert, queryGeminiAPI } from '../utils/solarExpert';
 
-export default function Chatbot() {
+export default function Chatbot({ user, subscription, region, sunHours }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -101,7 +103,7 @@ Ask a question or choose a prompt below to get started.`,
   };
 
   // Text streaming simulator (mimics word-by-word LLM responses)
-  const streamText = (fullText, messageId) => {
+  const streamText = (fullText, messageId, sources = []) => {
     let currentIdx = 0;
     const words = fullText.split(' ');
     
@@ -112,6 +114,7 @@ Ask a question or choose a prompt below to get started.`,
         id: messageId,
         sender: 'bot',
         text: '',
+        sources,
         isStreaming: true,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
@@ -123,7 +126,7 @@ Ask a question or choose a prompt below to get started.`,
         // Mark streaming finished
         setMessages(prev => prev.map(msg => {
           if (msg.id === messageId) {
-            return { ...msg, text: fullText, isStreaming: false };
+            return { ...msg, text: fullText, sources, isStreaming: false };
           }
           return msg;
         }));
@@ -138,7 +141,7 @@ Ask a question or choose a prompt below to get started.`,
         }));
         currentIdx++;
       }
-    }, 40); // 40ms per word represents premium streaming speed!
+    }, 38);
   };
 
   // Send message
@@ -163,22 +166,26 @@ Ask a question or choose a prompt below to get started.`,
 
     try {
       if (useLiveAI && geminiKey) {
-        // Query Google Gemini API (Free Generative AI endpoint)
-        // Strip out the current message to feed chat context
+        // Live AI: Gemini + RAG + Fine-tuned system prompt
         const chatHistory = messages.map(msg => ({
           sender: msg.sender,
           text: msg.text
         }));
 
-        const answer = await queryGeminiAPI(query, chatHistory, geminiKey);
-        streamText(answer, botMessageId);
+        const userContext = {
+          region: region || 'Unknown',
+          subscription: subscription?.plan || 'free',
+          sunHours: sunHours || null,
+        };
+
+        const { answer, sources } = await queryGeminiAPI(query, chatHistory, geminiKey, userContext);
+        streamText(answer, botMessageId, sources);
       } else {
-        // Query offline Expert Knowledge Base
-        const answer = queryLocalExpert(query);
-        // Add artificial delay for realism
+        // Offline: RAG knowledge base retrieval
+        const { answer, sources } = queryLocalExpert(query);
         setTimeout(() => {
-          streamText(answer, botMessageId);
-        }, 800);
+          streamText(answer, botMessageId, sources);
+        }, 600);
       }
     } catch (error) {
       console.error('AI chat error:', error);
@@ -291,13 +298,7 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
   };
 
   return (
-    <div className="animate-slide-up" style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      height: 'calc(100dvh - 120px)',
-      minHeight: '460px',
-      position: 'relative'
-    }}>
+    <div className="animate-slide-up chatbot-container">
       
       {/* Title */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -306,8 +307,10 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
             <Sparkles size={22} className="logo-icon" />
             Solar AI Advisor
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            {useLiveAI ? 'Connected to Live Gemini AI Engine' : 'Offline Solar Expert Reasoning Engine Active'}
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {useLiveAI 
+              ? <><Zap size={13} style={{ color: 'hsl(var(--color-solar))' }} /> Gemini AI + RAG Knowledge Engine</>
+              : <><BookOpen size={13} style={{ color: 'hsl(var(--color-gen))' }} /> RAG Offline Knowledge Engine Active</>}
           </p>
         </div>
         
@@ -399,6 +402,35 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
                 lineHeight: '1.6'
               }}>
                 {renderMarkdown(msg.text)}
+
+                {/* RAG Source Attribution */}
+                {msg.sender === 'bot' && !msg.isStreaming && msg.sources && msg.sources.length > 0 && (
+                  <div style={{ marginTop: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '8px' }}>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginBottom: '5px', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                      📚 Sources
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                      {msg.sources.map((src, si) => (
+                        <span key={si} title={`${src.source} — ${src.category}`} style={{
+                          fontSize: '0.68rem',
+                          padding: '2px 8px',
+                          borderRadius: '99px',
+                          border: '1px solid var(--border-color)',
+                          backgroundColor: 'var(--bg-secondary)',
+                          color: src.confidence === 'high' ? 'hsl(var(--color-gen))' : src.confidence === 'medium' ? 'hsl(var(--color-solar))' : 'var(--text-muted)',
+                          cursor: 'default',
+                          whiteSpace: 'nowrap',
+                          maxWidth: '180px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          {src.confidence === 'high' ? '●' : src.confidence === 'medium' ? '◐' : '○'} {src.title}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <span style={{ 
                   display: 'block', 
                   textAlign: msg.sender === 'user' ? 'right' : 'left', 
@@ -510,21 +542,33 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
 
         {/* Sliding settings overlay drawer */}
         {showSettings && (
-          <div style={{
-            position: 'absolute',
-            top: 0, right: 0, bottom: 0,
-            width: 'min(320px, 100%)',
-            maxWidth: '100%',
-            backgroundColor: 'var(--bg-secondary)',
-            borderLeft: '1px solid var(--border-color)',
-            boxShadow: 'var(--shadow-lg)',
-            zIndex: 30,
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px',
-            animation: 'slideInRight var(--transition-normal)'
-          }}>
+          <>
+            <div 
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                backdropFilter: 'blur(3px)',
+                zIndex: 29
+              }}
+              onClick={() => setShowSettings(false)}
+              aria-hidden="true"
+            />
+            <div style={{
+              position: 'absolute',
+              top: 0, right: 0, bottom: 0,
+              width: 'min(320px, 100%)',
+              maxWidth: '100%',
+              backgroundColor: 'var(--bg-secondary)',
+              borderLeft: '1px solid var(--border-color)',
+              boxShadow: 'var(--shadow-lg)',
+              zIndex: 30,
+              padding: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+              animation: 'slideInRight var(--transition-normal)'
+            }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Advisor Engine Config</h3>
               <button onClick={() => setShowSettings(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }} aria-label="Close settings">
@@ -598,6 +642,7 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
               Apply Configurations
             </button>
           </div>
+          </>
         )}
 
       </div>
