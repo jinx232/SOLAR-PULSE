@@ -123,65 +123,106 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
   return (
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       
-      {/* Profile Summary Card */}
+      {/* Profile Summary Card (Executive PC & Mobile Design) */}
       <div className="premium-card dashboard-profile-card">
         <div className="dashboard-profile-main">
-          <div className="dashboard-avatar" style={{ cursor: 'pointer' }} onClick={() => onNavigate?.('profile')} title="View your profile">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              userName.charAt(0).toUpperCase()
-            )}
+          <div className="dashboard-avatar-wrapper">
+            <div 
+              className="dashboard-avatar" 
+              style={{ cursor: 'pointer' }} 
+              onClick={() => onNavigate?.('profile')} 
+              title="Open Profile Settings"
+              aria-label="View user profile"
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                userName.charAt(0).toUpperCase()
+              )}
+            </div>
+            <span className="dashboard-avatar-status" title="System Status: Active & Synchronized" />
           </div>
+
           <div className="dashboard-profile-text">
-            <p className="dashboard-profile-eyebrow">Profile Summary</p>
+            <div className="dashboard-profile-eyebrow-row">
+              <span className="dashboard-profile-eyebrow">Solar Analyst Station</span>
+              <span className="dashboard-profile-pill">
+                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+                Online
+              </span>
+            </div>
             <h2 className="dashboard-profile-name">{userName}</h2>
-            <p className="dashboard-profile-email">{userEmail}</p>
+            <p className="dashboard-profile-email">
+              <Mail size={13} style={{ opacity: 0.7 }} />
+              <span>{userEmail}</span>
+            </p>
           </div>
         </div>
 
+        {/* Live Station Telemetry Chips (PC view) */}
+        <div className="dashboard-profile-stats">
+          <div className="dashboard-profile-stat-item">
+            <span className="dashboard-profile-stat-label">Grid Telemetry</span>
+            <span className="dashboard-profile-stat-val" style={{ color: '#10b981' }}>
+              <Zap size={14} /> Synchronized
+            </span>
+          </div>
+          <div className="dashboard-profile-stat-item">
+            <span className="dashboard-profile-stat-label">Battery Level</span>
+            <span className="dashboard-profile-stat-val" style={{ color: 'hsl(var(--color-bat))' }}>
+              <Battery size={14} /> {batterySoc}%
+            </span>
+          </div>
+          <div className="dashboard-profile-stat-item">
+            <span className="dashboard-profile-stat-label">Current Yield</span>
+            <span className="dashboard-profile-stat-val" style={{ color: 'hsl(var(--color-solar))' }}>
+              <Sun size={14} /> {solarGen} kW
+            </span>
+          </div>
+        </div>
+
+        {/* Action Hub */}
         <div className="dashboard-profile-badges">
-          {/* View Profile */}
           <button
-            className="dashboard-badge-icon"
-            title="View Profile"
+            className="dashboard-action-btn"
+            title="View & Edit Profile Settings"
             onClick={() => onNavigate?.('profile')}
             aria-label="Go to profile page"
-            style={{ cursor: 'pointer', border: 'none', background: 'transparent' }}
           >
-            <User size={20} />
+            <User size={15} />
+            <span>Profile</span>
           </button>
-          {/* Send Email */}
+
           <a
-            className="dashboard-badge-icon"
+            className="dashboard-action-btn"
             href={`mailto:${userEmail}`}
-            title={`Email ${userEmail}`}
+            title={`Send email to ${userEmail}`}
             aria-label={`Send email to ${userEmail}`}
-            style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
           >
-            <Mail size={20} />
+            <Mail size={15} />
+            <span>Email</span>
           </a>
-          {/* Submit Complaint */}
+
           <button
-            className="dashboard-badge-icon"
-            title="Contact Support / Submit Complaint"
+            className="dashboard-action-btn"
+            title="Submit Complaint or Contact Support"
             onClick={() => onComplaint?.()}
             aria-label="Open support and complaint form"
-            style={{ cursor: 'pointer', border: 'none', background: 'transparent' }}
           >
-            <MessageSquare size={20} />
+            <MessageSquare size={15} />
+            <span>Support</span>
           </button>
-          {/* Download App */}
+
           <a
-            className="dashboard-badge-icon"
+            className="dashboard-action-btn dashboard-action-btn-primary"
             href="/landing/index.html"
             target="_blank"
             rel="noopener noreferrer"
             title="Download Solar Pulse App"
             aria-label="Download Solar Pulse mobile app"
-            style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
           >
-            <Download size={20} />
+            <Download size={15} />
+            <span>Get App</span>
           </a>
         </div>
       </div>
