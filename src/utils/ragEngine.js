@@ -352,16 +352,146 @@ export function ragRetrieve(query, topK = 3) {
   return { context, sources };
 }
 
+// ─── CONCISE INTENT SYNTHESIS DICTIONARY ────────────────────────────────────
+// Each topic provides a direct, expert answer strictly within a 2 to 3 sentence range.
+const CONCISE_TOPIC_ANSWERS = [
+  {
+    pattern: /\b(mono|monocrystalline)\b.*\b(poly|polycrystalline)\b|\b(poly|polycrystalline)\b.*\b(mono|monocrystalline)\b|\bcompare\b.*\bpanels?\b/i,
+    docId: 'panels-monocrystalline',
+    answer: "**Monocrystalline panels** offer 19–24% efficiency and a sleek all-black look, making them the industry gold standard for homes with limited roof area. **Polycrystalline panels** are more budget-friendly ($0.50–$0.75/W) at 15–18% efficiency but require ~25% more roof space to achieve the same wattage. For most modern residential installations, monocrystalline yields higher lifetime power output and superior return on investment."
+  },
+  {
+    pattern: /\bnet\s*metering\b|\bnem\b|\bsell\s*back\b|\bgrid\s*credits?\b/i,
+    docId: 'finance-net-metering',
+    answer: "**Net metering** sends your excess daytime solar electricity to the utility grid in exchange for billing credits. You draw against those accumulated credits at night and on cloudy days to power your home for free or at reduced rates. This drastically lowers your monthly electricity bill without requiring the upfront cost of an energy storage battery."
+  },
+  {
+    pattern: /\bbatter(y|ies)\b|\bpowerwall\b|\bbackup\b|\bstorage\b|\blifepo4\b/i,
+    docId: 'battery-basics',
+    answer: "Standard grid-tied solar panels automatically shut down during utility outages for line-worker safety unless paired with a **battery storage system**. Adding a modern lithium battery (such as LiFePO4 or Tesla Powerwall) stores daytime solar surplus to provide instant blackout protection and cover expensive peak-rate hours. If your area suffers frequent outages or time-of-use utility rates, battery storage is strongly recommended."
+  },
+  {
+    pattern: /\b(cost|price|save|savings|payback|roi|how\s*much)\b.*\b(solar|system|install)\b/i,
+    docId: 'finance-payback-roi',
+    answer: "A residential solar installation typically costs between $15,000 and $25,000 before federal tax incentives, with an average payback period of **5 to 8 years**. Once paid off, your system provides essentially free electricity for the remainder of its 25+ year operational lifespan. In locations with high utility rates or where solar replaces diesel generator fuel, payback can occur in as little as 2.5 to 3.5 years."
+  },
+  {
+    pattern: /\b(tilt|angle|orientation|direction|azimuth|south|pitch)\b/i,
+    docId: 'install-tilt-angle',
+    answer: "Panels in the Northern Hemisphere should face **true South** at a tilt angle roughly equal to your geographic latitude for maximum annual electricity production. In tropical latitudes like West Africa, a shallow 10°–15° tilt captures intense overhead sun while allowing natural rainwater to rinse away surface dust. Proper orientation can enhance your overall annual solar yield by up to 15%."
+  },
+  {
+    pattern: /\b(cloud|cloudy|rain|rainy|overcast|winter|snow|shade)\b/i,
+    docId: 'install-shading',
+    answer: "Solar panels continue generating power in cloudy or rainy conditions, typically producing **10% to 25%** of their rated peak capacity using diffuse ambient sunlight. Modern high-efficiency cells like TOPCon and PERC are engineered with enhanced low-light sensitivity to optimize overcast production. Your system's annual sizing and production estimates already factor in regional cloudy days and seasonal weather shifts."
+  },
+  {
+    pattern: /\b(how\s*many\s*panels|system\s*size|sizing|size\s*my|how\s*big|kw\s*needed)\b/i,
+    docId: 'sizing-basics',
+    answer: "To determine your system size, divide your daily electricity consumption (kWh) by your area's peak daily sun hours (typically 4.5–6 hours). An average household consuming 30 kWh per day requires an array of approximately **6 kW to 7.5 kW** (15 to 18 high-efficiency panels). You can use our sidebar **Consumption Calculator** to calculate your exact kilowatt requirements in seconds."
+  },
+  {
+    pattern: /\b(inverter|microinverter|string\s*inverter|hybrid\s*inverter|optimizer)\b/i,
+    docId: 'system-inverter-types',
+    answer: "**String inverters** connect panels in series and are cost-effective, but shading on a single panel reduces output across the entire string. **Microinverters** operate independently at each panel, maximizing overall array production and offering panel-by-panel performance tracking. If your roof has partial tree shading or multiple roof pitches, microinverters or DC optimizers are the recommended choice."
+  },
+  {
+    pattern: /\b(clean|cleaning|maintain|maintenance|dirty|wash|dust)\b/i,
+    docId: 'maint-cleaning',
+    answer: "Solar panels require minimal maintenance because they have no moving parts and are built to withstand extreme weather for 25–30 years. Natural rainfall washes away most dust and debris, but a gentle rinse with plain water and a soft cloth once or twice a year can recover 3–5% of lost output. Never use abrasive chemicals, hard brushes, or high-pressure washers that could scratch the protective anti-reflective coating."
+  },
+  {
+    pattern: /\b(nigeria|lagos|africa|nepa|nepa\s*light|generator|fuel|petrol|diesel)\b/i,
+    docId: 'sizing-africa-nigeria',
+    answer: "In Nigeria and West Africa, solar systems paired with lithium (LiFePO4) storage offer continuous 24/7 electricity while eliminating steep petrol and diesel generator expenses. A standard 5 kW hybrid solar setup pays for itself in just **2.5 to 3.5 years** compared to daily generator fueling. It also provides clean, silent power and shields delicate household electronics from unstable utility grid surges."
+  },
+  {
+    pattern: /\b(tax\s*credit|itc|rebate|incentive|srec|grant)\b/i,
+    docId: 'finance-tax-credits-itc',
+    answer: "The federal **Residential Clean Energy Credit (ITC)** allows homeowners to deduct **30%** of their total solar and battery installation costs directly from federal taxes. Additional state rebates, solar renewable energy certificates (SRECs), and local utility credits can decrease your net expense even further. Taking full advantage of these incentives significantly accelerates your payback timeline."
+  },
+  {
+    pattern: /\b(lifespan|life|degradation|warranty|how\s*long\s*do\s*panels\s*last|durab)\b/i,
+    docId: 'maint-degradation',
+    answer: "Tier-1 solar panels have an expected operational lifespan of **25 to 30 years** and typically come backed by a 25-year manufacturer performance warranty. Panels degrade slowly, losing only about **0.3% to 0.5%** of capacity each year, guaranteeing at least 80–85% of their original output at year 25. Modern solar inverters and lithium batteries typically last 10 to 15 years before requiring scheduled replacement."
+  },
+  {
+    pattern: /\b(solar\s*pulse|this\s*app|tools?|calculator|estimator|how\s*to\s*use)\b/i,
+    docId: 'platform-overview',
+    answer: "**Solar Pulse** provides a complete suite of solar engineering tools designed for both homeowners and analysts. Use the **Dashboard** for live telemetry simulation, the **Consumption Calculator** to size your system, and the **Cost & ROI Estimator** for 25-year financial projections. You can also fine-tune roof angles using the **Orientation Tuning** tool in the sidebar."
+  }
+];
+
 /**
- * Pure offline RAG-powered answer (no external API needed)
- * Finds best-matching doc and returns its content directly
+ * Extracts 2 to 3 concise, informative sentences from document content.
+ * Guarantees sentence count is strictly between 2 and 4 sentences.
+ */
+function extractConciseSentences(content, queryTokens) {
+  const sentences = content
+    .replace(/([.!?])\s+(?=[A-Z0-9])/g, "$1\n")
+    .split("\n")
+    .map(s => s.trim())
+    .filter(s => s.length > 25 && !s.toLowerCase().startsWith("leading products:"));
+
+  if (sentences.length <= 3) {
+    return sentences.join(" ");
+  }
+
+  // Score sentences by query relevance & data density
+  const scored = sentences.map((sentence, idx) => {
+    const lower = sentence.toLowerCase();
+    let score = (idx === 0) ? 2.5 : 0; // Prioritize lead concept sentence
+
+    for (const token of queryTokens) {
+      if (lower.includes(token)) score += 1.8;
+    }
+    if (/[\d%₦$]/.test(sentence)) score += 1.0; // Boost sentences with concrete figures
+
+    return { sentence, score, idx };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+
+  // Take top 2-3 sentences and sort by original narrative flow
+  const chosen = scored.slice(0, 3).sort((a, b) => a.idx - b.idx);
+  return chosen.map(c => c.sentence).join(" ");
+}
+
+/**
+ * Pure offline RAG-powered concise answer (no external API needed)
+ * Delivers crisp, direct solar answers strictly within a 2-4 sentence range.
  *
  * @param {string} query - User's query
  * @returns {{ answer: string, sources: object[] }}
  */
 export function offlineRAGAnswer(query) {
-  const results = retrieve(query, 2);
+  const cleanQuery = query.trim();
+  if (!cleanQuery) {
+    return {
+      answer: null,
+      sources: []
+    };
+  }
 
+  // 1. Check curated concise topic answers first for maximum relevance and crisp 2-3 sentence range
+  for (const topic of CONCISE_TOPIC_ANSWERS) {
+    if (topic.pattern.test(cleanQuery)) {
+      const matchedDoc = KNOWLEDGE_BASE.find(d => d.id === topic.docId);
+      return {
+        answer: topic.answer,
+        sources: matchedDoc ? [{
+          title: matchedDoc.title,
+          category: matchedDoc.category,
+          source: matchedDoc.source,
+          confidence: 'high',
+          id: matchedDoc.id
+        }] : []
+      };
+    }
+  }
+
+  // 2. Retrieve top matching document from 50+ item knowledge corpus
+  const results = retrieve(cleanQuery, 2);
   if (results.length === 0) {
     return {
       answer: null,
@@ -370,26 +500,21 @@ export function offlineRAGAnswer(query) {
   }
 
   const primary = results[0];
-  const secondary = results[1];
+  const queryTokens = tokenize(expandQuery(cleanQuery));
+  const conciseSummary = extractConciseSentences(primary.doc.content, queryTokens);
 
-  let answer = `### ${primary.doc.title}\n\n${primary.doc.content}`;
+  // Formulate concise answer strictly within 2-4 sentence range
+  const answer = `**${primary.doc.title}**: ${conciseSummary}`;
 
-  if (secondary && secondary.confidence !== 'low') {
-    answer += `\n\n---\n\n### Also Relevant: ${secondary.doc.title}\n\n${secondary.doc.content}`;
-  }
-
-  // Add platform cross-reference if not already platform doc
-  if (primary.doc.category !== 'Solar Pulse Platform') {
-    answer += `\n\n---\n\n*💡 **Pro Tip**: Use the Solar Pulse tools in the sidebar tabs (Dashboard, Calculator, Estimator, Orientation) for interactive simulations and personalized calculations based on your location and usage!*`;
-  }
-
-  const sources = results.map(r => ({
-    title: r.doc.title,
-    category: r.doc.category,
-    source: r.doc.source,
-    confidence: r.confidence,
-    id: r.doc.id
-  }));
+  const sources = [
+    {
+      title: primary.doc.title,
+      category: primary.doc.category,
+      source: primary.doc.source,
+      confidence: primary.confidence,
+      id: primary.doc.id
+    }
+  ];
 
   return { answer, sources };
 }

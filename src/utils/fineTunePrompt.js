@@ -2,7 +2,7 @@
  * Solar Pulse – Fine-Tuned System Prompt Builder v2.0
  * ─────────────────────────────────────────────────────
  * This module constructs the optimised system prompt that "fine-tunes"
- * the Gemini model's behaviour at inference time (prompt-based fine-tuning).
+ * the Solar Pulse model's behaviour at inference time (prompt-based fine-tuning).
  * 
  * Techniques used:
  *   1. Role & Persona grounding       – locks the model into expert identity
@@ -173,7 +173,7 @@ BEGIN THE CONVERSATION. Answer the user's latest query using all the above guide
 
 /**
  * Build a lightweight prompt for offline fallback (no external API)
- * Used when Gemini is not available
+ * Used for lightweight offline responses
  */
 export function buildOfflinePromptHeader() {
   return `Solar Pulse AI – Offline Knowledge Base Mode

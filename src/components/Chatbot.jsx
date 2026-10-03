@@ -1,35 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Send, 
-  Settings, 
   Sparkles, 
   RotateCcw, 
   Bot, 
-  User, 
-  Info, 
-  X, 
-  CheckCircle,
-  HelpCircle,
-  BookOpen,
-  Zap
+  User
 } from 'lucide-react';
-import { queryLocalExpert, queryGeminiAPI } from '../utils/solarExpert';
+import { queryLocalExpert } from '../utils/solarExpert';
 
 export default function Chatbot({ user, subscription, region, sunHours }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  
-  // Settings Panel States
-  const [showSettings, setShowSettings] = useState(false);
-  const [useLiveAI, setUseLiveAI] = useState(false);
-  const [geminiKey, setGeminiKey] = useState('');
-  const [isKeyValid, setIsKeyValid] = useState(null);
 
   const chatEndRef = useRef(null);
 
-  const getProfessionalGreeting = () => `Welcome to Solar Pulse AI Advisor. I can help you explore solar panel options, system sizing, battery storage, incentives, and energy savings with clear, practical guidance.`;
+  const getProfessionalGreeting = () =>
+    `Welcome to Solar Pulse AI Advisor. I provide concise, engineering-backed guidance on solar panels, system sizing, battery backup, and energy savings.`;
 
   // Suggested prompt chips
   const suggestions = [
@@ -39,37 +27,20 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
     "How much does solar cost & save?"
   ];
 
-  // Initialize messages & loads configurations from localStorage
+  // Initialize messages from localStorage
   useEffect(() => {
-    // Load Gemini configurations
-    const savedKey = localStorage.getItem('solar_pulse_gemini_key');
-    const savedUseLive = localStorage.getItem('solar_pulse_use_live');
-    
-    if (savedKey) {
-      setGeminiKey(savedKey);
-      setIsKeyValid(true);
-    }
-    if (savedUseLive === 'true' && savedKey) {
-      setUseLiveAI(true);
-    }
-
-    // Load or generate initial history
     const savedHistory = localStorage.getItem('solar_pulse_chat_history');
     if (savedHistory) {
-      setMessages(JSON.parse(savedHistory));
+      try {
+        setMessages(JSON.parse(savedHistory));
+      } catch {
+        localStorage.removeItem('solar_pulse_chat_history');
+      }
     } else {
       const initialGreeting = {
         id: 1,
         sender: 'bot',
-        text: `${getProfessionalGreeting()}
-
-I can assist with:
-* Comparing panel types such as **Monocrystalline vs Polycrystalline**
-* Explaining incentives like **tax credits and SRECs**
-* Clarifying **net metering** and grid interactions
-* Estimating system size and battery backup needs
-
-Ask a question or choose a prompt below to get started.`,
+        text: `${getProfessionalGreeting()}\n\nHow can I help with your solar plans today? Ask a question or select a prompt below.`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages([initialGreeting]);
@@ -87,20 +58,6 @@ Ask a question or choose a prompt below to get started.`,
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  // Handle API Key storage
-  const handleSaveSettings = (key, liveToggle) => {
-    localStorage.setItem('solar_pulse_gemini_key', key);
-    localStorage.setItem('solar_pulse_use_live', liveToggle ? 'true' : 'false');
-    
-    if (key.trim()) {
-      setIsKeyValid(true);
-    } else {
-      setIsKeyValid(false);
-      setUseLiveAI(false);
-      localStorage.setItem('solar_pulse_use_live', 'false');
-    }
-  };
 
   // Text streaming simulator (mimics word-by-word LLM responses)
   const streamText = (fullText, messageId, sources = []) => {
@@ -141,7 +98,7 @@ Ask a question or choose a prompt below to get started.`,
         }));
         currentIdx++;
       }
-    }, 38);
+    }, 28);
   };
 
   // Send message
@@ -165,38 +122,13 @@ Ask a question or choose a prompt below to get started.`,
     setMessages(prev => [...prev, newUserMsg]);
 
     try {
-      if (useLiveAI && geminiKey) {
-        // Live AI: Gemini + RAG + Fine-tuned system prompt
-        const chatHistory = messages.map(msg => ({
-          sender: msg.sender,
-          text: msg.text
-        }));
-
-        const userContext = {
-          region: region || 'Unknown',
-          subscription: subscription?.plan || 'free',
-          sunHours: sunHours || null,
-        };
-
-        const { answer, sources } = await queryGeminiAPI(query, chatHistory, geminiKey, userContext);
+      const { answer, sources } = queryLocalExpert(query);
+      setTimeout(() => {
         streamText(answer, botMessageId, sources);
-      } else {
-        // Offline: RAG knowledge base retrieval
-        const { answer, sources } = queryLocalExpert(query);
-        setTimeout(() => {
-          streamText(answer, botMessageId, sources);
-        }, 600);
-      }
+      }, 250);
     } catch (error) {
       console.error('AI chat error:', error);
-      const errMsg = `⚠️ **API Error**: Unable to contact the AI model. 
-
-*Reason: ${error.message}*
-
-**Troubleshooting Steps**:
-1. Check your network connection.
-2. Confirm your Gemini API Key in the **Settings Cog ⚙️** is active and valid.
-3. Toggle off **Live AI Engine** in settings to fall back to the offline Solar Expert Brain instantly.`;
+      const errMsg = "I encountered an unexpected issue while retrieving solar intelligence. Please try rephrasing your question.";
       
       setMessages(prev => [
         ...prev,
@@ -227,9 +159,7 @@ Ask a question or choose a prompt below to get started.`,
     const initialGreeting = {
       id: 1,
       sender: 'bot',
-      text: `${getProfessionalGreeting()}
-
-Conversation cleared. How can I assist you with your next solar inquiry?`,
+      text: `${getProfessionalGreeting()}\n\nConversation cleared. How can I assist you with your next solar inquiry?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages([initialGreeting]);
@@ -247,10 +177,10 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
 
       // Handle headers: ### Header
       if (content.startsWith('### ')) {
-        return <h4 key={idx} style={{ marginTop: '16px', marginBottom: '8px', fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>{content.replace('### ', '')}</h4>;
+        return <h4 key={idx} style={{ marginTop: '12px', marginBottom: '6px', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{content.replace('### ', '')}</h4>;
       }
       if (content.startsWith('## ')) {
-        return <h3 key={idx} style={{ marginTop: '20px', marginBottom: '10px', fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>{content.replace('## ', '')}</h3>;
+        return <h3 key={idx} style={{ marginTop: '16px', marginBottom: '8px', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>{content.replace('## ', '')}</h3>;
       }
 
       // Handle bullet list: * item or - item
@@ -290,7 +220,7 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
       }
 
       return (
-        <p key={idx} style={{ marginBottom: '10px', color: 'var(--text-secondary)' }}>
+        <p key={idx} style={{ marginBottom: idx === lines.length - 1 ? 0 : '8px', color: 'var(--text-secondary)' }}>
           {elements}
         </p>
       );
@@ -308,31 +238,14 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
             Solar AI Advisor
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {useLiveAI 
-              ? <><Zap size={13} style={{ color: 'hsl(var(--color-solar))' }} /> Gemini AI + RAG Knowledge Engine</>
-              : <><BookOpen size={13} style={{ color: 'hsl(var(--color-gen))' }} /> RAG Offline Knowledge Engine Active</>}
+            <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'hsl(var(--color-gen))' }} />
+            <span>Solar Intelligence Active • Concise Guidance</span>
           </p>
         </div>
         
         <div style={{ display: 'flex', gap: '10px' }}>
           <button className="btn-outline" onClick={clearChatLogs} style={{ padding: '8px', borderRadius: '50%', width: '38px', height: '38px' }} title="Clear conversation history" aria-label="Clear conversation history">
             <RotateCcw size={16} />
-          </button>
-          <button 
-            className="btn-outline" 
-            onClick={() => setShowSettings(!showSettings)}
-            style={{ 
-              padding: '8px', 
-              borderRadius: '50%', 
-              width: '38px', 
-              height: '38px',
-              borderColor: useLiveAI ? 'hsl(var(--color-solar))' : 'var(--border-color)',
-              color: useLiveAI ? 'hsl(var(--color-solar))' : 'var(--text-primary)'
-            }} 
-            title="AI Config Settings"
-            aria-label="Open AI settings"
-          >
-            <Settings size={16} />
           </button>
         </div>
       </div>
@@ -403,11 +316,11 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
               }}>
                 {renderMarkdown(msg.text)}
 
-                {/* RAG Source Attribution */}
+                {/* Source Attribution */}
                 {msg.sender === 'bot' && !msg.isStreaming && msg.sources && msg.sources.length > 0 && (
                   <div style={{ marginTop: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '8px' }}>
                     <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginBottom: '5px', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                      📚 Sources
+                      📚 Source
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                       {msg.sources.map((src, si) => (
@@ -420,11 +333,11 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
                           color: src.confidence === 'high' ? 'hsl(var(--color-gen))' : src.confidence === 'medium' ? 'hsl(var(--color-solar))' : 'var(--text-muted)',
                           cursor: 'default',
                           whiteSpace: 'nowrap',
-                          maxWidth: '180px',
+                          maxWidth: '220px',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis'
                         }}>
-                          {src.confidence === 'high' ? '●' : src.confidence === 'medium' ? '◐' : '○'} {src.title}
+                          ● {src.title}
                         </span>
                       ))}
                     </div>
@@ -465,7 +378,7 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
                 gap: '6px'
               }}>
                 <span className="logo-icon" style={{ fontSize: '1.2rem' }}>●</span>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Advisor reasoning...</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Advisor consulting knowledge base...</span>
               </div>
             </div>
           )}
@@ -534,116 +447,12 @@ Conversation cleared. How can I assist you with your next solar inquiry?`,
               onClick={() => handleSendMessage(inputText)}
               disabled={isLoading || !inputText.trim()}
               style={{ width: '48px', height: '48px', padding: '0', borderRadius: '12px' }}
+              aria-label="Send message"
             >
               <Send size={18} />
             </button>
           </div>
         </div>
-
-        {/* Sliding settings overlay drawer */}
-        {showSettings && (
-          <>
-            <div 
-              style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                backdropFilter: 'blur(3px)',
-                zIndex: 29
-              }}
-              onClick={() => setShowSettings(false)}
-              aria-hidden="true"
-            />
-            <div style={{
-              position: 'absolute',
-              top: 0, right: 0, bottom: 0,
-              width: 'min(320px, 100%)',
-              maxWidth: '100%',
-              backgroundColor: 'var(--bg-secondary)',
-              borderLeft: '1px solid var(--border-color)',
-              boxShadow: 'var(--shadow-lg)',
-              zIndex: 30,
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-              animation: 'slideInRight var(--transition-normal)'
-            }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Advisor Engine Config</h3>
-              <button onClick={() => setShowSettings(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }} aria-label="Close settings">
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Live AI Toggle Switch */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <strong style={{ fontSize: '0.9rem', display: 'block' }}>Live AI Engine</strong>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Query Google Gemini API</span>
-              </div>
-              {/* Premium CSS Toggle Switch */}
-              <label className="toggle-switch" aria-label="Toggle live AI engine">
-                <input 
-                  type="checkbox"
-                  checked={useLiveAI}
-                  disabled={!geminiKey}
-                  onChange={(e) => {
-                    setUseLiveAI(e.target.checked);
-                    handleSaveSettings(geminiKey, e.target.checked);
-                  }}
-                />
-                <span className="toggle-slider" />
-              </label>
-            </div>
-
-            {/* Gemini Key Input */}
-            <div className="form-group">
-              <label className="form-label" style={{ fontSize: '0.8rem' }}>
-                <span>Gemini API Key</span>
-                {isKeyValid && <span style={{ color: 'hsl(var(--color-gen))' }}>Active ✓</span>}
-              </label>
-              <input 
-                type="password"
-                value={geminiKey}
-                onChange={(e) => {
-                  setGeminiKey(e.target.value);
-                  handleSaveSettings(e.target.value, useLiveAI);
-                }}
-                placeholder="AIzaSy..."
-                className="form-input"
-                style={{ fontSize: '0.85rem' }}
-              />
-            </div>
-
-            {/* Educational guide banner on how to fetch keys */}
-            <div style={{
-              padding: '14px',
-              backgroundColor: 'var(--bg-primary)',
-              borderRadius: '10px',
-              border: '1px solid var(--border-color)',
-              fontSize: '0.75rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-              color: 'var(--text-secondary)'
-            }}>
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', fontWeight: 'bold' }}>
-                <HelpCircle size={14} style={{ color: 'hsl(var(--color-solar))' }} />
-                <span>How to get a free API Key:</span>
-              </div>
-              <p>1. Go to the [Google AI Studio Console](https://aistudio.google.com/).</p>
-              <p>2. Log in with your standard Gmail account.</p>
-              <p>3. Click **"Get API Key"** and copy your token.</p>
-              <p>4. Paste your token above, and check the toggle box to unlock full conversational capability!</p>
-            </div>
-
-            <button className="btn-primary" onClick={() => setShowSettings(false)} style={{ marginTop: 'auto', width: '100%', fontSize: '0.85rem' }}>
-              Apply Configurations
-            </button>
-          </div>
-          </>
-        )}
 
       </div>
 

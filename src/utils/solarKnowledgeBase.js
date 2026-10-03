@@ -295,11 +295,11 @@ export const KNOWLEDGE_BASE = [
   },
   {
     id: 'platform-chatbot',
-    title: 'Solar Pulse AI Advisor – How to Use',
+    title: 'Solar Pulse AI Advisor',
     category: 'Solar Pulse Platform',
-    source: 'Solar Pulse Internal Docs',
-    tags: ['chatbot', 'ai', 'advisor', 'solar pulse', 'gemini', 'settings', 'api key', 'tab'],
-    content: `The Solar Pulse AI Advisor provides expert solar energy guidance. Offline mode: uses a built-in knowledge base with instant responses. Live AI mode: connects to Google Gemini API for full conversational AI. To enable Live AI: click the Settings gear icon (⚙️), enter your free Google Gemini API key from aistudio.google.com, and toggle Live AI Engine on. The advisor remembers conversation history and provides formatted, detailed answers about solar topics.`
+    source: 'Solar Pulse Engineering Guide',
+    tags: ['chatbot', 'ai', 'advisor', 'solar pulse', 'assistant', 'expert', 'guidance'],
+    content: `The Solar Pulse AI Advisor provides concise, engineering-backed guidance on solar panel options, system sizing, battery storage, and financial payback. Powered by a specialized solar knowledge base, it delivers instant, reliable answers without external API configuration. Ask any solar energy question to receive concise recommendations tailored to your installation.`
   },
 
   // ─── COMMON QUESTIONS ─────────────────────────────────────────────────────
