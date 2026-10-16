@@ -50,7 +50,6 @@ const fulfilPayment = async ({ db, Timestamp, FieldValue, nowMs = Date.now() }, 
       providerReference: paid.reference,
       amount: plan.amount,
       currency: plan.currency,
-      region: pending.region || 'West Africa',
       activatedAt: existing && existing.status === 'active' && existing.plan === plan.id && existing.activatedAt
         ? existing.activatedAt
         : Timestamp.fromMillis(nowMs),

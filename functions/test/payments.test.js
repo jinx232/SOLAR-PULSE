@@ -128,6 +128,12 @@ test('assertPaymentMatches accepts exact and over-payment', () => {
   assert.equal(assertPaymentMatches(makePending(), paidFor('r', { amountMajor: 5500 })).id, 'pro');
 });
 
+test('assertPaymentMatches honors quoted pending amount even if catalogue price changed', () => {
+  // Suppose user was quoted 4000 NGN in pending record, while catalogue is 5000 NGN
+  const pendingQuotedLower = makePending({ amount: 4000 });
+  assert.equal(assertPaymentMatches(pendingQuotedLower, paidFor('r', { amountMajor: 4000 })).id, 'pro');
+});
+
 test('assertPaymentMatches rejects every kind of mismatch', () => {
   const expectCode = (pending, paid, code) =>
     assert.throws(() => assertPaymentMatches(pending, paid), (e) => e instanceof PaymentRejectedError && e.code === code);

@@ -233,6 +233,7 @@ export default function Admin({ user }) {
                 {ticket.status !== 'resolved' ? (
                   <button
                     onClick={() => handleResolveTicket(ticket.id)}
+                    aria-label={`Mark ticket "${ticket.subject || ticket.id}" as resolved`}
                     style={{
                       padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600,
                       background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)',
@@ -244,6 +245,7 @@ export default function Admin({ user }) {
                 ) : (
                   <button
                     onClick={() => handleReopenTicket(ticket.id)}
+                    aria-label={`Reopen ticket "${ticket.subject || ticket.id}"`}
                     style={{
                       padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600,
                       background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-color)',

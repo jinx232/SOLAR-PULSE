@@ -121,12 +121,12 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
             </label>
           )}
 
-          <button className="auth-submit-btn" type="submit" disabled={loading}>
+          <button className="auth-submit-btn" type="submit" disabled={loading} aria-busy={loading}>
             {loading ? 'Processing...' : authView === 'signin' ? 'Sign in' : 'Create account'}
           </button>
 
           {statusMessage && (
-            <p className="auth-status-message">{statusMessage}</p>
+            <p className="auth-status-message" role="alert" aria-live="polite">{statusMessage}</p>
           )}
         </form>
 

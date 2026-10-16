@@ -108,8 +108,8 @@ export default function Profile({ user, setUser, onComplaint }) {
         image.onerror = () => reject(new Error('Invalid image file.'));
       });
 
-      // Compress to max 400px and convert to base64
-      const maxDimension = 400;
+      // Compress to thumbnail (max 250px) and convert to blob & fallback base64
+      const maxDimension = 250;
       const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
       const canvas = document.createElement('canvas');
       canvas.width = Math.max(1, Math.round(image.width * scale));
@@ -117,17 +117,16 @@ export default function Profile({ user, setUser, onComplaint }) {
       canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(imageUrl);
 
-      const base64 = canvas.toDataURL('image/jpeg', 0.80);
-      await saveUserAvatar(auth.currentUser, base64);
-      // Also update Firebase Auth photoURL so other screens stay in sync
-      await updateProfile(auth.currentUser, { photoURL: base64 }).catch(() => {});
+      const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.82));
+      const fallbackBase64 = canvas.toDataURL('image/jpeg', 0.82);
+      const savedUrl = await saveUserAvatar(auth.currentUser, blob, fallbackBase64);
 
-      setAvatarUrl(base64);
+      setAvatarUrl(savedUrl);
       setLoading(false);
       setStatusMessage('Profile picture updated successfully.');
       setUser?.(prev => ({
         ...prev,
-        user_metadata: { ...(prev?.user_metadata || {}), avatar_url: base64 },
+        user_metadata: { ...(prev?.user_metadata || {}), avatar_url: savedUrl },
       }));
     } catch (err) {
       setLoading(false);

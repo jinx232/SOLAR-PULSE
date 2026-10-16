@@ -47,12 +47,19 @@ const deps = () => ({ db, Timestamp, FieldValue });
 /* ------------------------------------------------------------------ */
 
 const verifyWithPaystack = async (reference) => {
-  const { ok, body } = await providerFetch(
+  const { ok, status, body } = await providerFetch(
     `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
     { headers: { Authorization: `Bearer ${paystackSecret.value()}` } },
   );
-  if (!ok || !body.status || !body.data) {
-    throw new PaymentRejectedError('verify-failed', 'Paystack could not verify this transaction.');
+  // Temporary provider errors (5xx or network issues) must throw standard Error so webhook returns 500
+  if (status >= 500 || !status) {
+    throw new Error(`Paystack temporary error (HTTP ${status || 'network'}). Retrying via webhook.`);
+  }
+  if (!ok && status !== 404 && status !== 400) {
+    throw new Error(`Paystack API returned status ${status}: ${body?.message || 'Unknown error'}`);
+  }
+  if (!body?.status || !body?.data) {
+    throw new PaymentRejectedError('verify-failed', body?.message || 'Paystack could not verify this transaction.');
   }
   const data = body.data;
   if (data.reference !== reference) {
@@ -69,12 +76,19 @@ const verifyWithPaystack = async (reference) => {
 };
 
 const verifyWithFlutterwave = async (reference) => {
-  const { ok, body } = await providerFetch(
+  const { ok, status, body } = await providerFetch(
     `https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=${encodeURIComponent(reference)}`,
     { headers: { Authorization: `Bearer ${flutterwaveSecret.value()}` } },
   );
-  if (!ok || body.status !== 'success' || !body.data) {
-    throw new PaymentRejectedError('verify-failed', 'Flutterwave could not verify this transaction.');
+  // Temporary provider errors (5xx or network issues) must throw standard Error so webhook returns 500
+  if (status >= 500 || !status) {
+    throw new Error(`Flutterwave temporary error (HTTP ${status || 'network'}). Retrying via webhook.`);
+  }
+  if (!ok && status !== 404 && status !== 400) {
+    throw new Error(`Flutterwave API returned status ${status}: ${body?.message || 'Unknown error'}`);
+  }
+  if (body?.status !== 'success' || !body?.data) {
+    throw new PaymentRejectedError('verify-failed', body?.message || 'Flutterwave could not verify this transaction.');
   }
   const data = body.data;
   if (data.tx_ref !== reference) {
@@ -172,7 +186,15 @@ exports.initializeTransaction = onCall(
           }),
         });
         if (!ok || !body.status) throw new Error(body.message || 'Paystack initialisation failed');
-        return { provider, reference, checkoutUrl: body.data.authorization_url, plan: plan.id, amount: plan.amount, currency: plan.currency };
+        return {
+          provider,
+          reference,
+          checkoutUrl: body.data.authorization_url,
+          accessCode: body.data.access_code,
+          plan: plan.id,
+          amount: plan.amount,
+          currency: plan.currency,
+        };
       }
 
       const { ok, body } = await providerFetch('https://api.flutterwave.com/v3/payments', {
@@ -328,19 +350,28 @@ exports.expireSubscriptions = onSchedule('every 24 hours', async () => {
 
 exports.deleteMyData = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Please sign in.');
-  const { uid } = request.auth;
+  const { uid, token } = request.auth;
 
-  await db.recursiveDelete(db.collection('users').doc(uid));
+  // 1. Recursive delete user document, projects subcollections, and profile avatar
+  await db.recursiveDelete(db.collection('users').doc(uid)).catch(() => {});
+  // 2. Delete user's presence record
+  await db.collection('presence').doc(uid).delete().catch(() => {});
+  // 3. Delete user's subscription record
   await db.collection('subscriptions').doc(uid).delete().catch(() => {});
 
-  const deleteByUid = async (collectionName, field) => {
-    const snap = await db.collection(collectionName).where(field, '==', uid).get();
+  const deleteByField = async (collectionName, field, value) => {
+    if (!value) return;
+    const snap = await db.collection(collectionName).where(field, '==', value).get();
     const batch = db.batch();
     snap.forEach((d) => batch.delete(d.ref));
     if (!snap.empty) await batch.commit();
   };
-  await deleteByUid('pendingTransactions', 'uid');
-  await deleteByUid('supportTickets', 'userId');
+
+  await deleteByField('pendingTransactions', 'uid', uid);
+  await deleteByField('supportTickets', 'userId', uid);
+  if (token?.email) {
+    await deleteByField('supportTickets', 'email', token.email);
+  }
   // `payments` ledger entries are retained (financial-records obligation) but hold no email/name.
 
   return { deleted: true };

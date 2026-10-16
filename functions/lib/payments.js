@@ -53,18 +53,14 @@ const assertPaymentMatches = (pending, paid) => {
   if (paid.status !== 'success') {
     throw new PaymentRejectedError('not-successful', `Provider reports status "${paid.status}".`);
   }
-  if (String(paid.currency || '').toUpperCase() !== plan.currency) {
-    throw new PaymentRejectedError('currency-mismatch', `Paid in ${paid.currency}, expected ${plan.currency}.`);
+  const expectedCurrency = pending.currency || plan.currency;
+  if (String(paid.currency || '').toUpperCase() !== expectedCurrency) {
+    throw new PaymentRejectedError('currency-mismatch', `Paid in ${paid.currency}, expected ${expectedCurrency}.`);
   }
-  // Compare in minor units to avoid floating-point surprises (e.g. 5000.00 vs 4999.999999).
-  if (toMinorUnits(paid.amountMajor) < toMinorUnits(plan.amount)) {
-    throw new PaymentRejectedError('amount-mismatch', `Paid ${paid.amountMajor} ${paid.currency}, required ${plan.amount} ${plan.currency}.`);
-  }
-  if (pending.amount !== undefined && toMinorUnits(pending.amount) !== toMinorUnits(plan.amount)) {
-    // Catalogue price changed after the checkout was created; honour what the buyer was quoted.
-    if (toMinorUnits(paid.amountMajor) < toMinorUnits(pending.amount)) {
-      throw new PaymentRejectedError('amount-mismatch', 'Paid amount is below the amount quoted at checkout.');
-    }
+  // Compare in minor units against the quoted pending.amount first (honors the checkout quote if catalogue price changed).
+  const expectedAmount = pending.amount !== undefined ? pending.amount : plan.amount;
+  if (toMinorUnits(paid.amountMajor) < toMinorUnits(expectedAmount)) {
+    throw new PaymentRejectedError('amount-mismatch', `Paid ${paid.amountMajor} ${paid.currency}, required ${expectedAmount} ${expectedCurrency}.`);
   }
   return plan;
 };

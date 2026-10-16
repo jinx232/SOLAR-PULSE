@@ -18,7 +18,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 
-import { auth, isAdminUser, onAuthStateChanged, signOut, startPresence, subscribeToUserPlan, toAppUser } from './utils/firebase';
+import { auth, clearChatHistory, isAdminUser, onAuthStateChanged, signOut, startPresence, subscribeToUserPlan, toAppUser } from './utils/firebase';
 
 // Subcomponents
 import Dashboard from './components/Dashboard';
@@ -147,7 +147,12 @@ export default function App() {
       setIsAuthenticated(Boolean(firebaseUser));
       setUser(toAppUser(firebaseUser));
       if (firebaseUser) {
-        setActiveView(isAdminUser(firebaseUser) ? 'admin' : 'dashboard');
+        const currentHash = window.location.hash.replace(/^#\/?/, '').trim();
+        if (VALID_VIEWS.includes(currentHash)) {
+          setActiveView(currentHash);
+        } else {
+          setActiveView(isAdminUser(firebaseUser) ? 'admin' : 'dashboard');
+        }
       }
       stopPresence = startPresence(firebaseUser);
       setAuthLoading(false);
@@ -163,6 +168,7 @@ export default function App() {
 
   const handleSignOut = async () => {
     const isGuest = user?.id === 'demo-guest';
+    clearChatHistory(user?.id);
     if (isGuest) {
       // Guest has no Firebase session — clear state directly
       setUser(null);

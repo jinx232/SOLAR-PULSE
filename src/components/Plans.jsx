@@ -79,10 +79,25 @@ export default function Plans({ user, subscription, onSelectPlan }) {
               ))}
             </div>
             {plan.id === 'free' || plan.id === currentPlan ? (
-              <button className="btn-outline" disabled style={{ width: '100%', minHeight: '44px', marginTop: 'auto' }}>Current plan</button>
+              <button
+                className="btn-outline"
+                disabled
+                aria-current="true"
+                aria-label={`${plan.name} plan is your current active plan`}
+                style={{ width: '100%', minHeight: '44px', marginTop: 'auto' }}
+              >
+                Current plan
+              </button>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
-                <button className={plan.featured ? 'btn-primary' : 'btn-outline'} onClick={() => onSelectPlan(plan)} style={{ width: '100%', minHeight: '44px' }}>Upgrade to {plan.name}</button>
+                <button
+                  className={plan.featured ? 'btn-primary' : 'btn-outline'}
+                  onClick={() => onSelectPlan(plan)}
+                  aria-label={`Upgrade to ${plan.name} plan for ${plan.price} ${plan.cadence}`}
+                  style={{ width: '100%', minHeight: '44px' }}
+                >
+                  Upgrade to {plan.name}
+                </button>
               </div>
             )}
           </article>
