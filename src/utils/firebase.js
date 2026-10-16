@@ -15,20 +15,14 @@ import {
   updateProfile,
 } from 'firebase/auth';
 
-const requiredFirebaseEnv = ['VITE_FIREBASE_API_KEY', 'VITE_FIREBASE_PROJECT_ID', 'VITE_FIREBASE_AUTH_DOMAIN', 'VITE_FIREBASE_APP_ID'];
-const missingFirebaseEnv = requiredFirebaseEnv.filter((key) => !import.meta.env[key]);
-if (missingFirebaseEnv.length > 0) {
-  console.warn(`[Solar Pulse] Missing Firebase configuration: ${missingFirebaseEnv.join(', ')}. Please configure them in your .env file.`);
-}
-
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || '',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyCQ9TqTeLNWX7AUCx10GVNSqu-EA8A_8ec',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'solar-pulse1.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'solar-pulse1',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'solar-pulse1.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '470677429490',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:470677429490:web:eab2494cb023de37a2c46b',
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || 'G-F59KS47808',
 };
 
 const app = initializeApp(firebaseConfig);

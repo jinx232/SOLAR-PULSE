@@ -162,24 +162,37 @@ export default function App() {
   useEffect(() => {
     // Synchronous setup — no async wrapper so cleanup is returned directly and
     // React StrictMode double-invoke cannot orphan a listener.
-    let stopPresence = () => {};
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      stopPresence();
-      setIsAuthenticated(Boolean(firebaseUser));
-      setUser(toAppUser(firebaseUser));
-      if (firebaseUser) {
-        const currentHash = window.location.hash.replace(/^#\/?/, '').trim();
-        if (VALID_VIEWS.includes(currentHash)) {
-          setActiveView(currentHash);
-        } else {
-          setActiveView(isAdminUser(firebaseUser) ? 'admin' : 'dashboard');
-        }
-      }
-      stopPresence = startPresence(firebaseUser);
+    const safetyTimer = setTimeout(() => {
       setAuthLoading(false);
-    });
+    }, 3500);
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (firebaseUser) => {
+        clearTimeout(safetyTimer);
+        stopPresence();
+        setIsAuthenticated(Boolean(firebaseUser));
+        setUser(toAppUser(firebaseUser));
+        if (firebaseUser) {
+          const currentHash = window.location.hash.replace(/^#\/?/, '').trim();
+          if (VALID_VIEWS.includes(currentHash)) {
+            setActiveView(currentHash);
+          } else {
+            setActiveView(isAdminUser(firebaseUser) ? 'admin' : 'dashboard');
+          }
+        }
+        stopPresence = startPresence(firebaseUser);
+        setAuthLoading(false);
+      },
+      (error) => {
+        clearTimeout(safetyTimer);
+        console.warn('[Solar Pulse] Auth listener encountered error, proceeding:', error);
+        setAuthLoading(false);
+      }
+    );
 
     return () => {
+      clearTimeout(safetyTimer);
       stopPresence();
       unsubscribe();
     };
