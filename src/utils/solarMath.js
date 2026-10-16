@@ -228,12 +228,25 @@ export const orientationEfficiency = ({ azimuth, tilt, latitude }) => {
 
 /* ------------------------------ dashboard sim ------------------------------ */
 
-/** Simulated PV output (kW) for a clock hour (0-24) and cloud cover (0-100 %). */
-export const simulatedSolarKw = ({ hour, cloudCover, arrayKw = 6.5 }) => {
-  if (hour < 6 || hour > 18) return 0;
-  const sun = Math.sin(((hour - 6) * Math.PI) / 12);
-  const cloudFactor = (100 - clamp(cloudCover, 0, 100) * 0.75) / 100;
-  return round(Math.max(0, arrayKw * sun * cloudFactor), 2);
+/** Simulated PV output (kW) for a clock hour (0-24) and cloud cover (0-100 %). Supports both options object and positional arguments. */
+export const simulatedSolarKw = (arg, cloudCoverArg, arrayKwArg = 6.5) => {
+  let hour, cloudCover, arrayKw;
+  if (typeof arg === 'object' && arg !== null) {
+    ({ hour, cloudCover, arrayKw = 6.5 } = arg);
+  } else {
+    hour = arg;
+    cloudCover = cloudCoverArg;
+    arrayKw = arrayKwArg;
+  }
+  const safeHour = Number.isFinite(hour) ? hour : 12;
+  const safeCloud = Number.isFinite(cloudCover) ? cloudCover : 20;
+  const safeArray = Number.isFinite(arrayKw) && arrayKw > 0 ? arrayKw : 6.5;
+
+  if (safeHour < 6 || safeHour > 18) return 0;
+  const sun = Math.sin(((safeHour - 6) * Math.PI) / 12);
+  const cloudFactor = (100 - clamp(safeCloud, 0, 100) * 0.75) / 100;
+  const result = safeArray * sun * cloudFactor;
+  return Number.isFinite(result) ? round(Math.max(0, result), 2) : 0;
 };
 
 /** Illustrative UV index for the simulator, labelled with the WHO bands. */

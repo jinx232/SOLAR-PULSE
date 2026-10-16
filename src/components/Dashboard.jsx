@@ -50,7 +50,7 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
 
       // Recalculate solar based on current time and cloud cover
       const currentHour = now.getHours() + now.getMinutes() / 60;
-      setSolarGen(simulatedSolarKw(currentHour, cloudCover, 6.5));
+      setSolarGen(simulatedSolarKw({ hour: currentHour, cloudCover, arrayKw: 6.5 }));
     }, 3000);
 
     return () => clearInterval(interval);
@@ -59,20 +59,22 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
   // Recalculate solar generation immediately when cloudCover slider changes
   useEffect(() => {
     const currentHour = new Date().getHours() + new Date().getMinutes() / 60;
-    setSolarGen(simulatedSolarKw(currentHour, cloudCover, 6.5));
+    setSolarGen(simulatedSolarKw({ hour: currentHour, cloudCover, arrayKw: 6.5 }));
   }, [cloudCover]);
 
   // Update battery based on power balance — accelerated simulation factor so live flow is visible
   useEffect(() => {
     const interval = setInterval(() => {
-      const netPower = solarGen - houseCon;
+      const currentSolar = Number.isFinite(solarGen) ? solarGen : 4.2;
+      const currentHouse = Number.isFinite(houseCon) ? houseCon : 2.1;
+      const netPower = currentSolar - currentHouse;
       setBatterySoc(prev => {
         const current = Number.isFinite(prev) ? prev : 68;
         return stepBattery({
           socPct: current,
           netKw: netPower,
           capacityKwh: maxBatteryCapacity,
-          dtHours: (1.5 * 40) / 3600 // accelerated simulation factor so live flow is visible
+          dtHours: (1.5 * 60) / 3600 // accelerated simulation factor so battery visibly charges/discharges
         });
       });
     }, 1500);
@@ -316,11 +318,11 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
             <Sun size={24} style={{ color: 'hsl(var(--color-solar))' }} />
           </div>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '6px' }}>
-            {solarGen} <span style={{ fontSize: '1rem', fontWeight: 500 }}>kW</span>
+            {Number.isFinite(solarGen) ? solarGen : 0} <span style={{ fontSize: '1rem', fontWeight: 500 }}>kW</span>
           </h2>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ color: 'hsl(var(--color-gen))', fontWeight: 700 }}>● Active</span>
-            <span>Capacity Factor: {Math.round((solarGen / 6.5) * 100)}%</span>
+            <span>Capacity Factor: {Number.isFinite(solarGen) ? Math.min(100, Math.max(0, Math.round((solarGen / 6.5) * 100))) : 0}%</span>
           </div>
           <div style={{
             position: 'absolute',
