@@ -7,7 +7,7 @@ import {
   updateProfile,
 } from '../utils/firebase';
 
-export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLogin, onAdminDemoLogin }) {
+export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLogin }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -145,7 +145,7 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
           </p>
 
           {onGuestLogin && (
-            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', width: '100%' }}>
               <button
                 type="button"
                 className="btn-outline auth-guest-btn"
@@ -165,31 +165,6 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
               >
                 ⚡ Explore Platform in Demo Mode
               </button>
-
-              {onAdminDemoLogin && (
-                <button
-                  type="button"
-                  className="btn-outline"
-                  onClick={onAdminDemoLogin}
-                  style={{
-                    width: '100%',
-                    minHeight: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    fontSize: '0.82rem',
-                    fontWeight: 600,
-                    color: 'var(--text-muted)',
-                    borderColor: 'var(--border-color)',
-                    background: 'rgba(255, 255, 255, 0.03)'
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
-                >
-                  🛡️ Admin Evaluation Mode
-                </button>
-              )}
             </div>
           )}
         </div>

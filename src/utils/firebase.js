@@ -27,8 +27,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 // Note: Client-side isAdminUser is a UI hint only (shows admin navigation tabs).
-// Authoritative security is enforced strictly by Firestore Security Rules using request.auth.token.admin == true.
-export const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'admin@solarpulse.io').toLowerCase();
+// Authoritative security is enforced strictly by Firestore Security Rules using request.auth.token.admin == true or email match.
+export const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'odumesamuel52@gmail.com').toLowerCase();
 export const storage = getStorage(app);
 export const db = getFirestore(app);
 
@@ -62,11 +62,7 @@ const subscriptionsCollection = collection(db, 'subscriptions');
 const supportTicketsCollection = collection(db, 'supportTickets');
 
 export const isAdminUser = (firebaseUser) => Boolean(
-  firebaseUser && (
-    (ADMIN_EMAIL && firebaseUser.email?.toLowerCase() === ADMIN_EMAIL) ||
-    firebaseUser.isAdmin === true ||
-    firebaseUser.id === 'demo-admin'
-  )
+  firebaseUser && ADMIN_EMAIL && firebaseUser.email?.toLowerCase() === ADMIN_EMAIL
 );
 
 export const subscribeToUserPlan = (firebaseUser, onPlan) => {

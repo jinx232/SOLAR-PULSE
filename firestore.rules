@@ -7,9 +7,11 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      // Authoritative admin check: strictly requires the custom auth token claim `admin: true`.
-      // Client-side email comparisons are treated as UI hints only.
-      return isSignedIn() && request.auth.token.admin == true;
+      // Authoritative admin check: strictly requires the custom auth token claim `admin: true` OR the owner email.
+      return isSignedIn() && (
+        request.auth.token.admin == true ||
+        (request.auth.token.email != null && request.auth.token.email.lower() == 'odumesamuel52@gmail.com')
+      );
     }
 
     match /presence/{userId} {
