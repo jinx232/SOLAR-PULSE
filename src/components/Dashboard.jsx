@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { auth, loadUserAvatar } from '../utils/firebase';
+import { stepBattery, simulatedSolarKw, uvLabel } from '../utils/solarMath';
 import { 
   Sun, 
   TrendingUp, 
@@ -30,63 +32,41 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
   const maxBatteryCapacity = 13.5; // Tesla Powerwall standard (kWh)
   const gridRate = 0.16; // $ per kWh
 
-  // Live simulation loop
+  // Live simulation clock and household load fluctuation
   useEffect(() => {
     const interval = setInterval(() => {
-      setTime(new Date());
+      const now = new Date();
+      setTime(now);
 
-      // Simulate subtle weather adjustments
-      setCloudCover(prev => {
-        const change = (Math.random() - 0.5) * 5;
-        return Math.min(100, Math.max(0, Math.round(prev + change)));
-      });
-
-      setTemperature(prev => {
-        const change = (Math.random() - 0.5) * 0.4;
-        return Math.min(45, Math.max(-5, Math.round((prev + change) * 10) / 10));
-      });
-
-      // Calculate solar based on cloud cover and simulated time of day (12:00 peak)
-      const currentHour = new Date().getHours() + new Date().getMinutes() / 60;
-      let solarFactor = 0;
-      if (currentHour >= 6 && currentHour <= 18) {
-        // Bell curve peaking at 12:00
-        solarFactor = Math.sin((currentHour - 6) * Math.PI / 12);
-      }
-      
-      const maxPossibleGen = 6.5; // kW max capacity
-      const cloudEfficiency = (100 - cloudCover * 0.75) / 100;
-      const simulatedGen = maxPossibleGen * solarFactor * cloudEfficiency;
-      setSolarGen(Math.round(Math.max(0, simulatedGen) * 100) / 100);
-
-      // Simulate household consumption fluctuating (major appliances clicking on/off)
+      // Simulate household consumption fluctuating (major appliances cycling)
       setHouseCon(prev => {
         const fluctuation = (Math.random() - 0.5) * 0.6;
         let base = 1.8;
-        // Peak hours (evening load)
-        const hour = new Date().getHours();
+        const hour = now.getHours();
         if (hour >= 17 && hour <= 21) base = 3.2;
-        if (hour >= 23 || hour <= 5) base = 0.8; // Night baseline
+        if (hour >= 23 || hour <= 5) base = 0.8;
         return Math.round(Math.max(0.3, base + fluctuation) * 100) / 100;
       });
+
+      // Recalculate solar based on current time and cloud cover
+      const currentHour = now.getHours() + now.getMinutes() / 60;
+      setSolarGen(simulatedSolarKw(currentHour, cloudCover, 6.5));
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [cloudCover]);
 
-  // Update battery based on power balance
+  // Recalculate solar generation immediately when cloudCover slider changes
+  useEffect(() => {
+    const currentHour = new Date().getHours() + new Date().getMinutes() / 60;
+    setSolarGen(simulatedSolarKw(currentHour, cloudCover, 6.5));
+  }, [cloudCover]);
+
+  // Update battery based on power balance — accelerated simulation factor so live flow is visible
   useEffect(() => {
     const interval = setInterval(() => {
-      // Power balance in kW: Solar Gen - House Con
-      // 1-second step contribution: kW * (1/3600 hrs) = kWh
       const netPower = solarGen - houseCon;
-      const energyDeltaKwh = netPower * (1.5 / 3600); // simulated accelerated charge rate
-      
-      setBatterySoc(prev => {
-        const currentChargeKwh = (prev / 100) * maxBatteryCapacity;
-        const newChargeKwh = Math.min(maxBatteryCapacity, Math.max(0, currentChargeKwh + energyDeltaKwh));
-        return Math.round((newChargeKwh / maxBatteryCapacity) * 100);
-      });
+      setBatterySoc(prev => stepBattery(prev, netPower, maxBatteryCapacity, 1.5, 60));
     }, 1500);
 
     return () => clearInterval(interval);
@@ -118,7 +98,17 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
 
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Solar Analyst';
   const userEmail = user?.email || 'Not signed in';
-  const avatarUrl = user?.user_metadata?.avatar_url;
+  const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || null);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (auth.currentUser) {
+      loadUserAvatar(auth.currentUser).then((url) => {
+        if (!cancelled && url) setAvatarUrl(url);
+      }).catch(() => {});
+    }
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
   return (
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -131,6 +121,9 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
               className="dashboard-avatar" 
               style={{ cursor: 'pointer' }} 
               onClick={() => onNavigate?.('profile')} 
+              onKeyDown={(e) => e.key === 'Enter' && onNavigate?.('profile')}
+              tabIndex={0}
+              role="button"
               title="Open Profile Settings"
               aria-label="View user profile"
             >
@@ -560,15 +553,18 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
               />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', borderTop: '1px solid var(--border-color)', pt: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
               <div>
                 <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>TEMPERATURE</span>
                 <span style={{ fontWeight: 600 }}>{temperature}°C</span>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>UV INDEX</span>
-                <span style={{ fontWeight: 600, color: cloudCover < 20 ? 'red' : 'orange' }}>
-                  {Math.max(1, Math.round(9 * (100 - cloudCover) / 100))} (High)
+                <span style={{ fontWeight: 600, color: cloudCover < 20 ? '#ef4444' : cloudCover < 50 ? '#f97316' : '#eab308' }}>
+                  {(() => {
+                    const uv = Math.max(1, Math.round(9 * (100 - cloudCover) / 100));
+                    return `${uv} (${uvLabel(uv)})`;
+                  })()}
                 </span>
               </div>
             </div>

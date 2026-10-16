@@ -5,7 +5,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ['dist/**', 'node_modules/**', 'functions/**', '.vite/**'],
   },
   eslint.configs.recommended,
   {
@@ -23,6 +23,10 @@ export default [
     rules: {
       ...reactHooks.configs.flat.recommended.rules,
       'react-refresh/only-export-components': 'warn',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^React$|^_' }],
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/purity': 'warn',
+      'no-empty': ['warn', { allowEmptyCatch: true }],
     },
   },
 ];

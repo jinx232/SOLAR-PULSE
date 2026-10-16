@@ -58,7 +58,7 @@ const QUERY_EXPANSIONS = {
 function tokenize(text) {
   return text
     .toLowerCase()
-    .replace(/[^a-z0-9\s\-]/g, ' ')
+    .replace(/[^a-z0-9\s-]/g, ' ')
     .split(/\s+/)
     .filter(token => token.length > 2 && !STOP_WORDS.has(token));
 }
@@ -367,22 +367,22 @@ const CONCISE_TOPIC_ANSWERS = [
   },
   {
     pattern: /\bbatter(y|ies)\b|\bpowerwall\b|\bbackup\b|\bstorage\b|\blifepo4\b/i,
-    docId: 'battery-basics',
+    docId: 'battery-lifepo4',
     answer: "Standard grid-tied solar panels automatically shut down during utility outages for line-worker safety unless paired with a **battery storage system**. Adding a modern lithium battery (such as LiFePO4 or Tesla Powerwall) stores daytime solar surplus to provide instant blackout protection and cover expensive peak-rate hours. If your area suffers frequent outages or time-of-use utility rates, battery storage is strongly recommended."
   },
   {
-    pattern: /\b(cost|price|save|savings|payback|roi|how\s*much)\b.*\b(solar|system|install)\b/i,
-    docId: 'finance-payback-roi',
+    pattern: /(?:\b(cost|price|save|savings|payback|roi|how\s*much)\b.*\b(solar|system|install|panels?)\b|\b(solar|system|install|panels?)\b.*\b(cost|price|save|savings|payback|roi)\b)/i,
+    docId: 'finance-roi',
     answer: "A residential solar installation typically costs between $15,000 and $25,000 before federal tax incentives, with an average payback period of **5 to 8 years**. Once paid off, your system provides essentially free electricity for the remainder of its 25+ year operational lifespan. In locations with high utility rates or where solar replaces diesel generator fuel, payback can occur in as little as 2.5 to 3.5 years."
   },
   {
     pattern: /\b(tilt|angle|orientation|direction|azimuth|south|pitch)\b/i,
-    docId: 'install-tilt-angle',
+    docId: 'install-orientation',
     answer: "Panels in the Northern Hemisphere should face **true South** at a tilt angle roughly equal to your geographic latitude for maximum annual electricity production. In tropical latitudes like West Africa, a shallow 10°–15° tilt captures intense overhead sun while allowing natural rainwater to rinse away surface dust. Proper orientation can enhance your overall annual solar yield by up to 15%."
   },
   {
     pattern: /\b(cloud|cloudy|rain|rainy|overcast|winter|snow|shade)\b/i,
-    docId: 'install-shading',
+    docId: 'install-orientation',
     answer: "Solar panels continue generating power in cloudy or rainy conditions, typically producing **10% to 25%** of their rated peak capacity using diffuse ambient sunlight. Modern high-efficiency cells like TOPCon and PERC are engineered with enhanced low-light sensitivity to optimize overcast production. Your system's annual sizing and production estimates already factor in regional cloudy days and seasonal weather shifts."
   },
   {
@@ -392,27 +392,27 @@ const CONCISE_TOPIC_ANSWERS = [
   },
   {
     pattern: /\b(inverter|microinverter|string\s*inverter|hybrid\s*inverter|optimizer)\b/i,
-    docId: 'system-inverter-types',
+    docId: 'sizing-inverter',
     answer: "**String inverters** connect panels in series and are cost-effective, but shading on a single panel reduces output across the entire string. **Microinverters** operate independently at each panel, maximizing overall array production and offering panel-by-panel performance tracking. If your roof has partial tree shading or multiple roof pitches, microinverters or DC optimizers are the recommended choice."
   },
   {
     pattern: /\b(clean|cleaning|maintain|maintenance|dirty|wash|dust)\b/i,
-    docId: 'maint-cleaning',
+    docId: 'maintenance-cleaning',
     answer: "Solar panels require minimal maintenance because they have no moving parts and are built to withstand extreme weather for 25–30 years. Natural rainfall washes away most dust and debris, but a gentle rinse with plain water and a soft cloth once or twice a year can recover 3–5% of lost output. Never use abrasive chemicals, hard brushes, or high-pressure washers that could scratch the protective anti-reflective coating."
   },
   {
     pattern: /\b(nigeria|lagos|africa|nepa|nepa\s*light|generator|fuel|petrol|diesel)\b/i,
-    docId: 'sizing-africa-nigeria',
+    docId: 'sizing-africa',
     answer: "In Nigeria and West Africa, solar systems paired with lithium (LiFePO4) storage offer continuous 24/7 electricity while eliminating steep petrol and diesel generator expenses. A standard 5 kW hybrid solar setup pays for itself in just **2.5 to 3.5 years** compared to daily generator fueling. It also provides clean, silent power and shields delicate household electronics from unstable utility grid surges."
   },
   {
     pattern: /\b(tax\s*credit|itc|rebate|incentive|srec|grant)\b/i,
-    docId: 'finance-tax-credits-itc',
-    answer: "The federal **Residential Clean Energy Credit (ITC)** allows homeowners to deduct **30%** of their total solar and battery installation costs directly from federal taxes. Additional state rebates, solar renewable energy certificates (SRECs), and local utility credits can decrease your net expense even further. Taking full advantage of these incentives significantly accelerates your payback timeline."
+    docId: 'finance-itc',
+    answer: "The US federal 30% Residential Clean Energy Credit (Section 25D) applied to systems placed in service through 2025; under the July 2025 reconciliation law, residential expenditures after 2025 are no longer eligible. State rebates, SRECs, and commercial incentives may still apply in the US. For homeowners in West Africa, financial payback is driven by displaced grid electricity and diesel generator fuel rather than tax deductions."
   },
   {
     pattern: /\b(lifespan|life|degradation|warranty|how\s*long\s*do\s*panels\s*last|durab)\b/i,
-    docId: 'maint-degradation',
+    docId: 'maintenance-degradation',
     answer: "Tier-1 solar panels have an expected operational lifespan of **25 to 30 years** and typically come backed by a 25-year manufacturer performance warranty. Panels degrade slowly, losing only about **0.3% to 0.5%** of capacity each year, guaranteeing at least 80–85% of their original output at year 25. Modern solar inverters and lithium batteries typically last 10 to 15 years before requiring scheduled replacement."
   },
   {

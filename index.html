@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Favicon – all browsers -->
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
+    <link rel="shortcut icon" type="image/jpeg" href="/favicon.jpg" />
+    <!-- Apple home-screen icon -->
+    <link rel="apple-touch-icon" href="/favicon.jpg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#070b13" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -10,8 +14,17 @@
     <script src="https://js.paystack.co/v2/inline.js" defer></script>
     <script src="https://checkout.flutterwave.com/v3.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Solar Pulse is a premium scholarship-worthy solar energy simulation platform featuring interactive real-time dashboards, appliance consumption calculators, 25-year payback ROI estimators, and smart AI advisors." />
-    <title>Solar Pulse | Professional Solar Energy Monitoring & ROI Simulator</title>
+    <meta name="description" content="Solar Pulse — monitor solar generation, simulate ROI, track battery, and get AI-powered energy insights in real time." />
+    <!-- Open Graph (Google search preview, Facebook, WhatsApp) -->
+    <meta property="og:title" content="Solar Pulse | Smart Solar Energy Platform" />
+    <meta property="og:description" content="Real-time solar monitoring, ROI calculator, battery tracker and AI advisor — all in one premium dashboard." />
+    <meta property="og:image" content="/favicon.jpg" />
+    <meta property="og:type" content="website" />
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Solar Pulse" />
+    <meta name="twitter:image" content="/favicon.jpg" />
+    <title>Solar Pulse | Smart Solar Energy Monitoring &amp; ROI Simulator</title>
   </head>
   <body>
     <div id="root"></div>

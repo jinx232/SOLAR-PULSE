@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cookie Policy | Solar Pulse</title>
+  <meta name="description" content="Cookie Policy for Solar Pulse — explanation of session cookies, local storage, and tracking preferences." />
+  <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #0a0e1a; color: #f1f5f9; line-height: 1.7; padding: 40px 20px; }
+    .container { max-width: 800px; margin: 0 auto; background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 40px; }
+    h1 { font-size: 2rem; font-weight: 800; color: #f59e0b; margin-bottom: 8px; }
+    .effective-date { font-size: 0.85rem; color: #94a3b8; margin-bottom: 28px; }
+    h2 { font-size: 1.25rem; font-weight: 700; color: #f1f5f9; margin-top: 28px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; }
+    p, li { font-size: 0.95rem; color: #cbd5e1; margin-bottom: 14px; }
+    ul { padding-left: 24px; margin-bottom: 14px; }
+    a { color: #f59e0b; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px; color: #94a3b8; font-size: 0.875rem; text-decoration: none; }
+    .back-btn:hover { color: #f59e0b; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    th { color: #f59e0b; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/landing/index.html" class="back-btn">← Back to Solar Pulse</a>
+    <h1>Cookie Policy</h1>
+    <p class="effective-date">Last Updated: October 2026</p>
+
+    <p>This Cookie Policy explains how <strong>Solar Pulse</strong> uses cookies and local browser storage technologies to provide, customize, and secure your experience on our platform.</p>
+
+    <h2>1. What Are Cookies and Local Storage?</h2>
+    <p>Cookies are small text files placed on your device by websites. Local Storage is a modern web standard that allows applications to store key-value data directly in your browser without transmitting it on every network request.</p>
+
+    <h2>2. Technologies We Use</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Key / Cookie</th>
+          <th>Type</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>sp_theme</code></td>
+          <td>Local Storage</td>
+          <td>Remembers your preference between Dark Mode and Light Mode.</td>
+        </tr>
+        <tr>
+          <td><code>solar_pulse_chat_*</code></td>
+          <td>Local Storage</td>
+          <td>Stores your session conversation with the Solar AI Advisor locally on your device so it is preserved across page refreshes and scoped to your user ID.</td>
+        </tr>
+        <tr>
+          <td>Firebase Auth Token</td>
+          <td>IndexedDB / Cookie</td>
+          <td>Maintains your authenticated session securely so you don't have to log in on every visit.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>3. Managing Your Preferences</h2>
+    <p>You can manage or disable cookies and local storage through your browser settings. However, disabling essential session tokens will prevent you from signing in or saving your solar projects.</p>
+
+    <h2>4. Updates to This Policy</h2>
+    <p>We may update this policy periodically to reflect operational, legal, or regulatory modifications. Updates are published immediately on this page.</p>
+  </div>
+</body>
+</html>

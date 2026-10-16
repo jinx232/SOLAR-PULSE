@@ -6,6 +6,7 @@ import {
   Bot, 
   User
 } from 'lucide-react';
+import { isAdminUser } from '../utils/firebase';
 import { queryLocalExpert } from '../utils/solarExpert';
 
 export default function Chatbot({ user, subscription, region, sunHours }) {
@@ -15,26 +16,31 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const chatEndRef = useRef(null);
+  // Track streaming interval so it can be cleaned up on unmount
+  const streamingIntervalRef = useRef(null);
+
+  // Scoped localStorage key prevents chat history leaking between users
+  const chatHistoryKey = `solar_pulse_chat_${user?.id || 'guest'}`;
 
   const getProfessionalGreeting = () =>
     `Welcome to Solar Pulse AI Advisor. I provide concise, engineering-backed guidance on solar panels, system sizing, battery backup, and energy savings.`;
 
-  // Suggested prompt chips
+  // Suggested prompt chips — reworded so the cost chip triggers the cost regex
   const suggestions = [
     "Monocrystalline vs Polycrystalline?",
     "How does Net Metering work?",
     "Do I need batteries for backup?",
-    "How much does solar cost & save?"
+    "What does solar cost and how much can I save?"
   ];
 
-  // Initialize messages from localStorage
+  // Initialize messages from localStorage (scoped to user)
   useEffect(() => {
-    const savedHistory = localStorage.getItem('solar_pulse_chat_history');
+    const savedHistory = localStorage.getItem(chatHistoryKey);
     if (savedHistory) {
       try {
         setMessages(JSON.parse(savedHistory));
       } catch {
-        localStorage.removeItem('solar_pulse_chat_history');
+        localStorage.removeItem(chatHistoryKey);
       }
     } else {
       const initialGreeting = {
@@ -45,14 +51,25 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
       };
       setMessages([initialGreeting]);
     }
+  // Re-initialize when user changes (prevents cross-user data leaking)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatHistoryKey]);
+
+  // Clean up streaming interval on unmount
+  useEffect(() => {
+    return () => {
+      if (streamingIntervalRef.current) {
+        clearInterval(streamingIntervalRef.current);
+      }
+    };
   }, []);
 
-  // Save history to localstorage
+  // Save history to localStorage (scoped to user)
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem('solar_pulse_chat_history', JSON.stringify(messages));
+      localStorage.setItem(chatHistoryKey, JSON.stringify(messages));
     }
-  }, [messages]);
+  }, [messages, chatHistoryKey]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -77,9 +94,15 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
       }
     ]);
 
-    const interval = setInterval(() => {
+    // Clear any existing streaming interval before starting a new one
+    if (streamingIntervalRef.current) {
+      clearInterval(streamingIntervalRef.current);
+    }
+
+    streamingIntervalRef.current = setInterval(() => {
       if (currentIdx >= words.length) {
-        clearInterval(interval);
+        clearInterval(streamingIntervalRef.current);
+        streamingIntervalRef.current = null;
         // Mark streaming finished
         setMessages(prev => prev.map(msg => {
           if (msg.id === messageId) {
@@ -101,6 +124,14 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
     }, 28);
   };
 
+  const isProOrHigher = Boolean(
+    (subscription?.status === 'active' && ['pro', 'installer', 'admin'].includes((subscription?.plan || '').toLowerCase())) ||
+    isAdminUser(user)
+  );
+
+  const userQueryCount = messages.filter(m => m.sender === 'user').length;
+  const isFreeLimitReached = !isProOrHigher && userQueryCount >= 5;
+
   // Send message
   const handleSendMessage = async (textToSend) => {
     const query = textToSend.trim();
@@ -120,6 +151,15 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages(prev => [...prev, newUserMsg]);
+
+    // Feature Gate: Limit free users to 5 queries per session
+    if (isFreeLimitReached) {
+      setTimeout(() => {
+        const upgradeMsg = "You have reached your 5 free AI queries for this session. Expanded AI Advisor access is an exclusive feature of the **Pro** and **Installer** plans, unlocking unlimited deep technical analysis, component comparisons, and system optimization.\n\nVisit the **Plans** tab in the sidebar to upgrade your account.";
+        streamText(upgradeMsg, botMessageId, []);
+      }, 300);
+      return;
+    }
 
     try {
       const { answer, sources } = queryLocalExpert(query);
@@ -163,7 +203,7 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages([initialGreeting]);
-    localStorage.removeItem('solar_pulse_chat_history');
+    localStorage.removeItem(chatHistoryKey);
     setShowClearConfirm(false);
   };
 
@@ -237,10 +277,20 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
             <Sparkles size={22} className="logo-icon" />
             Solar AI Advisor
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'hsl(var(--color-gen))' }} />
-            <span>Solar Intelligence Active • Concise Guidance</span>
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'hsl(var(--color-gen))' }} />
+              <span>Solar Intelligence Active</span>
+            </p>
+            <span style={{
+              fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: '99px',
+              backgroundColor: isProOrHigher ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+              color: isProOrHigher ? 'hsl(var(--color-gen))' : 'hsl(var(--color-solar))',
+              border: `1px solid ${isProOrHigher ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`
+            }}>
+              {isProOrHigher ? 'Pro Advisor (Unlimited)' : `Free Tier (${Math.min(5, userQueryCount)}/5 Queries)`}
+            </span>
+          </div>
         </div>
         
         <div style={{ display: 'flex', gap: '10px' }}>

@@ -12,7 +12,6 @@ import {
   Compass,
   UserCircle,
   LogOut,
-  ChevronDown,
   ShieldCheck,
   CreditCard,
   Download,
@@ -35,13 +34,49 @@ import PaymentMethods from './components/PaymentMethods';
 import Checkout from './components/Checkout';
 import ComplaintModal from './components/ComplaintModal';
 
+const VALID_VIEWS = ['dashboard', 'calculator', 'estimator', 'orientation', 'chatbot', 'profile', 'admin', 'plans', 'paymentMethods', 'checkout'];
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true); // prevent auth flash on reload
   const [authView, setAuthView] = useState('signin');
-  const [activeView, setActiveView] = useState('dashboard');
-  const [theme, setTheme] = useState('dark'); // 'dark' is default for professional premium look
+
+  const getInitialView = () => {
+    const hash = window.location.hash.replace(/^#\/?/, '').trim();
+    return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
+  };
+
+  const [activeView, setActiveViewRaw] = useState(getInitialView);
+
+  const setActiveView = (view, replace = false) => {
+    setActiveViewRaw(view);
+    const targetHash = `#/${view}`;
+    if (window.location.hash !== targetHash) {
+      if (replace) {
+        window.history.replaceState(null, '', targetHash);
+      } else {
+        window.location.hash = targetHash;
+      }
+    }
+  };
+
+  // Sync activeView with browser Back / Forward buttons and URL hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace(/^#\/?/, '').trim();
+      if (VALID_VIEWS.includes(hash)) {
+        setActiveViewRaw(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Persist theme across sessions
+  const [theme, setTheme] = useState(() => localStorage.getItem('sp_theme') || 'dark');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const isAdmin = isAdminUser(user);
   const [avatarDropdownOpen, setAvatarDropdownOpen] = useState(false);
   const [subscription, setSubscription] = useState({ plan: 'free', status: 'inactive' });
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -56,9 +91,10 @@ export default function App() {
   const [sunHours, setSunHours] = useState(5.4);
   const [zipCode, setZipCode] = useState('101001');
 
-  // Sync theme with HTML data-theme attribute
+  // Sync theme with HTML data-theme attribute and persist it
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('sp_theme', theme);
   }, [theme]);
 
   // Update document title per active view
@@ -103,34 +139,42 @@ export default function App() {
   }, [mobileMenuOpen]);
 
   useEffect(() => {
-    const initAuth = async () => {
-      let stopPresence = () => {};
-      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-        stopPresence();
-        setIsAuthenticated(Boolean(firebaseUser));
-        setUser(toAppUser(firebaseUser));
+    // Synchronous setup — no async wrapper so cleanup is returned directly and
+    // React StrictMode double-invoke cannot orphan a listener.
+    let stopPresence = () => {};
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      stopPresence();
+      setIsAuthenticated(Boolean(firebaseUser));
+      setUser(toAppUser(firebaseUser));
+      if (firebaseUser) {
         setActiveView(isAdminUser(firebaseUser) ? 'admin' : 'dashboard');
-        stopPresence = startPresence(firebaseUser);
-      });
-
-      return () => {
-        stopPresence();
-        unsubscribe();
-      };
-    };
-
-    let unsubscribe;
-    initAuth().then((cleanup) => {
-      unsubscribe = cleanup;
+      }
+      stopPresence = startPresence(firebaseUser);
+      setAuthLoading(false);
     });
-    return () => unsubscribe?.();
+
+    return () => {
+      stopPresence();
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => subscribeToUserPlan(auth.currentUser, setSubscription), [user]);
 
   const handleSignOut = async () => {
+    const isGuest = user?.id === 'demo-guest';
+    if (isGuest) {
+      // Guest has no Firebase session — clear state directly
+      setUser(null);
+      setIsAuthenticated(false);
+      setActiveView('dashboard');
+      setSubscription({ plan: 'free', status: 'inactive' });
+      return;
+    }
     await signOut(auth);
     setUser(null);
+    setIsAuthenticated(false);
+    setSubscription({ plan: 'free', status: 'inactive' });
   };
 
   // Toggle Dark/Light Mode
@@ -218,7 +262,22 @@ export default function App() {
     : user?.email?.charAt(0).toUpperCase() || 'S';
 
   const avatarUrl = user?.user_metadata?.avatar_url;
-  const isAdmin = isAdminUser(user);
+
+  if (authLoading) {
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '100vh', backgroundColor: 'var(--bg-primary)', flexDirection: 'column', gap: '16px'
+      }}>
+        <div style={{
+          width: 44, height: 44, border: '3px solid rgba(249,115,22,0.2)',
+          borderTopColor: 'hsl(var(--color-solar))', borderRadius: '50%',
+          animation: 'spin 0.7s linear infinite'
+        }} />
+        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Loading Solar Pulse...</span>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -315,7 +374,7 @@ export default function App() {
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.4)' }}>
             <Leaf size={14} style={{ color: '#10b981' }} />
-            <span>Solar Pulse v2.0</span>
+            <span>Solar Pulse v2.0.0</span>
           </div>
         </div>
       </aside>

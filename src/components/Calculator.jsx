@@ -137,12 +137,16 @@ export default function Calculator({
     let cancelled = false;
     loadSolarProject(auth.currentUser).then((savedProject) => {
       if (cancelled || !savedProject) return;
-      setAppliances(savedProject.appliances || initialAppliances);
+      const loadedAppliances = savedProject.appliances || initialAppliances;
+      setAppliances(loadedAppliances);
       setGridRate(savedProject.gridRate ?? 0.16);
       const matchedZone = normalizeSolarZone(savedProject.region);
       setRegion(matchedZone.value);
       setSunHours(savedProject.sunHours ?? matchedZone.sunHours);
       setZipCode(savedProject.zipCode || matchedZone.postal);
+      // Fix ID collisions: set nextId to max existing id + 1
+      const maxId = loadedAppliances.reduce((m, a) => Math.max(m, a.id || 0), 0);
+      setNextId(maxId + 1);
       setProjectStatus('Saved project restored from Firebase.');
     }).catch(() => {
       if (!cancelled) setProjectStatus('Saved project is unavailable until Firestore is enabled.');
@@ -248,14 +252,14 @@ export default function Calculator({
     ? Math.ceil((recommendedSystemSizeKw * 1000) / panelWattage) 
     : 0;
 
-  // Categories aggregation
-  const categories = ['Kitchen', 'HVAC', 'Lights', 'Entertainment', 'Laundry'];
+  // Categories aggregation (Custom included so custom appliances appear in chart)
+  const categories = ['Kitchen', 'HVAC', 'Lights', 'Entertainment', 'Laundry', 'Custom'];
   const categoryTotals = categories.map(cat => {
     const total = appliances
       .filter(app => app.category === cat)
       .reduce((sum, app) => sum + calculateKwh(app), 0);
     return { name: cat, kwh: Math.round(total * 100) / 100 };
-  });
+  }).filter(cat => cat.kwh > 0); // hide empty categories from chart
 
   const grandTotalKwh = categoryTotals.reduce((sum, cat) => sum + cat.kwh, 0);
 
@@ -304,6 +308,15 @@ export default function Calculator({
     batteryCapacityKwh = 40.5;
   }
 
+  // Inverter continuous & surge sizing
+  // Calculates continuous load with 1.25 safety headroom
+  const continuousWatts = Math.max(activeCriticalWatts, totalRunningWatts * 0.75) * 1.25;
+  const recommendedInverterKw = Math.max(3.0, Math.ceil(continuousWatts / 500) * 0.5);
+  // Surge sizing handles motor starting inrush currents (compressors, pumps, AC)
+  const motorAppliances = appliances.filter(a => ['Kitchen', 'HVAC', 'Laundry'].includes(a.category) && a.hours > 0);
+  const surgeWatts = motorAppliances.reduce((sum, a) => sum + (a.watts * a.qty * 2.5), 0);
+  const recommendedSurgeKw = Math.max(recommendedInverterKw * 1.8, Math.round((surgeWatts / 1000) * 10) / 10);
+
   // Backup Lifeline Duration in Hours
   const availableKwh = batteryCapacityKwh * (batterySoc / 100);
   const estimatedBackupHours = simulatedOutageWatts > 0
@@ -313,15 +326,18 @@ export default function Calculator({
   // Warning state: user runs high-draw non-critical appliances during outage
   const hasActiveNonCriticalWarning = isOutageActive && activeNonCriticalWatts > 0;
 
-  // Outage live drain simulator effect
+  // Outage live drain simulator effect: physically tied to batteryCapacityKwh
   useEffect(() => {
     let interval = null;
     if (isOutageActive && batterySoc > 0) {
       interval = setInterval(() => {
         setBatterySoc(prev => {
           const loadKw = simulatedOutageWatts / 1000;
-          const drainRate = loadKw > 0 ? Math.max(0.4, loadKw * 1.2) : 0;
-          const nextSoc = Math.max(0, Math.round((prev - drainRate) * 10) / 10);
+          if (loadKw <= 0) return prev;
+          // Simulation scale: 30x real-time speed (each second simulates 30 seconds of drain)
+          const drainKwh = loadKw * (30 / 3600);
+          const drainSocPercent = (drainKwh / batteryCapacityKwh) * 100;
+          const nextSoc = Math.max(0, Math.round((prev - drainSocPercent) * 10) / 10);
           return nextSoc;
         });
       }, 1000);
@@ -329,30 +345,15 @@ export default function Calculator({
       setIsOutageActive(false);
     }
     return () => clearInterval(interval);
-  }, [isOutageActive, batterySoc, simulatedOutageWatts]);
+  }, [isOutageActive, batterySoc, simulatedOutageWatts, batteryCapacityKwh]);
 
-  // Handle worldwide solar-zone selection and auto-sync with Firebase
+  // Handle worldwide solar-zone selection — no longer auto-saves to avoid silent overwrite
   const handleRegionChange = (selectedRegion) => {
     const selectedZone = globalSolarZones.find((zone) => zone.value === selectedRegion) || normalizeSolarZone(selectedRegion);
     setRegion(selectedZone.value);
     setSunHours(selectedZone.sunHours);
     if (selectedZone.postal) setZipCode(selectedZone.postal);
-
-    if (auth.currentUser) {
-      saveSolarProject(auth.currentUser, {
-        appliances,
-        gridRate,
-        region: selectedZone.value,
-        sunHours: selectedZone.sunHours,
-        zipCode: selectedZone.postal,
-        dailyKwh: Math.round(totalDailyKwh * 100) / 100,
-        recommendedSystemSizeKw,
-        recommendedPanelCount,
-        recommendedBatteryKwh,
-      }).then(() => {
-        setProjectStatus(`Zone updated to ${selectedZone.value} & saved in Firebase.`);
-      }).catch(() => {});
-    }
+    // Region change intentionally NOT auto-saved; user must press Save explicitly
   };
 
   // Trigger Cost Estimator with Recommendation
@@ -367,13 +368,14 @@ export default function Calculator({
     }
   };
 
-  // Color mappings
+  // Color mappings — includes Custom category
   const categoryColors = {
     Kitchen: '#eab308', 
     HVAC: '#f43f5e', 
     Lights: '#10b981', 
     Entertainment: '#3b82f6', 
-    Laundry: '#8b5cf6' 
+    Laundry: '#8b5cf6',
+    Custom: '#64748b',
   };
 
   return (
@@ -703,15 +705,15 @@ export default function Calculator({
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Consumption Ledger</h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', pb: '8px', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Daily Consumption</span>
                 <span style={{ fontWeight: 700 }}>{Math.round(totalDailyKwh * 100) / 100} kWh</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', pb: '8px', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Monthly Consumption</span>
                 <span style={{ fontWeight: 700 }}>{Math.round(totalMonthlyKwh * 10) / 10} kWh</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', pb: '8px', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Current Utility Rate</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>$</span>
@@ -775,7 +777,7 @@ export default function Calculator({
                 </div>
               </div>
             ) : (
-              <div style={{ textAlignment: 'center', padding: '16px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              <div style={{ textAlign: 'center', padding: '16px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                 All appliance loads are set to zero. Increase usage hours to generate breakdowns!
               </div>
             )}
@@ -973,10 +975,10 @@ export default function Calculator({
                 🎯 Smart Solar Recommendation
               </h4>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Based on your daily load of **{Math.round(totalDailyKwh * 100) / 100} kWh**, your property is ideal for solar transformation.
+                Based on your daily load of <strong>{Math.round(totalDailyKwh * 100) / 100} kWh</strong>, your property is ideal for solar transformation.
               </p>
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', py: '8px', padding: '8px 0', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '8px 0', fontSize: '0.85rem' }}>
                 <div>
                   <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem' }}>RECOMMENDED SIZE</span>
                   <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)' }}>{recommendedSystemSizeKw} kW</span>
@@ -987,9 +989,42 @@ export default function Calculator({
                 </div>
               </div>
 
-              <button className="btn-primary" onClick={handleProceedToEstimator} style={{ width: '100%', fontSize: '0.85rem', padding: '10px 16px' }}>
-                Estimate System ROI <ArrowRight size={16} />
-              </button>
+              {/* Inverter & Surge Specifications */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', fontSize: '0.85rem' }}>
+                <div>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem' }}>INVERTER CAPACITY</span>
+                  <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{recommendedInverterKw} kW Hybrid</span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem' }}>MOTOR SURGE HEADROOM</span>
+                  <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'hsl(var(--color-solar))' }}>{recommendedSurgeKw} kW</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+                <button className="btn-primary" onClick={handleProceedToEstimator} style={{ width: '100%', fontSize: '0.85rem', padding: '10px 16px' }}>
+                  Estimate System ROI <ArrowRight size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="btn-outline"
+                  onClick={() => {
+                    const isPro = subscription?.status === 'active' && ['pro', 'installer', 'admin'].includes((subscription?.plan || '').toLowerCase());
+                    if (!isPro) {
+                      setActiveView('plans');
+                    } else {
+                      window.print();
+                    }
+                  }}
+                  style={{ width: '100%', fontSize: '0.82rem', padding: '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                >
+                  <span>📄</span>
+                  <span>Export Engineering Audit Report</span>
+                  {!(subscription?.status === 'active' && ['pro', 'installer', 'admin'].includes((subscription?.plan || '').toLowerCase())) && (
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '1px 5px', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.15)', color: 'hsl(var(--color-solar))' }}>PRO</span>
+                  )}
+                </button>
+              </div>
             </div>
           )}
 

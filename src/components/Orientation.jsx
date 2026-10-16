@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Compass, 
-  Info, 
-  HelpCircle, 
-  CheckCircle2, 
-  Sun, 
-  Layers, 
-  ArrowRight,
-  ShieldAlert
+  CheckCircle2
 } from 'lucide-react';
 import { searchPostalCode } from '../utils/postalLookup';
 
@@ -57,30 +51,32 @@ export default function Orientation() {
   const [lookupError, setLookupError] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
+  // Dynamic optimal orientation and tilt based on geographic coordinates
+  const isSouthern = selectedLocation ? selectedLocation.lat < 0 : false;
+  const optimalAzimuth = isSouthern ? 'North' : 'South';
+  const worstAzimuth = isSouthern ? 'South' : 'North';
+  // Optimal tilt is roughly equal to local latitude (minimum 8° for rain runoff self-cleaning)
+  const optimalTilt = selectedLocation
+    ? Math.max(8, Math.min(50, Math.round(Math.abs(selectedLocation.lat))))
+    : 15; // default tropical/equatorial baseline
+
   // Calculations for solar capture efficiency based on physics defaults
-  // In the Northern Hemisphere, South orientation at ~35° tilt yields 100% capture.
   const calculateCaptureEfficiency = () => {
-    let azimuthFactor = 1.0;
+    let azimuthFactor;
     
-    // Directional modifiers
-    switch (azimuth) {
-      case 'South':
-        azimuthFactor = 1.0;
-        break;
-      case 'West':
-      case 'East':
-        azimuthFactor = 0.82;
-        break;
-      case 'North':
-        azimuthFactor = 0.45;
-        break;
-      default:
-        azimuthFactor = 1.0;
+    // Directional modifiers relative to hemisphere
+    if (azimuth === optimalAzimuth) {
+      azimuthFactor = 1.0;
+    } else if (azimuth === 'East' || azimuth === 'West') {
+      azimuthFactor = 0.82;
+    } else if (azimuth === worstAzimuth) {
+      azimuthFactor = 0.45;
+    } else {
+      azimuthFactor = 0.90;
     }
 
-    // Optimal tilt for average mid-latitudes is 30-40 degrees.
-    // Let's model deviation from optimal 35 degrees.
-    const tiltDeviation = Math.abs(tilt - 35);
+    // Deviation from local optimal tilt angle
+    const tiltDeviation = Math.abs(tilt - optimalTilt);
     const tiltFactor = Math.max(0.7, 1 - (tiltDeviation * 0.005));
 
     const finalEfficiency = Math.round(azimuthFactor * tiltFactor * 100);
@@ -89,18 +85,19 @@ export default function Orientation() {
 
   const captureEfficiency = calculateCaptureEfficiency();
 
-  // Text descriptions based on combinations
+  // Clear text descriptions without raw markdown asterisks
   const getAdvisoryText = () => {
-    if (azimuth === 'South' && tilt >= 25 && tilt <= 45) {
-      return "🏆 **Perfect Sizing Orientation**: Facing true South at a standard slope maximizes year-round sunshine index. No production adjustments needed!";
+    const isOptimalTilt = Math.abs(tilt - optimalTilt) <= 8;
+    if (azimuth === optimalAzimuth && isOptimalTilt) {
+      return `🏆 Perfect Sizing Orientation: Facing true ${optimalAzimuth} at ${tilt}° (near optimal ${optimalTilt}°) maximizes year-round sunshine index. No production adjustments needed!`;
     }
-    if (azimuth === 'North') {
-      return "⚠️ **Production Warning**: Facing North directs panels away from primary solar paths (in the Northern Hemisphere), reducing capture by over **50%**. Consider ground mounts or a flat layout!";
+    if (azimuth === worstAzimuth) {
+      return `⚠️ Production Warning: Facing ${azimuth} directs panels away from the equator in the ${isSouthern ? 'Southern' : 'Northern'} Hemisphere, reducing capture by over 50%. Adjust azimuth to true ${optimalAzimuth}!`;
     }
     if (azimuth === 'West' || azimuth === 'East') {
-      return "ℹ️ **Moderate Solar Capture**: East/West facing panels generate ~18% less than South, but they are great for morning (East) or late-afternoon (West) peak grid rate demands.";
+      return `ℹ️ Moderate Solar Capture: East/West facing panels generate ~18% less total daily energy than ${optimalAzimuth}, but can be advantageous for morning or late-afternoon peak grid consumption.`;
     }
-    return "💡 **Slope Tuning**: Adjusting panel slope closer to 35° will align panels perpendicularly to solar rays, capturing more energy.";
+    return `💡 Slope Tuning: Adjusting panel slope closer to ${optimalTilt}° will align panels perpendicularly to solar rays, capturing more energy.`;
   };
 
   return (
@@ -396,7 +393,7 @@ export default function Orientation() {
               
               {/* Capture Percentage Indicator */}
               <div style={{ padding: '16px', backgroundColor: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', mb: '4px' }}>Geographic Capture Efficiency</span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Geographic Capture Efficiency</span>
                 <h2 style={{ 
                   fontSize: '2.5rem', 
                   fontWeight: 800, 

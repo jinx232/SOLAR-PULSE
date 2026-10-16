@@ -34,7 +34,6 @@ export default function Estimator({
   const gridRate = 0.16; // $ per kWh
   const panelWattage = 400; // watts per panel
   const panelArea = 18.5; // sq ft per panel
-  const federalItcRate = 0.30; // 30% Federal Investment Tax Credit
   const utilityInflationRate = 0.035; // 3.5% average yearly increase in utility rates
 
   // Synchronize when a new recommendation is piped in from the Calculator
@@ -72,6 +71,17 @@ export default function Estimator({
     ? Math.min(100, Math.round((recommendedSystemSizeKw / neededSystemSizeKw) * 100)) 
     : 0;
 
+  // Region-aware configuration
+  // Tax credit: 30% US ITC was extended through 2032 by IRA (2022) but the July 2025
+  // budget law ended it for spending after 2025. For West Africa/other regions, there
+  // is no equivalent federal credit (local state incentives vary — check NERC/ECG programs).
+  const isNorthAmerica = region && (region.toLowerCase().includes('north america') || region.toLowerCase().includes('us ') || region === 'us');
+  const federalItcRate = isNorthAmerica ? 0.26 : 0; // 26% post-2025 US residential; 0 elsewhere
+  const itcLabel = isNorthAmerica ? 'US Federal ITC (26%)' : 'Solar Incentive / Tax Credit';
+  const itcNote = isNorthAmerica
+    ? 'The residential ITC dropped to 26% after 2025 (July 2025 budget law). Verify current rate with your tax adviser.'
+    : 'No federal credit applied. Check your state/DISCOM for local incentive schemes.';
+
   // Financial Sizing Math
   const grossCost = recommendedSystemSizeKw * 1000 * costPerWatt;
   const federalItcDiscount = grossCost * federalItcRate;
@@ -101,15 +111,16 @@ export default function Estimator({
       const annualUtilityBillWithoutSolar = (monthlyBill * 12) * Math.pow(1 + utilityInflationRate, year - 1);
       cumulativeUtilityOnly += annualUtilityBillWithoutSolar;
 
-      // Solar generation offset offsets standard bill
-      // Standard annual generation gets valued at current inflating utility rate
-      const solarEnergyValue = annualGenerationKwh * utilityRate;
+      // Solar generation offset accounts for 0.5% annual panel degradation
+      const degradationFactor = Math.pow(1 - 0.005, year - 1);
+      const yearGenerationKwh = annualGenerationKwh * degradationFactor;
+      const solarEnergyValue = yearGenerationKwh * utilityRate;
       
       // Net bill is total consumption cost minus solar generation value (not going below zero if no grid battery credit scheme)
       const standardCostNoSolar = annualConsumptionKwh * utilityRate;
       const netBillWithSolar = Math.max(0, standardCostNoSolar - solarEnergyValue);
       
-      // Cumulative expense includes annual residual bill plus small solar inverter replacement/maintenance cost in Year 12
+      // Cumulative expense includes annual residual bill plus inverter replacement buffer in Year 12
       const annualMaintenance = year === 12 ? 1500 : 30; // $1500 inverter swap at Year 12
       cumulativeWithSolar += netBillWithSolar + annualMaintenance;
 
@@ -129,6 +140,17 @@ export default function Estimator({
 
   const cashflowData = generateCashflowData();
   const lifetimeSavings25Years = cashflowData[24].netSavings;
+
+  // Inflation-adjusted break-even year where cumulative solar net savings turn positive
+  const breakEvenProj = cashflowData.find(p => p.netSavings >= 0);
+  const breakEvenYear = breakEvenProj ? breakEvenProj.year : null;
+
+  // Dynamic y-axis max so the chart never clips large bills
+  const chartMax = Math.max(
+    cashflowData[24].utilityOnly,
+    cashflowData[24].withSolar,
+    120000  // minimum scale
+  ) * 1.05; // 5% headroom
 
   return (
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -180,20 +202,30 @@ export default function Estimator({
         </div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
           {recommendation && (
-            <button 
-              className="btn-outline" 
-              onClick={clearRecommendation}
-              style={{ 
-                backgroundColor: 'rgba(16, 185, 129, 0.08)', 
-                borderColor: '#10b981', 
-                color: '#059669', 
-                fontSize: '0.8rem',
-                padding: '8px 14px',
-                minHeight: '38px'
-              }}
-            >
-              ✓ Linked with Calculator Data
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span
+                style={{ 
+                  backgroundColor: 'rgba(16, 185, 129, 0.08)', 
+                  borderRadius: '8px',
+                  border: '1px solid #10b981', 
+                  color: '#059669', 
+                  fontSize: '0.8rem',
+                  padding: '8px 14px',
+                  fontWeight: 600
+                }}
+              >
+                ✓ Linked with Calculator Data
+              </span>
+              <button
+                className="btn-outline"
+                onClick={clearRecommendation}
+                title="Unlink calculator data"
+                aria-label="Unlink calculator recommendation"
+                style={{ padding: '8px 10px', minHeight: '38px', fontSize: '0.75rem' }}
+              >
+                × Unlink
+              </button>
+            </div>
           )}
           {/* Copy Summary Button */}
           <button
@@ -205,7 +237,7 @@ export default function Estimator({
                 ``,
                 `📌 System Size: ${recommendedSystemSizeKw} kW (${recommendedPanelCount} x 400W panels)`,
                 `💰 Gross Cost: $${Math.round(grossCost).toLocaleString()}`,
-                `✅ Clean Energy Incentive / Tax Credit (30%): -$${Math.round(federalItcDiscount).toLocaleString()}`,
+                `✅ ${itcLabel}: -$${Math.round(federalItcDiscount).toLocaleString()}`,
                 `💳 Net Capital Outlay: $${Math.round(netSystemCost).toLocaleString()}`,
                 ``,
                 `📅 Year 1 Savings: $${Math.round(annualSavingsYear1).toLocaleString()}/yr`,
@@ -267,7 +299,7 @@ export default function Estimator({
                 onChange={(e) => setRoofArea(parseInt(e.target.value))} 
               />
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Fits up to **{maxPanelsOnRoof}** solar panels physically.
+                Fits up to {maxPanelsOnRoof} solar panels physically.
               </span>
             </div>
 
@@ -299,7 +331,7 @@ export default function Estimator({
                 display: 'flex',
                 gap: '8px'
               }}>
-                <span>⚠️ **Roof Area Constrained**: Your roof space limits maximum system sizing to **{recommendedSystemSizeKw} kW**, covering **{finalOffsetPercentage}%** of your utility demand.</span>
+                <span>⚠️ Roof Area Constrained: Your roof space limits maximum system sizing to {recommendedSystemSizeKw} kW, covering {finalOffsetPercentage}% of your utility demand.</span>
               </div>
             )}
 
@@ -378,12 +410,12 @@ export default function Estimator({
               {/* Utility Only Area Shader */}
               <path
                 d={`M 30,170 
-                    L 30,${170 - (cashflowData[0].utilityOnly / 120000) * 150} 
-                    L 120,${170 - (cashflowData[5].utilityOnly / 120000) * 150} 
-                    L 210,${170 - (cashflowData[10].utilityOnly / 120000) * 150} 
-                    L 300,${170 - (cashflowData[15].utilityOnly / 120000) * 150} 
-                    L 390,${170 - (cashflowData[20].utilityOnly / 120000) * 150} 
-                    L 478,${170 - (cashflowData[24].utilityOnly / 120000) * 150}
+                    L 30,${170 - (cashflowData[0].utilityOnly / chartMax) * 150} 
+                    L 120,${170 - (cashflowData[5].utilityOnly / chartMax) * 150} 
+                    L 210,${170 - (cashflowData[10].utilityOnly / chartMax) * 150} 
+                    L 300,${170 - (cashflowData[15].utilityOnly / chartMax) * 150} 
+                    L 390,${170 - (cashflowData[20].utilityOnly / chartMax) * 150} 
+                    L 478,${170 - (cashflowData[24].utilityOnly / chartMax) * 150}
                     L 478,170 Z`}
                 fill="url(#utilityGlowGrad)"
                 className="chart-area-fade"
@@ -391,12 +423,12 @@ export default function Estimator({
 
               {/* With Solar Area Shader */}
               <path
-                d={`M 30,${170 - (cashflowData[0].withSolar / 120000) * 150} 
-                    L 120,${170 - (cashflowData[5].withSolar / 120000) * 150} 
-                    L 210,${170 - (cashflowData[10].withSolar / 120000) * 150} 
-                    L 300,${170 - (cashflowData[15].withSolar / 120000) * 150} 
-                    L 390,${170 - (cashflowData[20].withSolar / 120000) * 150} 
-                    L 478,${170 - (cashflowData[24].withSolar / 120000) * 150}
+                d={`M 30,${170 - (cashflowData[0].withSolar / chartMax) * 150} 
+                    L 120,${170 - (cashflowData[5].withSolar / chartMax) * 150} 
+                    L 210,${170 - (cashflowData[10].withSolar / chartMax) * 150} 
+                    L 300,${170 - (cashflowData[15].withSolar / chartMax) * 150} 
+                    L 390,${170 - (cashflowData[20].withSolar / chartMax) * 150} 
+                    L 478,${170 - (cashflowData[24].withSolar / chartMax) * 150}
                     L 478,170
                     L 30,170 Z`}
                 fill="url(#solarRoiGlowGrad)"
@@ -406,12 +438,12 @@ export default function Estimator({
               {/* Utility only climb curve (No Solar) */}
               <path
                 d={`M 30,170 
-                    L 30,${170 - (cashflowData[0].utilityOnly / 120000) * 150} 
-                    L 120,${170 - (cashflowData[5].utilityOnly / 120000) * 150} 
-                    L 210,${170 - (cashflowData[10].utilityOnly / 120000) * 150} 
-                    L 300,${170 - (cashflowData[15].utilityOnly / 120000) * 150} 
-                    L 390,${170 - (cashflowData[20].utilityOnly / 120000) * 150} 
-                    L 478,${170 - (cashflowData[24].utilityOnly / 120000) * 150}`}
+                    L 30,${170 - (cashflowData[0].utilityOnly / chartMax) * 150} 
+                    L 120,${170 - (cashflowData[5].utilityOnly / chartMax) * 150} 
+                    L 210,${170 - (cashflowData[10].utilityOnly / chartMax) * 150} 
+                    L 300,${170 - (cashflowData[15].utilityOnly / chartMax) * 150} 
+                    L 390,${170 - (cashflowData[20].utilityOnly / chartMax) * 150} 
+                    L 478,${170 - (cashflowData[24].utilityOnly / chartMax) * 150}`}
                 fill="none"
                 stroke="#f43f5e"
                 strokeWidth="3.5"
@@ -421,12 +453,12 @@ export default function Estimator({
 
               {/* With Solar Curve */}
               <path
-                d={`M 30,${170 - (cashflowData[0].withSolar / 120000) * 150} 
-                    L 120,${170 - (cashflowData[5].withSolar / 120000) * 150} 
-                    L 210,${170 - (cashflowData[10].withSolar / 120000) * 150} 
-                    L 300,${170 - (cashflowData[15].withSolar / 120000) * 150} 
-                    L 390,${170 - (cashflowData[20].withSolar / 120000) * 150} 
-                    L 478,${170 - (cashflowData[24].withSolar / 120000) * 150}`}
+                d={`M 30,${170 - (cashflowData[0].withSolar / chartMax) * 150} 
+                    L 120,${170 - (cashflowData[5].withSolar / chartMax) * 150} 
+                    L 210,${170 - (cashflowData[10].withSolar / chartMax) * 150} 
+                    L 300,${170 - (cashflowData[15].withSolar / chartMax) * 150} 
+                    L 390,${170 - (cashflowData[20].withSolar / chartMax) * 150} 
+                    L 478,${170 - (cashflowData[24].withSolar / chartMax) * 150}`}
                 fill="none"
                 stroke="#10b981"
                 strokeWidth="3.5"
@@ -438,8 +470,8 @@ export default function Estimator({
               {[1, 5, 10, 15, 20, 25].map((year, idx) => {
                 const data = cashflowData[year - 1];
                 const x = 30 + idx * 89.6;
-                const yUtility = 170 - (data.utilityOnly / 120000) * 150;
-                const ySolar = 170 - (data.withSolar / 120000) * 150;
+                const yUtility = 170 - (data.utilityOnly / chartMax) * 150;
+                const ySolar = 170 - (data.withSolar / chartMax) * 150;
 
                 return (
                   <g 
@@ -542,7 +574,7 @@ export default function Estimator({
             
             <div style={{ display: 'flex', justifyContent: 'space-between', color: 'hsl(var(--color-gen))', fontWeight: 600 }}>
               <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                Clean Energy Incentive / Credit (30%) <Percent size={12} />
+                {itcLabel} <Percent size={12} />
               </span>
               <span>-${Math.round(federalItcDiscount).toLocaleString()}</span>
             </div>
@@ -576,14 +608,17 @@ export default function Estimator({
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Projected Payback Window</span>
+              <div>
+                <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Projected Payback</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Break-even: {breakEvenYear ? `Year ${breakEvenYear}` : '>25 Years'}</span>
+              </div>
               <strong style={{ 
                 backgroundColor: paybackPeriodYears <= 7 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(249, 115, 22, 0.1)',
                 color: paybackPeriodYears <= 7 ? '#059669' : '#d97706',
                 padding: '2px 8px',
                 borderRadius: '6px'
               }}>
-                {paybackPeriodYears} Years
+                {paybackPeriodYears} Years (Simple)
               </strong>
             </div>
 
@@ -610,9 +645,11 @@ export default function Estimator({
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            <p>✓ **25-Year Production Guarantee**: Solar panels are warrantied to retain at least **85.5%** of original power capacity in Year 25.</p>
-            <p>✓ **Inverter Lifecycle**: Modern grid-tie microinverters carry a 15-25 year warranty. A central inverter buffer is calculated in Year 12 projections.</p>
-            <p>✓ **Property Appreciation**: Residential solar installations raise local appraisal values by an average of **4.1%** tax-free.</p>
+            <p>✓ 25-Year Production Guarantee: Solar panels are warrantied to retain at least 85.5% of original power capacity in Year 25.</p>
+            <p>✓ Inverter Lifecycle: Modern grid-tie microinverters carry a 15–25 year warranty. A central inverter buffer is calculated in Year 12 projections.</p>
+            <p>✓ Property Appreciation: Residential solar installations typically raise local appraisal values. Verify with a local agent for your market.</p>
+            {isNorthAmerica && <p style={{ color: '#f59e0b', fontSize: '0.75rem' }}>Note: {itcNote}</p>}
+            {!isNorthAmerica && <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{itcNote}</p>}
           </div>
         </div>
 

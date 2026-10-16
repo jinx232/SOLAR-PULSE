@@ -1,40 +1,45 @@
 import React from 'react';
 import { Check, CreditCard, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { isAdminUser } from '../utils/firebase';
+import { PLAN_CATALOGUE, FREE_PLAN, getActivePlan, formatMoney } from '../utils/plans';
 
 const plans = [
   {
-    name: 'Free',
-    price: '$0',
+    id: 'free',
+    name: FREE_PLAN.name,
+    price: 'Free',
     cadence: 'forever',
-    description: 'Explore your home energy profile before committing to a plan.',
+    description: FREE_PLAN.description,
     icon: <ShieldCheck size={22} />,
-    features: ['Solar sizing calculator', 'Battery outage simulator', 'Basic dashboard', 'One saved project'],
+    features: FREE_PLAN.features,
     action: 'Current plan',
   },
   {
-    name: 'Pro',
-    price: 'NGN 5,000',
+    id: 'pro',
+    name: PLAN_CATALOGUE.pro.name,
+    price: formatMoney(PLAN_CATALOGUE.pro.amount, PLAN_CATALOGUE.pro.currency),
     cadence: 'per month',
-    description: 'For homeowners who want deeper planning and shareable results.',
+    description: PLAN_CATALOGUE.pro.description,
     icon: <Sparkles size={22} />,
-    features: ['Unlimited saved projects', 'Advanced ROI projections', 'Professional report exports', 'Expanded AI advisor access'],
-    action: 'Join Pro waitlist',
+    features: PLAN_CATALOGUE.pro.features,
+    action: 'Upgrade to Pro',
     featured: true,
   },
   {
-    name: 'Installer',
-    price: 'NGN 50,000',
+    id: 'installer',
+    name: PLAN_CATALOGUE.installer.name,
+    price: formatMoney(PLAN_CATALOGUE.installer.amount, PLAN_CATALOGUE.installer.currency),
     cadence: 'per month',
-    description: 'A faster proposal workspace for solar professionals and teams.',
+    description: PLAN_CATALOGUE.installer.description,
     icon: <Users size={22} />,
-    features: ['Client-ready project reports', 'Multiple customer projects', 'Branded proposals', 'Team workspace roadmap'],
-    action: 'Contact sales',
+    features: PLAN_CATALOGUE.installer.features,
+    action: 'Upgrade to Installer',
   },
 ];
 
 export default function Plans({ user, subscription, onSelectPlan }) {
-  const isAdmin = user?.email?.toLowerCase() === 'odumesamuel52@gmail.com';
-  const currentPlan = isAdmin ? 'admin' : (subscription?.plan || 'free');
+  const isAdmin = isAdminUser(user);
+  const currentPlan = getActivePlan(subscription, { isAdmin });
   return (
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <div>
@@ -73,11 +78,11 @@ export default function Plans({ user, subscription, onSelectPlan }) {
                 </span>
               ))}
             </div>
-            {plan.name === 'Free' || plan.name.toLowerCase() === currentPlan ? (
+            {plan.id === 'free' || plan.id === currentPlan ? (
               <button className="btn-outline" disabled style={{ width: '100%', minHeight: '44px', marginTop: 'auto' }}>Current plan</button>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
-                <button className={plan.featured ? 'btn-primary' : 'btn-outline'} onClick={() => onSelectPlan(plan)} style={{ width: '100%', minHeight: '44px' }}>Pay</button>
+                <button className={plan.featured ? 'btn-primary' : 'btn-outline'} onClick={() => onSelectPlan(plan)} style={{ width: '100%', minHeight: '44px' }}>Upgrade to {plan.name}</button>
               </div>
             )}
           </article>

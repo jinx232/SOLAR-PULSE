@@ -67,9 +67,9 @@ export const KNOWLEDGE_BASE = [
     id: 'sizing-basics',
     title: 'Solar System Sizing Fundamentals',
     category: 'System Design',
-    source: 'EnergySage Buyer\'s Guide 2025',
+    source: 'Standard PV sizing method (editorial)',
     tags: ['size', 'sizing', 'kw', 'kwh', 'how many panels', 'system size', 'capacity', 'number of panels'],
-    content: `To size a residential solar system: (1) Find annual kWh from your electricity bill. (2) Divide annual kWh by 1,400 (average annual kWh/kW in the US) to get system size in kW. (3) Divide system kW by panel wattage (typically 400–440W) to get panel count. Example: 12,000 kWh/year ÷ 1,400 = 8.57 kW. At 410W/panel: 8,570 ÷ 410 = ~21 panels. In sun-rich areas like West Africa, production ratio (PR) = 1.5–1.7. In Northern Europe, PR = 0.9–1.1.`
+    content: `To size a residential solar system: (1) Find annual kWh from your electricity bill. (2) Divide daily kWh by (local peak sun hours × 0.8 system-efficiency factor) to get system size in kW. (3) Divide system kW by panel wattage (typically 400–440W) to get panel count. Example: 30 kWh/day ÷ (5 peak sun hours × 0.8) = 7.5 kW; at 400W/panel that is 7,500 ÷ 400 = 18.75, so 19 panels. The same load at 4 sun hours needs about 9.4 kW (24 panels). Always confirm with an on-site survey; shading, roof area and inverter limits change the result.`
   },
   {
     id: 'sizing-africa',
@@ -101,17 +101,17 @@ export const KNOWLEDGE_BASE = [
     id: 'finance-roi',
     title: 'Solar ROI and Payback Period',
     category: 'Financial Analysis',
-    source: 'Lawrence Berkeley National Laboratory (LBNL) 2025',
+    source: 'Solar Pulse editorial – general method',
     tags: ['roi', 'return', 'payback', 'investment', 'years', 'profit', 'save', 'saving', 'worth it'],
-    content: `Average US residential solar payback period: 5–8 years (2025). Factors: system cost ($2.50–$3.50/W installed), 30% Federal ITC, state incentives, electricity rate inflation (3–5%/year). After payback, electricity is effectively free for the remaining 17–22 years of panel life. NPV for a 10 kW system over 25 years: $18,000–$35,000. IRR: 8–15%. In Africa, ROI is faster (3–6 years) due to high diesel generator costs displaced.`
+    content: `Payback period = net system cost ÷ annual savings. Payback varies widely because it depends on four things: installed cost per watt, the local electricity tariff (or the generator fuel cost being displaced), peak sun hours, and any incentives. Higher tariffs and displaced generator fuel shorten payback; low tariffs and high installation costs lengthen it. Panels also lose a little output each year (about 0.5% is a common warranty-level figure) and tariffs usually rise over time, so a fair projection models both. Use the Cost & ROI tab with your own bill and a real installer quote rather than relying on any average.`
   },
   {
     id: 'finance-itc',
     title: 'Federal Investment Tax Credit (ITC) – United States',
     category: 'Financial Analysis',
-    source: 'IRS Publication – Residential Clean Energy Credit',
-    tags: ['tax credit', 'itc', 'federal', 'incentive', '30%', 'rebate', 'discount', 'usa', 'tax'],
-    content: `The 30% Federal Solar ITC (Inflation Reduction Act 2022, extended through 2032) deducts 30% of total solar system cost from federal income taxes. Eligible costs: panels, inverters, wiring, labor, permits, and battery storage (if ≥80% solar-charged). Example: $20,000 system × 30% = $6,000 credit. Carryover available if credit exceeds tax liability. Applies to primary and secondary residences. Drops to 26% in 2033, 22% in 2034.`
+    source: 'IRS Publication – Residential Clean Energy Credit (Section 25D)',
+    tags: ['tax credit', 'itc', 'federal', 'incentive', 'rebate', 'discount', 'usa', 'tax'],
+    content: `The US federal Residential Clean Energy Credit (Section 25D) provided a 30% deduction for solar and battery installations placed in service through 2025. Under the July 2025 federal reconciliation law, the residential credit was terminated for expenditures after December 31, 2025. Homeowners filing taxes in the US should verify current local state rebates, utility incentives, and commercial Section 48 credits with a tax adviser. For West African homeowners (Nigeria, Ghana), US tax credits do not apply; savings are driven instead by displaced grid and generator fuel costs.`
   },
   {
     id: 'finance-net-metering',
@@ -135,7 +135,7 @@ export const KNOWLEDGE_BASE = [
     category: 'Financial Analysis',
     source: 'EnergySage Solar Marketplace 2025 Report',
     tags: ['cost', 'price', 'installation', 'breakdown', 'dollar', 'watt', 'average', 'how much'],
-    content: `Average US residential solar cost (2025): $2.50–$3.50/W before incentives. Breakdown for 10 kW at $30,000: Panels 30% ($9,000), Inverters 10% ($3,000), Racking 5% ($1,500), Wiring 8% ($2,400), Labor 20% ($6,000), Permits 4% ($1,200), Profit 23% ($6,900). After 30% ITC: net cost = $21,000. Monthly loan at 4.99% APR over 12 years ≈ $220/month — often less than displaced utility bill. Cash payback: 5–8 years. In Nigeria, import duties add 30–50% to panel costs vs US prices.`
+    content: `Illustrative US residential cost split (2025, roughly $2.50–$3.50/W before incentives): panels ~30%, inverters ~10%, racking ~5%, wiring ~8%, labor ~20%, permits ~4%, installer margin ~23%. Costs in Nigeria and Ghana differ: equipment is imported, so exchange rates, duties and logistics move prices substantially, and battery storage is often the largest line item. Treat any figure as a starting point and replace it with a written local quote.`
   },
 
   // ─── BATTERY STORAGE ──────────────────────────────────────────────────────
@@ -237,11 +237,11 @@ export const KNOWLEDGE_BASE = [
   // ─── POLICY & ENVIRONMENT ─────────────────────────────────────────────────
   {
     id: 'policy-ira',
-    title: 'Inflation Reduction Act (IRA) Solar Incentives 2022–2032',
+    title: 'US Federal Solar Incentives – Status After the July 2025 Budget Law',
     category: 'Policy & Incentives',
     source: 'US Department of Energy',
     tags: ['ira', 'inflation reduction act', 'incentive', 'policy', 'federal', 'battery storage', 'law'],
-    content: `The IRA (August 2022) is the largest US clean energy investment in history. Key provisions: 30% Residential Clean Energy Credit (ITC) through 2032, 26% in 2033, 22% in 2034. Battery storage systems eligible for 30% credit even without solar. Commercial solar: 30% base ITC + bonus up to 70% for domestic content and energy community projects. New Energy Efficient Home Improvement Credit: up to $1,200/year. $369 billion total clean energy investment through 2032.`
+    content: `The 2022 Inflation Reduction Act had extended the 30% Residential Clean Energy Credit (Section 25D) through 2032, but the July 2025 reconciliation law ended that credit for residential expenditures made after December 31, 2025. Commercial and third-party-owned (lease/PPA) systems follow different rules (Section 48E/45Y) that were also tightened. Rules change frequently, so confirm current federal, state and utility incentives with a qualified tax adviser. None of this applies outside the United States.`
   },
   {
     id: 'policy-africa-solar',
@@ -263,11 +263,11 @@ export const KNOWLEDGE_BASE = [
   // ─── SOLAR PULSE PLATFORM ─────────────────────────────────────────────────
   {
     id: 'platform-dashboard',
-    title: 'Solar Pulse Dashboard – Real-Time Simulation',
+    title: 'Solar Pulse Dashboard – Demo Simulation',
     category: 'Solar Pulse Platform',
     source: 'Solar Pulse Internal Docs',
     tags: ['dashboard', 'solar pulse', 'simulation', 'battery meter', 'real time', 'tab'],
-    content: `The Solar Pulse Dashboard simulates a live solar energy system. Features: real-time solar generation gauge, battery charge/discharge animation, grid import/export status, daily generation chart, carbon offset counter, system efficiency metrics. The simulation models an 8 kW array + 20 kWh battery with realistic daily production curves. Navigate to the Dashboard tab in the left sidebar to explore simulated performance.`
+    content: `The Solar Pulse Dashboard is a demonstration simulator, not a connection to a real inverter. It models a 6.5 kW array and a 13.5 kWh battery with an illustrative daily production curve; you can change the simulated cloud cover to see how output and battery charge respond. No data from your own equipment is shown. Open the Dashboard tab in the sidebar to try it.`
   },
   {
     id: 'platform-calculator',
@@ -275,7 +275,7 @@ export const KNOWLEDGE_BASE = [
     category: 'Solar Pulse Platform',
     source: 'Solar Pulse Internal Docs',
     tags: ['calculator', 'consumption', 'appliance', 'kwh', 'solar pulse', 'load', 'tab'],
-    content: `The Consumption Calculator helps calculate total household energy use by logging every appliance. Features: built-in appliance library (fridge, AC, fan, TV, lights), custom items, wattage + daily hours per appliance, automatic kWh calculation, monthly/annual consumption summary, recommended solar system size, PDF export. Feeds directly into the Cost & ROI Estimator. Access via the Calculator tab in the sidebar.`
+    content: `The Consumption Calculator totals household energy use by listing appliances. Features: a starter appliance list, custom items, wattage and daily hours per appliance, automatic kWh calculation, monthly consumption summary, recommended solar array, inverter and battery size, a blackout simulator, saved projects, and report export on paid plans. Its result feeds the Cost & ROI tab. Open it from the Consumption tab in the sidebar.`
   },
   {
     id: 'platform-estimator',
@@ -283,23 +283,23 @@ export const KNOWLEDGE_BASE = [
     category: 'Solar Pulse Platform',
     source: 'Solar Pulse Internal Docs',
     tags: ['estimator', 'roi', 'cost', 'solar pulse', 'financial', 'projection', '25 year', 'graph', 'tab'],
-    content: `The Cost & ROI Estimator generates a 25-year financial projection. Inputs: location, monthly electricity bill, electricity rate, system cost, loan details. Outputs: payback period graph, cumulative savings chart, NPV, IRR, CO2 offset totals. Financing scenarios: cash, solar loan (4.99% APR), PACE financing. Access via the Cost & ROI tab in the sidebar.`
+    content: `The Cost & ROI tab generates a 25-year cash-flow projection. Inputs: solar zone, monthly electricity bill, electricity tariff, installed cost per watt, roof area and an optional incentive percentage. Outputs: payback period, cumulative savings chart and a year-by-year table that includes tariff escalation, panel degradation and an inverter replacement allowance. It assumes a cash purchase; it does not model loans, NPV or IRR.`
   },
   {
     id: 'platform-orientation',
-    title: 'Solar Pulse Orientation & Sun Position Tool',
+    title: 'Solar Pulse Orientation Tool',
     category: 'Solar Pulse Platform',
     source: 'Solar Pulse Internal Docs',
     tags: ['orientation', 'compass', 'sun position', 'solar pulse', 'azimuth', 'tilt', 'direction', 'tab'],
-    content: `The Orientation Tool finds optimal panel direction and tilt for your location. Features: interactive compass visualization, solar elevation chart by time and season, postal/ZIP code lookup for local sun hours, tilt angle recommendation based on latitude, seasonal irradiance comparison, NREL solar irradiance database integration. Access via the Orientation tab in the sidebar.`
+    content: `The Orientation Tool estimates how roof direction and tilt affect annual yield. Features: a compass and tilt visualiser, a place search that looks up your latitude, and a hemisphere-aware recommendation (face south in the Northern Hemisphere, north in the Southern) with a tilt close to your latitude. The efficiency figure is a planning approximation; it does not use satellite irradiance data. For a bankable estimate use PVGIS or NREL PVWatts. Open it from the Orientation Tuning tab.`
   },
   {
     id: 'platform-chatbot',
-    title: 'Solar Pulse AI Advisor',
+    title: 'Solar Pulse Solar Guide',
     category: 'Solar Pulse Platform',
     source: 'Solar Pulse Engineering Guide',
     tags: ['chatbot', 'ai', 'advisor', 'solar pulse', 'assistant', 'expert', 'guidance'],
-    content: `The Solar Pulse AI Advisor provides concise, engineering-backed guidance on solar panel options, system sizing, battery storage, and financial payback. Powered by a specialized solar knowledge base, it delivers instant, reliable answers without external API configuration. Ask any solar energy question to receive concise recommendations tailored to your installation.`
+    content: `The Solar Guide answers common solar questions from a built-in library of educational articles (panels, sizing, batteries, incentives, maintenance). It is a keyword-search tool, not a generative AI model, and it does not know your personal system. Answers are general information, not professional engineering or financial advice.`
   },
 
   // ─── COMMON QUESTIONS ─────────────────────────────────────────────────────
@@ -389,6 +389,14 @@ STC (Standard Test Conditions): Lab conditions for rating panel power.
 NOCT (Nominal Operating Cell Temperature): More realistic rating at 800 W/m², 20°C ambient.
 Voc (Open Circuit Voltage): Max voltage with no load connected.
 Isc (Short Circuit Current): Max current with terminals shorted.`
+  },
+  {
+    id: 'platform-overview',
+    title: 'Solar Pulse Platform Overview',
+    category: 'System Design',
+    source: 'Solar Pulse Engineering Guide v2.0',
+    tags: ['solar pulse', 'app', 'tools', 'calculator', 'estimator', 'dashboard', 'orientation'],
+    content: `Solar Pulse is a planning and sizing tool for homeowners and installers, with a focus on Nigeria and West Africa. The Dashboard is a demo simulator. The Consumption Calculator maps appliance loads to a recommended array, inverter and battery. The Cost & ROI tab projects 25-year cash flow and payback in local currency. The Orientation tool estimates how roof direction and tilt affect annual yield. It does not connect to real inverters.`
   }
 ];
 
@@ -396,6 +404,6 @@ export const CATEGORIES = [...new Set(KNOWLEDGE_BASE.map(doc => doc.category))];
 export const KB_STATS = {
   totalDocuments: KNOWLEDGE_BASE.length,
   totalCategories: CATEGORIES.length,
-  version: '2.0.0',
-  lastUpdated: '2025-10-01'
+  version: '2.1.0',
+  lastUpdated: '2026-10-14'
 };

@@ -77,7 +77,7 @@ export async function searchPostalCode(query, options = {}) {
       }
     });
   } catch (networkErr) {
-    throw new Error('Network error during postal lookup');
+    throw new Error('Network error during postal lookup', { cause: networkErr });
   }
 
   if (!res.ok) {

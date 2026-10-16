@@ -1,11 +1,14 @@
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import { initializeApp } from 'firebase/app';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { collection, deleteDoc, doc, getDoc, getFirestore, onSnapshot, query, setDoc, where } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getFirestore, onSnapshot, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   getAuth,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   updatePassword,
@@ -13,17 +16,17 @@ import {
 } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCQ9TqTeLNWX7AUCx10GVNSqu-EA8A_8ec',
-  authDomain: 'solar-pulse1.firebaseapp.com',
-  projectId: 'solar-pulse1',
-  storageBucket: 'solar-pulse1.firebasestorage.app',
-  messagingSenderId: '470677429490',
-  appId: '1:470677429490:web:eab2494cb023de37a2c46b',
-  measurementId: 'G-F59KS47808',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyCQ9TqTeLNWX7AUCx10GVNSqu-EA8A_8ec',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'solar-pulse1.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'solar-pulse1',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'solar-pulse1.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '470677429490',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:470677429490:web:eab2494cb023de37a2c46b',
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || 'G-F59KS47808',
 };
 
 const app = initializeApp(firebaseConfig);
-export const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'odumesamuel52@gmail.com').toLowerCase();
+export const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'admin@solarpulse.io').toLowerCase();
 export const storage = getStorage(app);
 export const db = getFirestore(app);
 
@@ -34,9 +37,17 @@ if (typeof window !== 'undefined') {
 }
 
 export const auth = getAuth(app);
+export const functions = getFunctions(app, import.meta.env.VITE_FUNCTIONS_REGION || 'europe-west1');
+
+export const callInitializeTransaction = (data) => httpsCallable(functions, 'initializeTransaction')(data);
+export const callVerifyTransaction = (data) => httpsCallable(functions, 'verifyTransaction')(data);
+export const callDeleteMyData = () => httpsCallable(functions, 'deleteMyData')();
+
 export {
   createUserWithEmailAndPassword,
+  deleteUser,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   updatePassword,
@@ -46,6 +57,7 @@ export { getDownloadURL, ref, uploadBytes };
 
 const presenceCollection = collection(db, 'presence');
 const subscriptionsCollection = collection(db, 'subscriptions');
+const supportTicketsCollection = collection(db, 'supportTickets');
 
 export const isAdminUser = (firebaseUser) => firebaseUser?.email?.toLowerCase() === ADMIN_EMAIL;
 
@@ -87,21 +99,50 @@ export const startPresence = (firebaseUser) => {
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') updatePresence();
   };
+  const handleUnload = () => {
+    deleteDoc(presenceRef).catch(() => {});
+  };
+
   document.addEventListener('visibilitychange', handleVisibilityChange);
+  window.addEventListener('beforeunload', handleUnload);
+  window.addEventListener('pagehide', handleUnload);
 
   return () => {
     window.clearInterval(intervalId);
     document.removeEventListener('visibilitychange', handleVisibilityChange);
+    window.removeEventListener('beforeunload', handleUnload);
+    window.removeEventListener('pagehide', handleUnload);
     deleteDoc(presenceRef).catch(() => {});
   };
 };
 
 export const subscribeToActiveUsers = (onUsers, onError) => {
-  const activeSince = Date.now() - (2 * 60 * 1000);
-  const activeQuery = query(presenceCollection, where('lastActiveAt', '>=', activeSince));
-  return onSnapshot(activeQuery, (snapshot) => {
-    onUsers(snapshot.docs.map((presenceDoc) => presenceDoc.data()));
+  return onSnapshot(presenceCollection, (snapshot) => {
+    const twoMinutesAgo = Date.now() - (2 * 60 * 1000);
+    const active = snapshot.docs
+      .map((presenceDoc) => presenceDoc.data())
+      .filter((u) => (u.lastActiveAt || 0) >= twoMinutesAgo);
+    onUsers(active);
   }, onError);
+};
+
+export const subscribeToSupportTickets = (onTickets, onError) => {
+  return onSnapshot(supportTicketsCollection, (snapshot) => {
+    const tickets = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    onTickets(tickets);
+  }, onError);
+};
+
+export const updateTicketStatus = (ticketId, status) => {
+  return updateDoc(doc(db, 'supportTickets', ticketId), { status, updatedAt: Date.now() });
+};
+
+export const deleteUserAccount = async (firebaseUser) => {
+  if (!firebaseUser) throw new Error('No user is currently signed in.');
+  try { await deleteDoc(doc(presenceCollection, firebaseUser.uid)); } catch (_) {}
+  try { await deleteDoc(doc(db, 'users', firebaseUser.uid, 'projects', 'primary')); } catch (_) {}
+  try { await deleteDoc(doc(db, 'users', firebaseUser.uid)); } catch (_) {}
+  await deleteUser(firebaseUser);
 };
 
 export const saveSolarProject = (firebaseUser, project) => {
@@ -116,6 +157,24 @@ export const loadSolarProject = async (firebaseUser) => {
   if (!firebaseUser) return null;
   const projectSnapshot = await getDoc(doc(db, 'users', firebaseUser.uid, 'projects', 'primary'));
   return projectSnapshot.exists() ? projectSnapshot.data() : null;
+};
+
+// Avatar stored as base64 in Firestore — bypasses Storage restrictions entirely.
+export const saveUserAvatar = async (firebaseUser, base64DataUrl) => {
+  if (!firebaseUser) throw new Error('Must be signed in.');
+  await setDoc(doc(db, 'users', firebaseUser.uid), { avatarBase64: base64DataUrl, updatedAt: Date.now() }, { merge: true });
+  return base64DataUrl;
+};
+
+export const loadUserAvatar = async (firebaseUser) => {
+  if (!firebaseUser) return null;
+  const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
+  return snap.exists() ? (snap.data().avatarBase64 || null) : null;
+};
+
+export const removeUserAvatar = async (firebaseUser) => {
+  if (!firebaseUser) throw new Error('Must be signed in.');
+  await setDoc(doc(db, 'users', firebaseUser.uid), { avatarBase64: null, updatedAt: Date.now() }, { merge: true });
 };
 
 export const toAppUser = (firebaseUser) => {

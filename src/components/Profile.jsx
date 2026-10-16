@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, User, Clock3, Hash, Edit3, Check, X, Camera, Trash2, KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, Info, Download, MessageSquare, ExternalLink } from 'lucide-react';
-import { auth, getDownloadURL, ref, storage, updatePassword, updateProfile, uploadBytes } from '../utils/firebase';
+import { auth, updatePassword, updateProfile, loadUserAvatar, saveUserAvatar, removeUserAvatar, deleteUserAccount } from '../utils/firebase';
 
 export default function Profile({ user, setUser, onComplaint }) {
   const initialName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Solar Analyst';
@@ -28,8 +28,46 @@ export default function Profile({ user, setUser, onComplaint }) {
   const [passwordStatus, setPasswordStatus] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
 
+  // Delete account states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const handleDeleteAccount = async () => {
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      if (user?.id === 'demo-guest') {
+        setUser(null);
+        return;
+      }
+      if (!auth.currentUser) throw new Error('No signed-in user found.');
+      await deleteUserAccount(auth.currentUser);
+      setUser(null);
+    } catch (err) {
+      console.error('Account deletion error:', err);
+      if (err.code === 'auth/requires-recent-login') {
+        setDeleteError('For security, deleting your account requires recent authentication. Please sign out, sign in again, and retry.');
+      } else {
+        setDeleteError(err.message || 'Failed to delete account. Please try again.');
+      }
+      setDeleteLoading(false);
+    }
+  };
+
   const fileInputRef = useRef(null);
-  const avatarUrl = user?.user_metadata?.avatar_url;
+  const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || null);
+
+  // Load avatar from Firestore on mount / user change
+  useEffect(() => {
+    let cancelled = false;
+    if (auth.currentUser) {
+      loadUserAvatar(auth.currentUser).then((url) => {
+        if (!cancelled && url) setAvatarUrl(url);
+      }).catch(() => {});
+    }
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
   const getStatusTone = (message) => {
     if (!message) return 'info';
@@ -70,6 +108,7 @@ export default function Profile({ user, setUser, onComplaint }) {
         image.onerror = () => reject(new Error('Invalid image file.'));
       });
 
+      // Compress to max 400px and convert to base64
       const maxDimension = 400;
       const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
       const canvas = document.createElement('canvas');
@@ -78,34 +117,37 @@ export default function Profile({ user, setUser, onComplaint }) {
       canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(imageUrl);
 
-      const compressedBlob = await new Promise((resolve, reject) => {
-        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Could not process image.')), 'image/jpeg', 0.85);
-      });
-      const avatarRef = ref(storage, `users/${auth.currentUser.uid}/avatar.jpg`);
-      await uploadBytes(avatarRef, compressedBlob, { contentType: 'image/jpeg' });
-      const downloadUrl = await getDownloadURL(avatarRef);
-      await updateProfile(auth.currentUser, { photoURL: downloadUrl });
+      const base64 = canvas.toDataURL('image/jpeg', 0.80);
+      await saveUserAvatar(auth.currentUser, base64);
+      // Also update Firebase Auth photoURL so other screens stay in sync
+      await updateProfile(auth.currentUser, { photoURL: base64 }).catch(() => {});
 
+      setAvatarUrl(base64);
       setLoading(false);
       setStatusMessage('Profile picture updated successfully.');
-      setUser?.({ ...user, photoURL: downloadUrl, user_metadata: { ...user.user_metadata, avatar_url: downloadUrl } });
+      setUser?.(prev => ({
+        ...prev,
+        user_metadata: { ...(prev?.user_metadata || {}), avatar_url: base64 },
+      }));
     } catch (err) {
       setLoading(false);
-      setStatusMessage('Error processing image: ' + err.message);
+      setStatusMessage('Error uploading image: ' + err.message);
     }
   };
 
   const handleRemoveAvatar = async () => {
     setLoading(true);
     setStatusMessage('');
-
     try {
-      await updateProfile(auth.currentUser, { photoURL: null });
-
+      await removeUserAvatar(auth.currentUser);
+      await updateProfile(auth.currentUser, { photoURL: null }).catch(() => {});
+      setAvatarUrl(null);
       setLoading(false);
-
       setStatusMessage('Profile picture removed.');
-      setUser?.({ ...user, photoURL: null, user_metadata: { ...user.user_metadata, avatar_url: null } });
+      setUser?.(prev => ({
+        ...prev,
+        user_metadata: { ...(prev?.user_metadata || {}), avatar_url: null },
+      }));
     } catch (err) {
       setLoading(false);
       setStatusMessage('Error removing image: ' + err.message);
@@ -390,7 +432,7 @@ export default function Profile({ user, setUser, onComplaint }) {
         <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
           Encountering an issue or want to take Solar Pulse with you on mobile? Access direct customer support or download the native mobile application.
         </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
           <button
             type="button"
             className="btn-secondary"
@@ -414,6 +456,91 @@ export default function Profile({ user, setUser, onComplaint }) {
             <ExternalLink size={14} style={{ opacity: 0.7 }} />
           </a>
         </div>
+
+        {/* Legal policies */}
+        <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px', display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.82rem' }}>
+          <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Privacy Policy</a>
+          <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Terms of Service</a>
+          <a href="/cookies.html" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Cookie Policy</a>
+        </div>
+      </div>
+
+      {/* Danger Zone: Account Deletion */}
+      <div className="premium-card profile-card" style={{ marginTop: '24px', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '8px', color: '#ef4444' }}>
+          Danger Zone
+        </h3>
+        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+          Permanently delete your Solar Pulse account, saved solar projects, and profile data. This action is irreversible.
+        </p>
+        {!showDeleteConfirm ? (
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirm(true)}
+            style={{
+              padding: '10px 18px',
+              borderRadius: '10px',
+              border: '1px solid #ef4444',
+              background: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444',
+              fontWeight: 700,
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <Trash2 size={16} /> Delete Account
+          </button>
+        ) : (
+          <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '12px', padding: '16px' }}>
+            <p style={{ color: '#ef4444', fontWeight: 700, fontSize: '0.9rem', marginBottom: '8px' }}>
+              Are you sure you want to permanently delete your account?
+            </p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginBottom: '14px' }}>
+              All your saved projects, configurations, and profile records will be wiped immediately.
+            </p>
+            {deleteError && (
+              <p style={{ color: '#ef4444', fontSize: '0.82rem', marginBottom: '12px' }}>{deleteError}</p>
+            )}
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                disabled={deleteLoading}
+                onClick={handleDeleteAccount}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#ef4444',
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: deleteLoading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {deleteLoading ? 'Deleting...' : 'Yes, Permanently Delete'}
+              </button>
+              <button
+                type="button"
+                disabled={deleteLoading}
+                onClick={() => { setShowDeleteConfirm(false); setDeleteError(''); }}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color)',
+                  background: 'transparent',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

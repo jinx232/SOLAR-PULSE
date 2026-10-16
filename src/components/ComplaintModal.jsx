@@ -3,6 +3,8 @@ import {
   X, Send, AlertTriangle, CheckCircle2, MessageSquare,
   Zap, Bug, CreditCard, UserCircle, Lightbulb, Flag
 } from 'lucide-react';
+import { db } from '../utils/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const CATEGORIES = [
   { value: 'bug',         label: 'Bug Report',        icon: '🐛' },
@@ -91,10 +93,20 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
     setLoading(true);
-    // Simulate API submission — replace with real endpoint when ready
-    await new Promise(r => setTimeout(r, 1800));
-    setLoading(false);
-    setStep('success');
+    try {
+      await addDoc(collection(db, 'supportTickets'), {
+        ...form,
+        userId: user?.id || user?.uid || null,
+        createdAt: serverTimestamp(),
+        status: 'open',
+      });
+      setLoading(false);
+      setStep('success');
+    } catch (err) {
+      console.error('Failed to submit support ticket:', err);
+      setLoading(false);
+      setErrors({ submit: 'Submission failed. Please email us directly or try again.' });
+    }
   };
 
   if (!isOpen) return null;
@@ -297,6 +309,12 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
                   </span>
                 </div>
               </div>
+
+              {errors.submit && (
+                <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', fontSize: '0.82rem', marginBottom: '12px' }}>
+                  {errors.submit}
+                </div>
+              )}
 
               {/* Submit */}
               <button
