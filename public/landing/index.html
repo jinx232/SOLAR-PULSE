@@ -14,10 +14,11 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --solar: #f59e0b;
-      --solar-light: #fbbf24;
+      --solar: #f97316;
+      --solar-dark: #c2410c;
+      --solar-light: #fb923c;
       --green: #10b981;
-      --blue: #3b82f6;
+      --blue: #06b6d4;
       --bg: #0a0e1a;
       --bg2: #111827;
       --bg3: #1a2235;
@@ -55,7 +56,8 @@
     }
     .nav-logo-icon {
       width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--solar), #ef4444);
+      background: var(--solar);
+      color: #070b13;
       display: flex; align-items: center; justify-content: center;
       font-size: 18px;
     }
@@ -67,13 +69,13 @@
     }
     .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.06); }
     .nav-cta {
-      background: linear-gradient(135deg, var(--solar), #ef4444);
-      color: #000; font-weight: 700; font-size: 0.875rem;
+      background: var(--solar);
+      color: #070b13; font-weight: 700; font-size: 0.875rem;
       padding: 10px 20px; border-radius: 10px;
       text-decoration: none; transition: all 0.2s;
       white-space: nowrap;
     }
-    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(245,158,11,0.35); }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(249,115,22,0.4); }
     .hamburger {
       display: none; background: none; border: none;
       cursor: pointer; color: var(--text); padding: 8px;
@@ -134,13 +136,13 @@
     }
     .btn-primary-lg {
       display: inline-flex; align-items: center; gap: 10px;
-      background: linear-gradient(135deg, var(--solar), #ef4444);
-      color: #000; font-weight: 800; font-size: 1rem;
+      background: var(--solar);
+      color: #070b13; font-weight: 800; font-size: 1rem;
       padding: 16px 32px; border-radius: var(--radius);
       text-decoration: none; border: none; cursor: pointer;
-      transition: all 0.25s; box-shadow: 0 4px 24px rgba(245,158,11,0.3);
+      transition: all 0.25s; box-shadow: 0 4px 24px rgba(249,115,22,0.35);
     }
-    .btn-primary-lg:hover { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(245,158,11,0.4); }
+    .btn-primary-lg:hover { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(249,115,22,0.5); }
     .btn-outline-lg {
       display: inline-flex; align-items: center; gap: 10px;
       background: rgba(255,255,255,0.05); color: var(--text);
@@ -238,10 +240,10 @@
       justify-content: center; border: none; cursor: pointer;
     }
     .btn-download-primary {
-      background: linear-gradient(135deg, var(--solar), #ef4444);
-      color: #000;
+      background: var(--solar);
+      color: #070b13;
     }
-    .btn-download-primary:hover { box-shadow: 0 8px 24px rgba(245,158,11,0.35); transform: translateY(-1px); }
+    .btn-download-primary:hover { box-shadow: 0 8px 24px rgba(249,115,22,0.4); transform: translateY(-1px); }
     .btn-download-secondary {
       background: rgba(255,255,255,0.06); color: var(--text);
       border: 1px solid var(--border);
@@ -403,6 +405,9 @@
       .footer-inner { grid-template-columns: 1fr; }
       .footer-bottom { flex-direction: column; text-align: center; }
       .hero-stats { gap: 16px; }
+      .hero-actions { flex-direction: column; width: 100%; }
+      .btn-primary-lg, .btn-outline-lg { width: 100%; justify-content: center; padding: 14px 20px; font-size: 0.95rem; }
+      .hero-title { font-size: 2.1rem; }
     }
 
     /* ── SCROLL ANIMATIONS ── */
@@ -459,8 +464,7 @@
   <a href="#features" onclick="closeMobileMenu()">Features</a>
   <a href="#download" onclick="closeMobileMenu()">Download</a>
   <a href="#reviews" onclick="closeMobileMenu()">Reviews</a>
-  <a href="#complaint" onclick="closeMobileMenu()">Support</a>
-  <a href="/index.html" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;font-weight:800;">Open Web App →</a>
+  <a href="/index.html#/calculator" style="background:var(--solar);color:#070b13;font-weight:800;">Calculate System Size →</a>
 </div>
 
 <!-- ── HERO ── -->
@@ -470,22 +474,25 @@
   <div class="hero-inner">
     <div class="hero-badge">
       <div class="hero-badge-dot"></div>
-      Open Solar Architecture · Sizing & ROI Engine · West Africa & Global
+      Solar Pulse · Solar Sizing &amp; ROI Engine · Open Solar Architecture
     </div>
     <h1 class="hero-title" id="hero-heading">
-      Your Solar System.<br/>Modeled Accurately.
+      How big a solar system do I need, and what will it cost?
     </h1>
     <p class="hero-sub">
-      Solar Pulse is an engineering-grade solar planning, sizing, and ROI simulation platform. Model appliance loads, size inverters and battery storage, simulate telemetry, and project 25-year financial returns.
+      Honest engineering estimates based on your local peak sun hours, appliance wattage, and battery storage needs. Model your system in minutes with transparent local-currency equipment pricing (₦ NGN, $ USD, £ GBP, € EUR).
     </p>
     <div class="hero-actions">
-      <a href="/index.html" class="btn-primary-lg">
-        <span>☀️</span> Launch Solar Planner
+      <a href="/index.html#/calculator" class="btn-primary-lg">
+        <span>☀️</span> Calculate System Size &amp; Cost →
       </a>
-      <a href="#features" class="btn-outline-lg">
-        <span>⚡</span> Explore Features
+      <a href="/index.html#/dashboard" class="btn-outline-lg">
+        <span>⚡</span> Explore Telemetry Simulator
       </a>
     </div>
+    <p style="font-size: 0.78rem; color: var(--muted); margin-top: -36px; margin-bottom: 44px; letter-spacing: 0.02em;">
+      ⚖️ Honest engineering estimates, not contractor quotes · Real solar irradiance models · 100% transparent
+    </p>
 
     <img src="hero.jpg" alt="Solar Pulse app running on mobile and desktop showing solar dashboard and battery metrics" class="hero-img fade-up" loading="lazy" />
 

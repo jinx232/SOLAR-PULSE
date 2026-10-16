@@ -702,11 +702,11 @@ button, input, select, textarea {
 }
 
 .dashboard-action-btn-primary {
-  background: linear-gradient(135deg, hsl(var(--color-solar)) 0%, #ef4444 100%);
-  color: #000 !important;
+  background: var(--btn-primary-bg, #f97316);
+  color: var(--btn-primary-text, #070b13) !important;
   font-weight: 700;
   border: none;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
 }
 
 .dashboard-action-btn-primary:hover {

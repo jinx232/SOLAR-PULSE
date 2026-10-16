@@ -152,10 +152,10 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               width: 36, height: 36, borderRadius: 10,
-              background: 'linear-gradient(135deg, hsl(var(--color-solar)), #ef4444)',
+              background: 'var(--btn-primary-bg, #f97316)',
               display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
-              <MessageSquare size={18} color="#000" />
+              <MessageSquare size={18} color="var(--btn-primary-text, #070b13)" />
             </div>
             <div>
               <h2 id="complaint-modal-title" style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>

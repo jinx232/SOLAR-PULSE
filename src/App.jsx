@@ -378,8 +378,8 @@ export default function App() {
             style={{
               display: 'flex', alignItems: 'center', gap: '8px',
               padding: '10px 14px', borderRadius: '10px', marginBottom: '8px',
-              background: 'linear-gradient(135deg, hsl(var(--color-solar)), #ef4444)',
-              color: '#000', fontWeight: 700, fontSize: '0.8rem',
+              background: 'var(--btn-primary-bg, #f97316)',
+              color: 'var(--btn-primary-text, #070b13)', fontWeight: 700, fontSize: '0.8rem',
               textDecoration: 'none', transition: 'opacity 0.2s',
             }}
             onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
