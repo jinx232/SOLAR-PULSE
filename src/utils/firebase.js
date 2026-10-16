@@ -87,19 +87,39 @@ export const subscribeToPaidUsers = (onUsers, onError) => {
   }, onError);
 };
 
-export const startPresence = (firebaseUser) => {
-  if (!firebaseUser || typeof window === 'undefined') return () => {};
+export const startPresence = (user, activePath = '') => {
+  if (typeof window === 'undefined') return () => {};
 
-  const presenceRef = doc(presenceCollection, firebaseUser.uid);
-  const updatePresence = () => setDoc(presenceRef, {
-    uid: firebaseUser.uid,
-    email: firebaseUser.email || '',
-    displayName: firebaseUser.displayName || 'Solar User',
-    lastActiveAt: Date.now(),
-  }, { merge: true }).catch(() => {});
+  let sessionId = '';
+  try {
+    sessionId = sessionStorage.getItem('sp_session_id') || '';
+    if (!sessionId) {
+      sessionId = 'session_' + Math.random().toString(36).substring(2, 12);
+      sessionStorage.setItem('sp_session_id', sessionId);
+    }
+  } catch (_) {
+    sessionId = 'session_' + Math.random().toString(36).substring(2, 12);
+  }
+
+  const recordId = user?.uid || (user?.id && user.id !== 'demo-guest' ? user.id : sessionId);
+  const presenceRef = doc(presenceCollection, recordId);
+
+  const updatePresence = () => {
+    const isMobile = typeof navigator !== 'undefined' && /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const path = activePath || (typeof window !== 'undefined' ? window.location.hash.replace(/^#\/?/, '') : 'dashboard') || 'dashboard';
+
+    return setDoc(presenceRef, {
+      uid: recordId,
+      email: user?.email || 'Guest Visitor',
+      displayName: user?.displayName || user?.user_metadata?.full_name || (user?.id === 'demo-guest' ? 'Demo Guest' : 'Web Visitor'),
+      platform: isMobile ? 'Mobile' : 'Desktop',
+      path,
+      lastActiveAt: Date.now(),
+    }, { merge: true }).catch(() => {});
+  };
 
   updatePresence();
-  const intervalId = window.setInterval(updatePresence, 60 * 1000);
+  const intervalId = window.setInterval(updatePresence, 20 * 1000); // 20s active heartbeat
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') updatePresence();
   };
@@ -121,12 +141,13 @@ export const startPresence = (firebaseUser) => {
 };
 
 export const subscribeToActiveUsers = (onUsers, onError) => {
-  const presenceQuery = query(presenceCollection, limit(50));
+  const presenceQuery = query(presenceCollection, limit(100));
   return onSnapshot(presenceQuery, (snapshot) => {
-    const twoMinutesAgo = Date.now() - (2 * 60 * 1000);
+    const cutoff = Date.now() - (5 * 60 * 1000); // 5 minutes activity window
     const active = snapshot.docs
       .map((presenceDoc) => presenceDoc.data())
-      .filter((u) => (u.lastActiveAt || 0) >= twoMinutesAgo);
+      .filter((u) => (u.lastActiveAt || 0) >= cutoff)
+      .sort((a, b) => (b.lastActiveAt || 0) - (a.lastActiveAt || 0));
     onUsers(active);
   }, onError);
 };

@@ -96,6 +96,7 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
     try {
       await addDoc(collection(db, 'supportTickets'), {
         ...form,
+        recipientEmail: 'odumesamuel52@gmail.com',
         userId: user?.id || user?.uid || null,
         createdAt: serverTimestamp(),
         status: 'open',
@@ -105,7 +106,7 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
     } catch (err) {
       console.error('Failed to submit support ticket:', err);
       setLoading(false);
-      setErrors({ submit: 'Submission failed. Please email us directly or try again.' });
+      setErrors({ submit: 'Submission failed. Please email us directly at odumesamuel52@gmail.com.' });
     }
   };
 
@@ -162,7 +163,7 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
                 Support &amp; Feedback
               </h2>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
-                We respond within 24 hours
+                Directly sent to odumesamuel52@gmail.com
               </p>
             </div>
           </div>
@@ -189,10 +190,11 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
               }}>
                 <CheckCircle2 size={32} color="hsl(var(--color-gen))" />
               </div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: 8 }}>Report Submitted!</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: 8 }}>Feedback Sent!</h3>
               <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
-                Thank you for reaching out. Our support team will review your report and
-                respond to <strong style={{ color: 'var(--text-primary)' }}>{form.email}</strong> within 24 hours.
+                Thank you! Your feedback has been received and routed directly to the administrator at{' '}
+                <strong style={{ color: 'var(--text-primary)' }}>odumesamuel52@gmail.com</strong>. A response will be sent to{' '}
+                <strong style={{ color: 'var(--text-primary)' }}>{form.email}</strong> within 24 hours.
               </p>
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button className="btn-outline" onClick={() => setStep('form')} style={{ fontSize: '0.875rem' }}>
@@ -331,6 +333,9 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
                   <><Send size={16} /> Submit Report</>
                 )}
               </button>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: 12, marginBottom: 0 }}>
+                Direct administrator contact: <a href="mailto:odumesamuel52@gmail.com?subject=Solar%20Pulse%20Support" style={{ color: 'hsl(var(--color-solar))', fontWeight: 600, textDecoration: 'underline' }}>odumesamuel52@gmail.com</a>
+              </p>
             </form>
           )}
         </div>

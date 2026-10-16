@@ -77,10 +77,16 @@ export default function Admin({ user }) {
 
       <div className="grid-cols-4">
         <div className="premium-card">
-          <Users size={22} style={{ color: 'hsl(var(--color-solar))', marginBottom: '16px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <Users size={22} style={{ color: 'hsl(var(--color-solar))' }} />
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: '#10b981', fontWeight: 700 }}>
+              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              LIVE
+            </span>
+          </div>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Active sessions</span>
           <h3 style={{ fontSize: '1.8rem', marginTop: '4px', color: 'var(--text-primary)' }}>{activeUsers.length}</h3>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Users active in last 2 min</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Heartbeats in last 5 min</span>
         </div>
         <div className="premium-card">
           <Activity size={22} style={{ color: 'hsl(var(--color-solar))', marginBottom: '16px' }} />
@@ -136,29 +142,92 @@ export default function Admin({ user }) {
         </div>
       </div>
 
+      {/* Live user sessions with accurate heartbeats */}
       <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
           <div>
-            <h3 style={{ fontSize: '1.2rem' }}>Live user sessions</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '4px' }}>Signed-in users with a recent activity heartbeat.</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ fontSize: '1.2rem' }}>Live user sessions</h3>
+              <span style={{
+                fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: '99px',
+                background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', display: 'inline-flex', alignItems: 'center', gap: '5px'
+              }}>
+                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+                {activeUsers.length} active
+              </span>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '4px' }}>
+              Real-time active visitors and signed-in users with live presence heartbeats.
+            </p>
           </div>
           <Clock3 size={22} style={{ color: 'hsl(var(--color-bat))' }} />
         </div>
         {presenceError && <p style={{ color: '#f59e0b', fontSize: '0.85rem' }}>{presenceError}</p>}
-        {!presenceError && activeUsers.length === 0 && <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No active sessions detected yet.</p>}
-        {activeUsers.map((activeUser) => (
-          <div key={activeUser.uid} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <strong style={{ display: 'block', wordBreak: 'break-word' }}>{activeUser.displayName || 'Solar User'}</strong>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', wordBreak: 'break-all', display: 'block' }}>{activeUser.email || 'Email unavailable'}</span>
+        {!presenceError && activeUsers.length === 0 && (
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No active sessions detected in the last 5 minutes.</p>
+        )}
+        {activeUsers.map((activeUser) => {
+          const secondsAgo = activeUser.lastActiveAt && currentTs
+            ? Math.max(1, Math.round((currentTs - activeUser.lastActiveAt) / 1000))
+            : null;
+          const isFresh = secondsAgo !== null && secondsAgo <= 60;
+          const isMobile = activeUser.platform === 'mobile';
+          const isGuest = !activeUser.email;
+
+          return (
+            <div
+              key={activeUser.uid}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                gap: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '12px'
+              }}
+            >
+              <div style={{ minWidth: 0, flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span
+                  style={{
+                    display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%',
+                    background: isFresh ? '#10b981' : '#f59e0b',
+                    boxShadow: isFresh ? '0 0 6px #10b981' : 'none',
+                    flexShrink: 0
+                  }}
+                  title={isFresh ? 'Active now' : 'Idle within 5m'}
+                />
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <strong style={{ fontSize: '0.9rem', wordBreak: 'break-word' }}>
+                      {activeUser.displayName || (isGuest ? `Guest Visitor (${activeUser.uid.slice(0, 8)})` : 'Solar User')}
+                    </strong>
+                    <span style={{
+                      fontSize: '0.7rem', padding: '1px 6px', borderRadius: '4px',
+                      background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'var(--text-muted)'
+                    }}>
+                      {isMobile ? '📱 Mobile' : '💻 Desktop'}
+                    </span>
+                    {activeUser.path && (
+                      <span style={{
+                        fontSize: '0.7rem', padding: '1px 6px', borderRadius: '4px',
+                        background: 'rgba(249, 115, 22, 0.1)', color: 'hsl(var(--color-solar))'
+                      }}>
+                        Page: {activeUser.path}
+                      </span>
+                    )}
+                  </div>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', wordBreak: 'break-all', display: 'block', marginTop: '2px' }}>
+                    {activeUser.email || `Session ID: ${activeUser.uid}`}
+                  </span>
+                </div>
+              </div>
+              <span style={{
+                color: isFresh ? 'hsl(var(--color-gen))' : 'var(--text-muted)',
+                fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0
+              }}>
+                {secondsAgo !== null
+                  ? (secondsAgo < 60 ? `Active ${secondsAgo}s ago` : `Active ${Math.round(secondsAgo / 60)}m ago`)
+                  : 'Active recently'}
+              </span>
             </div>
-            <span style={{ color: 'hsl(var(--color-gen))', fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>
-              {activeUser.lastActiveAt && currentTs
-                ? `Active ${Math.max(1, Math.round((currentTs - activeUser.lastActiveAt) / 1000))}s ago`
-                : 'Active recently'}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -181,19 +250,31 @@ export default function Admin({ user }) {
 
       {/* Support & Feedback Tickets */}
       <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
           <div>
             <h3 style={{ fontSize: '1.2rem' }}>Support &amp; Feedback Tickets</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '4px' }}>
-              Submissions received from user complaint modals and the public contact form.
+              All user feedback, issues, and complaints routed to <strong>odumesamuel52@gmail.com</strong>.
             </p>
           </div>
-          <span style={{
-            padding: '4px 10px', borderRadius: '99px', fontSize: '0.78rem', fontWeight: 700,
-            background: 'rgba(245, 158, 11, 0.15)', color: 'hsl(var(--color-solar))'
-          }}>
-            {supportTickets.filter(t => t.status !== 'resolved').length} open
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <a
+              href="mailto:odumesamuel52@gmail.com"
+              style={{
+                fontSize: '0.78rem', color: 'hsl(var(--color-solar))', textDecoration: 'none',
+                padding: '4px 10px', borderRadius: '6px', background: 'rgba(249, 115, 22, 0.1)',
+                border: '1px solid rgba(249, 115, 22, 0.25)', fontWeight: 600
+              }}
+            >
+              ✉️ odumesamuel52@gmail.com
+            </a>
+            <span style={{
+              padding: '4px 10px', borderRadius: '99px', fontSize: '0.78rem', fontWeight: 700,
+              background: 'rgba(245, 158, 11, 0.15)', color: 'hsl(var(--color-solar))'
+            }}>
+              {supportTickets.filter(t => t.status !== 'resolved').length} open
+            </span>
+          </div>
         </div>
 
         {ticketError && <p style={{ color: '#f59e0b', fontSize: '0.85rem' }}>{ticketError}</p>}
@@ -226,9 +307,29 @@ export default function Admin({ user }) {
                       {ticket.priority} priority
                     </span>
                   )}
+                  {ticket.recipientEmail && (
+                    <span style={{
+                      marginLeft: '8px', padding: '1px 6px', borderRadius: '4px', fontSize: '0.72rem',
+                      background: 'rgba(16, 185, 129, 0.1)', color: 'hsl(var(--color-gen))'
+                    }}>
+                      Routed to: {ticket.recipientEmail}
+                    </span>
+                  )}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                {ticket.email && ticket.email !== 'No email' && (
+                  <a
+                    href={`mailto:${ticket.email}?subject=Re:%20${encodeURIComponent(ticket.subject || 'Solar Pulse Support')}`}
+                    style={{
+                      padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600,
+                      background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)',
+                      color: '#38bdf8', textDecoration: 'none'
+                    }}
+                  >
+                    Reply via Email
+                  </a>
+                )}
                 <span style={{
                   fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: '6px',
                   background: ticket.status === 'resolved' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',

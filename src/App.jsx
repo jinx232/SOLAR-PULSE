@@ -170,7 +170,6 @@ export default function App() {
       auth,
       (firebaseUser) => {
         clearTimeout(safetyTimer);
-        stopPresence();
         setIsAuthenticated(Boolean(firebaseUser));
         setUser(toAppUser(firebaseUser));
         if (firebaseUser) {
@@ -181,7 +180,6 @@ export default function App() {
             setActiveView(isAdminUser(firebaseUser) ? 'admin' : 'dashboard');
           }
         }
-        stopPresence = startPresence(firebaseUser);
         setAuthLoading(false);
       },
       (error) => {
@@ -193,10 +191,17 @@ export default function App() {
 
     return () => {
       clearTimeout(safetyTimer);
-      stopPresence();
       unsubscribe();
     };
   }, []);
+
+  // Heartbeat live user presence for every session (signed in, admin, or guest visitor)
+  useEffect(() => {
+    const stopPresence = startPresence(user, activeView);
+    return () => {
+      stopPresence();
+    };
+  }, [user, activeView]);
 
   useEffect(() => subscribeToUserPlan(auth.currentUser, setSubscription), [user]);
 
