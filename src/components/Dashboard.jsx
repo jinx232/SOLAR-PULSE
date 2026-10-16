@@ -111,8 +111,70 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
   }, [user?.id]);
 
   return (
-    <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+    <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
       
+      {/* Primary First Screen Action: Immediate System Sizing & Cost */}
+      <div className="premium-card" style={{
+        background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(15, 23, 42, 0.45) 100%)',
+        border: '1px solid rgba(249, 115, 22, 0.3)',
+        padding: '24px 28px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        borderRadius: '16px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ maxWidth: '560px' }}>
+            <span style={{
+              display: 'inline-block',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+              color: 'var(--color-solar-text, #c2410c)',
+              marginBottom: '6px'
+            }}>
+              Solar Sizing &amp; Investment Planner
+            </span>
+            <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.25 }}>
+              How big a solar system do I need, and what will it cost?
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '8px', lineHeight: 1.5 }}>
+              Size your inverter kW, battery backup capacity, and solar panel array based on your appliances, and view 25-year financial savings.
+            </p>
+          </div>
+
+          <div>
+            <button
+              className="btn-primary"
+              onClick={() => onNavigate?.('calculator')}
+              aria-label="Calculate my solar system size and cost"
+              style={{
+                padding: '14px 28px',
+                fontSize: '0.95rem',
+                boxShadow: '0 8px 24px -6px rgba(249, 115, 22, 0.45)',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Calculate System Size &amp; Cost →
+            </button>
+          </div>
+        </div>
+
+        <div style={{
+          borderTop: '1px solid var(--border-color)',
+          paddingTop: '10px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '0.8rem',
+          color: 'var(--text-muted)'
+        }}>
+          <AlertCircle size={14} style={{ color: 'var(--color-solar-text, #c2410c)', flexShrink: 0 }} />
+          <span>Honest engineering estimates based on local solar irradiation curves • Not formal contractor quotes.</span>
+        </div>
+      </div>
+
       {/* Profile Summary Card (Executive PC & Mobile Design) */}
       <div className="premium-card dashboard-profile-card">
         <div className="dashboard-profile-main">

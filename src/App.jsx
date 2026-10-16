@@ -72,8 +72,29 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Persist theme across sessions
-  const [theme, setTheme] = useState(() => localStorage.getItem('sp_theme') || 'dark');
+  // Theme: Dark mode default, follows visitor's system setting, remembers manual choice
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sp_theme');
+      if (saved) return saved;
+      if (typeof window !== 'undefined' && window.matchMedia) {
+        if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+      }
+    } catch (_) {}
+    return 'dark'; // Dark mode is the primary default
+  });
+
+  // Listen to system preference changes if no manual preference has been stored yet
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem('sp_theme') && window.matchMedia) {
+        const media = window.matchMedia('(prefers-color-scheme: light)');
+        const listener = (e) => setTheme(e.matches ? 'light' : 'dark');
+        media.addEventListener('change', listener);
+        return () => media.removeEventListener('change', listener);
+      }
+    } catch (_) {}
+  }, []);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const isAdmin = isAdminUser(user);
@@ -316,7 +337,12 @@ export default function App() {
         <div className="sidebar-header-bar">
           <div className="sidebar-logo">
             <Sun className="logo-icon" size={28} />
-            <span className="sidebar-brand">Solar Pulse</span>
+            <div>
+              <span className="sidebar-brand">Solar Pulse</span>
+              <span style={{ display: 'block', fontSize: '0.68rem', color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 600, marginTop: '1px' }}>
+                Solar Sizing &amp; ROI
+              </span>
+            </div>
           </div>
           <button 
             className="sidebar-close-btn"

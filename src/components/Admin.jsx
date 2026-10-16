@@ -76,32 +76,38 @@ export default function Admin({ user }) {
       </div>
 
       <div className="grid-cols-4">
-        <div className="premium-card" style={{ borderLeft: '4px solid hsl(var(--color-solar))' }}>
+        <div className="premium-card">
           <Users size={22} style={{ color: 'hsl(var(--color-solar))', marginBottom: '16px' }} />
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Active sessions</span>
-          <h3 style={{ fontSize: '1.8rem', marginTop: '4px' }}>{activeUsers.length}</h3>
+          <h3 style={{ fontSize: '1.8rem', marginTop: '4px', color: 'var(--text-primary)' }}>{activeUsers.length}</h3>
           <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Users active in last 2 min</span>
         </div>
-        <div className="premium-card" style={{ borderLeft: '4px solid hsl(var(--color-gen))' }}>
-          <Activity size={22} style={{ color: 'hsl(var(--color-gen))', marginBottom: '16px' }} />
+        <div className="premium-card">
+          <Activity size={22} style={{ color: 'hsl(var(--color-solar))', marginBottom: '16px' }} />
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Platform status</span>
-          <h3 style={{ fontSize: '1.8rem', marginTop: '4px' }}>Online</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+            <h3 style={{ fontSize: '1.8rem', color: 'var(--text-primary)' }}>Online</h3>
+            <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }} title="Operational" />
+          </div>
           <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{lastUpdated ? `Checked ${lastUpdated.toLocaleTimeString()}` : 'Checking services...'}</span>
         </div>
-        <div className="premium-card" style={{ borderLeft: '4px solid hsl(var(--color-bat))' }}>
-          <Zap size={22} style={{ color: 'hsl(var(--color-bat))', marginBottom: '16px' }} />
+        <div className="premium-card">
+          <Zap size={22} style={{ color: 'hsl(var(--color-solar))', marginBottom: '16px' }} />
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Energy engine</span>
-          <h3 style={{ fontSize: '1.8rem', marginTop: '4px' }}>Operational</h3>
+          <h3 style={{ fontSize: '1.8rem', marginTop: '4px', color: 'var(--text-primary)' }}>Operational</h3>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Real-time math calculations</span>
         </div>
-        <div className="premium-card" style={{ borderLeft: '4px solid hsl(var(--color-con))' }}>
-          <BarChart3 size={22} style={{ color: 'hsl(var(--color-con))', marginBottom: '16px' }} />
+        <div className="premium-card">
+          <BarChart3 size={22} style={{ color: 'hsl(var(--color-solar))', marginBottom: '16px' }} />
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>App version</span>
-          <h3 style={{ fontSize: '1.8rem', marginTop: '4px' }}>2.0.0</h3>
+          <h3 style={{ fontSize: '1.8rem', marginTop: '4px', color: 'var(--text-primary)' }}>2.0.0</h3>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Production release</span>
         </div>
-        <div className="premium-card" style={{ borderLeft: '4px solid hsl(var(--color-solar))' }}>
+        <div className="premium-card">
           <ShieldCheck size={22} style={{ color: 'hsl(var(--color-solar))', marginBottom: '16px' }} />
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Paid subscriptions</span>
-          <h3 style={{ fontSize: '1.8rem', marginTop: '4px' }}>{paidUsers.length}</h3>
+          <h3 style={{ fontSize: '1.8rem', marginTop: '4px', color: 'var(--text-primary)' }}>{paidUsers.length}</h3>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Verified active accounts</span>
         </div>
       </div>
 
