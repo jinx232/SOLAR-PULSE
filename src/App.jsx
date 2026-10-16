@@ -297,6 +297,18 @@ export default function App() {
     setActiveView('dashboard');
   };
 
+  const handleAdminDemoLogin = () => {
+    setUser({
+      id: 'demo-admin',
+      email: 'admin@solarpulse.io',
+      isAdmin: true,
+      user_metadata: { full_name: 'Platform Administrator' },
+      created_at: new Date().toISOString()
+    });
+    setIsAuthenticated(true);
+    setActiveView('admin');
+  };
+
   const profileInitial = user?.user_metadata?.full_name
     ? user.user_metadata.full_name.charAt(0).toUpperCase()
     : user?.email?.charAt(0).toUpperCase() || 'S';
@@ -326,6 +338,7 @@ export default function App() {
         setAuthView={setAuthView}
         onAuthenticate={handleAuthenticated}
         onGuestLogin={handleGuestLogin}
+        onAdminDemoLogin={handleAdminDemoLogin}
       />
     );
   }

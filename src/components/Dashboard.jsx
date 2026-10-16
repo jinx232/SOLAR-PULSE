@@ -66,7 +66,15 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
   useEffect(() => {
     const interval = setInterval(() => {
       const netPower = solarGen - houseCon;
-      setBatterySoc(prev => stepBattery(prev, netPower, maxBatteryCapacity, 1.5, 60));
+      setBatterySoc(prev => {
+        const current = Number.isFinite(prev) ? prev : 68;
+        return stepBattery({
+          socPct: current,
+          netKw: netPower,
+          capacityKwh: maxBatteryCapacity,
+          dtHours: (1.5 * 40) / 3600 // accelerated simulation factor so live flow is visible
+        });
+      });
     }, 1500);
 
     return () => clearInterval(interval);
@@ -351,13 +359,13 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
             <Battery size={24} style={{ color: 'hsl(var(--color-bat))' }} />
           </div>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '6px' }}>
-            {batterySoc}% <span style={{ fontSize: '1rem', fontWeight: 500 }}>SOC</span>
+            {Number.isFinite(batterySoc) ? Math.round(batterySoc) : 68}% <span style={{ fontSize: '1rem', fontWeight: 500 }}>SOC</span>
           </h2>
           {/* Animated battery fill bar */}
           <div style={{ height: '6px', borderRadius: '99px', backgroundColor: 'var(--border-color)', overflow: 'hidden', marginBottom: '6px' }}>
             <div style={{
               height: '100%',
-              width: `${batterySoc}%`,
+              width: `${Number.isFinite(batterySoc) ? Math.min(100, Math.max(0, batterySoc)) : 68}%`,
               borderRadius: '99px',
               background: batterySoc > 40
                 ? 'linear-gradient(90deg, hsl(var(--color-gen)), hsl(142, 80%, 55%))'
@@ -374,7 +382,7 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
             }}>
               {isCharging ? '▲ Charging' : netPowerBalance === 0 ? '● Standby' : '▼ Discharging'}
             </span>
-            <span>({Math.round((batterySoc / 100) * maxBatteryCapacity * 10) / 10} / {maxBatteryCapacity} kWh)</span>
+            <span>({Math.round(((Number.isFinite(batterySoc) ? batterySoc : 68) / 100) * maxBatteryCapacity * 10) / 10} / {maxBatteryCapacity} kWh)</span>
           </div>
         </div>
 

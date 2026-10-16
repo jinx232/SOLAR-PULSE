@@ -102,10 +102,24 @@ export const drainSoc = ({ socPct, loadKw, dtHours, nominalKwh, dod = BATTERY_DO
   return Math.max(floor, next);
 };
 
-/** Dashboard battery integration. Returns an UNROUNDED percentage so tiny deltas are not erased. */
-export const stepBattery = ({ socPct, netKw, capacityKwh, dtHours }) => {
-  const kwh = (socPct / 100) * capacityKwh + netKw * dtHours;
-  return clamp((kwh / capacityKwh) * 100, 0, 100);
+/** Dashboard battery integration. Accepts either an options object or positional arguments, guarding against NaN. */
+export const stepBattery = (arg, netKwArg, capacityKwhArg, dtHoursArg) => {
+  let socPct, netKw, capacityKwh, dtHours;
+  if (typeof arg === 'object' && arg !== null) {
+    ({ socPct, netKw, capacityKwh, dtHours } = arg);
+  } else {
+    socPct = arg;
+    netKw = netKwArg;
+    capacityKwh = capacityKwhArg;
+    dtHours = typeof dtHoursArg === 'number' ? dtHoursArg : 0.025;
+  }
+  const capacity = Number.isFinite(capacityKwh) && capacityKwh > 0 ? capacityKwh : 13.5;
+  const currentSoc = Number.isFinite(socPct) ? socPct : 68;
+  const deltaHours = Number.isFinite(dtHours) ? dtHours : 0.025;
+  const power = Number.isFinite(netKw) ? netKw : 0;
+  const kwh = (currentSoc / 100) * capacity + power * deltaHours;
+  const nextSoc = clamp((kwh / capacity) * 100, 0, 100);
+  return Number.isFinite(nextSoc) ? round(nextSoc, 1) : 68;
 };
 
 /* --------------------------------- finance -------------------------------- */
