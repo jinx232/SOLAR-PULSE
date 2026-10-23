@@ -85,12 +85,19 @@
       width: 36px;
       height: 36px;
       border-radius: 10px;
-      background: var(--solar);
-      color: #070b13;
+      background: rgba(249, 115, 22, 0.12);
+      border: 1px solid rgba(249, 115, 22, 0.25);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .nav-logo-icon img {
+      width: 24px;
+      height: 24px;
+      display: block;
     }
 
     .nav-links {
@@ -445,9 +452,45 @@
     }
 
     .download-platform-icon {
-      font-size: 3rem;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 72px;
+    }
+
+    .download-app-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
       display: block;
+      box-shadow: 0 12px 30px rgba(249, 115, 22, 0.35), 0 0 0 1px rgba(249, 115, 22, 0.4);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+
+    .download-card:hover .download-app-icon {
+      transform: scale(1.08) translateY(-3px);
+      box-shadow: 0 18px 44px rgba(249, 115, 22, 0.55), 0 0 0 1.5px rgba(249, 115, 22, 0.7);
+    }
+
+    .download-platform-svg {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--solar);
+      transition: all 0.3s ease;
+    }
+
+    .download-card:hover .download-platform-svg {
+      transform: scale(1.08) translateY(-3px);
+      border-color: rgba(249, 115, 22, 0.4);
+      background: rgba(249, 115, 22, 0.1);
+      color: #fb923c;
     }
 
     .download-platform-name {
@@ -687,8 +730,10 @@
     }
 
     .review-stars {
-      color: var(--solar);
-      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      color: #f59e0b;
       margin-bottom: 12px;
     }
 
@@ -985,7 +1030,11 @@
     }
 
     .store-badge-icon {
-      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--solar);
+      flex-shrink: 0;
     }
 
     .store-badge-text small {
@@ -1005,7 +1054,9 @@
   <!-- ── NAVIGATION ── -->
   <nav role="navigation" aria-label="Main navigation">
     <a href="#" class="nav-logo" aria-label="Solar Pulse Home">
-      <div class="nav-logo-icon">☀️</div>
+      <div class="nav-logo-icon">
+        <img src="/favicon.svg" alt="Solar Pulse Favicon" width="24" height="24" />
+      </div>
       Solar Pulse
     </a>
     <div class="nav-links" role="menubar">
@@ -1099,37 +1150,49 @@
 
         <div class="features-grid">
           <div class="feature-card fade-up">
-            <div class="feature-icon" style="background:rgba(245,158,11,0.15);"></div>
+            <div class="feature-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
             <div class="feature-title">Telemetry Simulator</div>
             <p class="feature-desc">Interactive physics simulation of solar PV generation, battery charge/discharge
               curves, and grid power flows under dynamic cloud cover.</p>
           </div>
           <div class="feature-card fade-up">
-            <div class="feature-icon" style="background:rgba(16,185,129,0.15);"></div>
+            <div class="feature-icon" style="background:rgba(16,185,129,0.15); color:#10b981;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+            </div>
             <div class="feature-title">Consumption Calculator</div>
             <p class="feature-desc">Log household and commercial loads with continuous and motor surge wattage to
               accurately specify inverter and battery requirements.</p>
           </div>
           <div class="feature-card fade-up">
-            <div class="feature-icon" style="background:rgba(59,130,246,0.15);">📈</div>
+            <div class="feature-icon" style="background:rgba(59,130,246,0.15); color:#3b82f6;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
             <div class="feature-title">25-Year Life-Cycle Estimator</div>
             <p class="feature-desc">Generate comprehensive financial models factoring in utility inflation, local
               tariffs, NPV, IRR, and PV panel degradation over 25 years.</p>
           </div>
           <div class="feature-card fade-up">
-            <div class="feature-icon" style="background:rgba(139,92,246,0.15);"></div>
+            <div class="feature-icon" style="background:rgba(139,92,246,0.15); color:#8b5cf6;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            </div>
             <div class="feature-title">Orientation Optimizer</div>
             <p class="feature-desc">Determine optimal roof azimuth and tilt angle based on latitude and regional solar
               peak sun hours via OpenStreetMap geocoding.</p>
           </div>
           <div class="feature-card fade-up">
-            <div class="feature-icon" style="background:rgba(245,158,11,0.15);"></div>
+            <div class="feature-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></svg>
+            </div>
             <div class="feature-title">AI Solar Advisor</div>
             <p class="feature-desc">Ask any solar question and get instant expert answers powered by a specialized solar
               knowledge engine with source attribution.</p>
           </div>
           <div class="feature-card fade-up">
-            <div class="feature-icon" style="background:rgba(239,68,68,0.15);"></div>
+            <div class="feature-icon" style="background:rgba(239,68,68,0.15); color:#ef4444;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
             <div class="feature-title">Secure & Private</div>
             <p class="feature-desc">Firebase authentication with end-to-end secure data storage. Your solar data stays
               yours, always.</p>
@@ -1149,40 +1212,59 @@
         <div class="download-grid">
           <!-- Web Browser -->
           <div class="download-card fade-up">
-            <span class="download-platform-icon"></span>
+            <div class="download-platform-icon">
+              <div class="download-platform-svg">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+            </div>
             <div class="download-platform-name">Modern Web Browser</div>
             <div class="download-platform-sub">Chrome, Safari, Firefox, Edge · Instant access</div>
             <a href="/index.html" class="btn-download btn-download-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               Launch Web App
             </a>
             <a href="#features" class="btn-download btn-download-secondary" style="margin-top:10px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               Explore Simulators
             </a>
           </div>
 
-          <!-- Mobile & Tablet PWA -->
-          <div class="download-card fade-up">
-            <span class="download-platform-icon"></span>
-            <div class="download-platform-name">Mobile & Tablet PWA</div>
-            <div class="download-platform-sub">Install directly to your home screen</div>
+          <!-- Mobile & Tablet PWA with Official Favicon / App Icon -->
+          <div class="download-card fade-up" style="position:relative; border-color:rgba(249,115,22,0.3); background:linear-gradient(180deg, rgba(249,115,22,0.06) 0%, var(--bg3) 100%);">
+            <div class="download-platform-icon">
+              <img src="/favicon.svg" alt="Solar Pulse App Icon" class="download-app-icon" width="72" height="72" />
+            </div>
+            <div class="download-platform-name" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+              Mobile &amp; Tablet PWA
+              <span style="font-size:0.65rem; padding:2px 8px; border-radius:99px; background:rgba(249,115,22,0.2); color:var(--solar); font-weight:800; border:1px solid rgba(249,115,22,0.3);">APP</span>
+            </div>
+            <div class="download-platform-sub">Install directly to your home screen (iOS &amp; Android)</div>
             <a href="/index.html" class="btn-download btn-download-primary"
-              onclick="showToast('📱', 'Open in Safari or Chrome and select Share > Add to Home Screen.');">
-              📲 Add to Home Screen
+              onclick="showToast('<img src=\'/favicon.svg\' width=\'18\' height=\'18\' style=\'display:block;border-radius:4px;\' />', 'Open in Safari or Chrome and select Share > Add to Home Screen.');">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Add to Home Screen
             </a>
             <a href="/index.html" class="btn-download btn-download-secondary" style="margin-top:10px;">
-              🚀 Open in Mobile Browser
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              Open in Mobile Browser
             </a>
           </div>
 
           <!-- Desktop Workstation -->
           <div class="download-card fade-up">
-            <span class="download-platform-icon"></span>
+            <div class="download-platform-icon">
+              <div class="download-platform-svg">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+            </div>
             <div class="download-platform-name">Desktop Workstation</div>
             <div class="download-platform-sub">Full multi-panel charts & audit PDF exports</div>
             <a href="/index.html" class="btn-download btn-download-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
               Open Solar Workstation
             </a>
             <a href="/index.html" class="btn-download btn-download-secondary" style="margin-top:10px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
               Load Calculator
             </a>
           </div>
@@ -1191,22 +1273,28 @@
         <!-- Store badges row -->
         <div class="store-badges fade-up" style="margin-top: 12px;">
           <a href="/index.html" class="store-badge">
-            <span class="store-badge-icon"></span>
+            <span class="store-badge-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </span>
             <div class="store-badge-text">
               <small>Instant Access</small>
               <strong>Web Browser</strong>
             </div>
           </a>
           <a href="/index.html" class="store-badge"
-            onclick="showToast('','To install on iOS or Android: Open in Safari/Chrome and tap Share > Add to Home Screen.'); return false;">
-            <span class="store-badge-icon"></span>
+            onclick="showToast('<img src=\'/favicon.svg\' width=\'18\' height=\'18\' style=\'display:block;border-radius:4px;\' />','To install on iOS or Android: Open in Safari/Chrome and tap Share > Add to Home Screen.'); return false;">
+            <span class="store-badge-icon">
+              <img src="/favicon.svg" alt="Solar Pulse App" width="22" height="22" style="display:block; border-radius:5px;" />
+            </span>
             <div class="store-badge-text">
               <small>Installable</small>
               <strong>Progressive Web App</strong>
             </div>
           </a>
           <a href="/index.html" class="store-badge">
-            <span class="store-badge-icon"></span>
+            <span class="store-badge-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </span>
             <div class="store-badge-text">
               <small>Cross-Platform</small>
               <strong>Desktop & Mobile</strong>
@@ -1228,7 +1316,13 @@
 
         <div class="reviews-grid">
           <div class="review-card fade-up">
-            <div class="review-stars" style="color:var(--primary);font-size:1.4rem;"></div>
+            <div class="review-stars">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
             <p class="review-text">"Residential Sizing: Accurately sizes solar array kWh output, battery capacity, and
               inverter surge requirements for homes transitioning from grid instability or fossil fuel generators."</p>
             <div class="reviewer">
@@ -1240,7 +1334,13 @@
             </div>
           </div>
           <div class="review-card fade-up">
-            <div class="review-stars" style="color:var(--primary);font-size:1.4rem;"></div>
+            <div class="review-stars">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
             <p class="review-text">"Financial Viability: Models 25-year lifecycle savings, cumulative utility bill
               inflation, NPV, and panel degradation to provide transparent ROI and break-even timelines."</p>
             <div class="reviewer">
@@ -1252,7 +1352,13 @@
             </div>
           </div>
           <div class="review-card fade-up">
-            <div class="review-stars" style="color:var(--primary);font-size:1.4rem;"></div>
+            <div class="review-stars">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
             <p class="review-text">"Field Engineering Audits: Quick appliance inventory logging, geographic azimuth/tilt
               baselines, and one-click printable engineering audit reports for client proposals."</p>
             <div class="reviewer">
@@ -1307,9 +1413,9 @@
               <div class="form-group" style="margin-bottom:0">
                 <label for="cf-priority" class="form-label">Priority</label>
                 <select id="cf-priority" class="form-select">
-                  <option value="normal">🟡 Normal</option>
-                  <option value="high">🔴 High — Urgent</option>
-                  <option value="low">🟢 Low — Not urgent</option>
+                  <option value="normal">Normal</option>
+                  <option value="high">High — Urgent</option>
+                  <option value="low">Low — Standard</option>
                 </select>
               </div>
             </div>
@@ -1350,7 +1456,9 @@
           </form>
 
           <div class="form-success" id="formSuccess">
-            <div class="form-success-icon"></div>
+            <div class="form-success-icon" style="color:#10b981; display:flex; justify-content:center; margin-bottom:12px;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
             <div class="form-success-title">Report Submitted Successfully!</div>
             <p class="form-success-sub">Thank you for reaching out. Our support team will review your submission and
               respond to <strong id="successEmail"></strong> within 24 hours.</p>
@@ -1364,19 +1472,25 @@
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:24px;">
           <div
             style="background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center;">
-            <div style="font-size:1.5rem; margin-bottom:8px;">⚡</div>
+            <div style="margin-bottom:8px; color:var(--solar); display:flex; justify-content:center;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
             <div style="font-size:0.875rem; font-weight:700;">24h Response</div>
             <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">Mon–Fri guaranteed</div>
           </div>
           <div
             style="background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center;">
-            <div style="font-size:1.5rem; margin-bottom:8px;"></div>
+            <div style="margin-bottom:8px; color:#10b981; display:flex; justify-content:center;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
             <div style="font-size:0.875rem; font-weight:700;">Global Support</div>
             <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">Nigeria, Ghana, USA & more</div>
           </div>
           <div
             style="background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center;">
-            <div style="font-size:1.5rem; margin-bottom:8px;"></div>
+            <div style="margin-bottom:8px; color:#3b82f6; display:flex; justify-content:center;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
             <div style="font-size:0.875rem; font-weight:700;">Secure & Private</div>
             <div style="font-size:0.75rem; color:var(--muted); margin-top:4px;">Your data is protected</div>
           </div>
@@ -1390,7 +1504,9 @@
     <div class="footer-inner">
       <div class="footer-brand">
         <a href="#" class="nav-logo" style="margin-bottom:0;">
-          <div class="nav-logo-icon">☀️</div>
+          <div class="nav-logo-icon">
+            <img src="/favicon.svg" alt="Solar Pulse Favicon" width="24" height="24" />
+          </div>
           Solar Pulse
         </a>
         <p>The world's smartest solar energy management platform. Monitor, calculate, and optimise your solar investment
@@ -1465,7 +1581,14 @@
     let toastTimeout;
     function showToast(icon, msg) {
       const toast = document.getElementById('toast');
-      document.getElementById('toastIcon').textContent = icon;
+      const iconEl = document.getElementById('toastIcon');
+      if (icon && typeof icon === 'string' && icon.includes('<')) {
+        iconEl.innerHTML = icon;
+      } else if (icon) {
+        iconEl.textContent = icon;
+      } else {
+        iconEl.innerHTML = '<img src="/favicon.svg" width="20" height="20" alt="Solar Pulse" style="display:block;border-radius:4px;" />';
+      }
       document.getElementById('toastMsg').textContent = msg;
       toast.classList.add('show');
       clearTimeout(toastTimeout);
@@ -1537,14 +1660,14 @@
         document.getElementById('successEmail').textContent = email;
         form.style.display = 'none';
         document.getElementById('formSuccess').style.display = 'block';
-        showToast('✅', 'Support ticket logged! Reference stored.');
+        showToast('<svg width=\'20\' height=\'20\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#10b981\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'20 6 9 17 4 12\'/></svg>', 'Support ticket logged! Reference stored.');
       } catch (err) {
         console.warn('Direct Firestore write fallback:', err);
         // Fallback: Show success and confirm local receipt
         document.getElementById('successEmail').textContent = email;
         form.style.display = 'none';
         document.getElementById('formSuccess').style.display = 'block';
-        showToast('✅', 'Ticket submitted! We will respond within 24h.');
+        showToast('<svg width=\'20\' height=\'20\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#10b981\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'20 6 9 17 4 12\'/></svg>', 'Ticket submitted! We will respond within 24h.');
       } finally {
         submitBtn.disabled = false;
         submitText.style.display = 'inline';
