@@ -123,65 +123,121 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
   return (
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
       
-      {/* Primary First Screen Action: Immediate System Sizing & Cost */}
-      <div className="premium-card" style={{
-        background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(15, 23, 42, 0.45) 100%)',
-        border: '1px solid rgba(249, 115, 22, 0.3)',
-        padding: '24px 28px',
+      {/* Primary First Screen Action: Enhanced Photorealistic Visual Hero Banner */}
+      <div className="premium-card dashboard-hero-banner" style={{
+        position: 'relative',
+        overflow: 'hidden',
+        padding: '32px 32px 28px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
-        borderRadius: '16px'
+        gap: '20px',
+        borderRadius: '20px',
+        border: '1px solid rgba(249, 115, 22, 0.35)',
+        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(7, 11, 19, 0.96) 100%)',
+        boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 40px -10px rgba(249, 115, 22, 0.15)'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <div style={{ maxWidth: '560px' }}>
-            <span style={{
-              display: 'inline-block',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              color: 'var(--color-solar-text, #c2410c)',
-              marginBottom: '6px'
-            }}>
-              Solar Sizing &amp; Investment Planner
-            </span>
-            <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.25 }}>
+        {/* Photorealistic Solar Background Layer with Gradient Mask */}
+        <div 
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: '55%',
+            backgroundImage: 'url(/landing/img/feature-storage.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.22,
+            maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.85) 60%, black 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.85) 60%, black 100%)',
+            pointerEvents: 'none'
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ maxWidth: '600px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '5px 12px', borderRadius: '99px', background: 'rgba(249, 115, 22, 0.14)', border: '1px solid rgba(249, 115, 22, 0.3)', marginBottom: '12px' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f97316', animation: 'pulse-dot 2s infinite' }} />
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#f97316' }}>
+                Next-Gen Solar Intelligence Engine
+              </span>
+            </div>
+
+            <h2 style={{ fontSize: 'clamp(1.4rem, 2.5vw, 1.85rem)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.25, letterSpacing: '-0.02em' }}>
               How big a solar system do I need, and what will it cost?
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '8px', lineHeight: 1.5 }}>
-              Size your inverter kW, battery backup capacity, and solar panel array based on your appliances, and view 25-year financial savings.
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginTop: '10px', lineHeight: 1.55 }}>
+              Accurately size continuous &amp; surge kW, specify lithium battery storage, and calculate 25-year lifecycle savings against utility grid inflation.
             </p>
           </div>
 
-          <div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
             <button
               className="btn-primary"
               onClick={() => onNavigate?.('calculator')}
               aria-label="Calculate my solar system size and cost"
               style={{
-                padding: '14px 28px',
+                padding: '14px 26px',
                 fontSize: '0.95rem',
-                boxShadow: '0 8px 24px -6px rgba(249, 115, 22, 0.45)',
+                fontWeight: 800,
+                boxShadow: '0 8px 24px -4px rgba(249, 115, 22, 0.5)',
                 whiteSpace: 'nowrap'
               }}
             >
               Calculate System Size &amp; Cost →
             </button>
+
+            <a
+              href="/landing/index.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary"
+              style={{
+                padding: '13px 20px',
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                textDecoration: 'none',
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.14)',
+                color: 'var(--text-primary)',
+                borderRadius: '12px',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Download size={16} /> 3D App Showcase
+            </a>
           </div>
         </div>
 
         <div style={{
-          borderTop: '1px solid var(--border-color)',
-          paddingTop: '10px',
+          position: 'relative',
+          zIndex: 1,
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          paddingTop: '14px',
           display: 'flex',
+          flexWrap: 'wrap',
           alignItems: 'center',
-          gap: '8px',
+          justifyContent: 'space-between',
+          gap: '12px',
           fontSize: '0.8rem',
           color: 'var(--text-muted)'
         }}>
-          <AlertCircle size={14} style={{ color: 'var(--color-solar-text, #c2410c)', flexShrink: 0 }} />
-          <span>Honest engineering estimates based on local solar irradiation curves • Not formal contractor quotes.</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertCircle size={15} style={{ color: '#f97316', flexShrink: 0 }} />
+            <span>Honest engineering estimates based on local solar irradiation curves • Not contractor markup quotes.</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Zap size={13} style={{ color: '#10b981' }} /> Live 4.28 kW Simulated
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Battery size={13} style={{ color: '#06b6d4' }} /> 68% Battery Ready
+            </span>
+          </div>
         </div>
       </div>
 

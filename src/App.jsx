@@ -452,6 +452,31 @@ export default function App() {
           </div>
 
           <div className="topbar-actions">
+            <a
+              href="/landing/index.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="topbar-showcase-btn"
+              title="Experience 3D telemetry showcase & download options"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 14px',
+                borderRadius: '99px',
+                background: 'rgba(249, 115, 22, 0.12)',
+                border: '1px solid rgba(249, 115, 22, 0.3)',
+                color: '#f97316',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                textDecoration: 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Download size={14} />
+              <span>Showcase &amp; Download</span>
+            </a>
+
             <button
               className="theme-toggle-btn"
               onClick={toggleTheme}

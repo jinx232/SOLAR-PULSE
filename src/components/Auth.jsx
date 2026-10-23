@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Leaf } from 'lucide-react';
+import { Sun, Leaf, Zap, Battery, ShieldCheck, ArrowRight, Download, Sparkles } from 'lucide-react';
 import {
   auth,
   createUserWithEmailAndPassword,
@@ -47,126 +47,194 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
 
   return (
     <div className="auth-page">
-      <div className="auth-artboard">
-        <div className="auth-accent-ring" />
-        <div className="auth-icon-wrap">
-          <Sun size={42} className="auth-icon" />
-          <Leaf size={18} className="auth-icon-badge" />
-        </div>
-        <div className="auth-artboard-glow" />
+      {/* Ambient Animated Aurora Mesh & Floating Solar Embers */}
+      <div className="auth-aurora a1" aria-hidden="true" />
+      <div className="auth-aurora a2" aria-hidden="true" />
+      <div className="auth-aurora a3" aria-hidden="true" />
+      <div className="auth-embers" aria-hidden="true">
+        <span style={{ '--x': '12%', '--d': '12s', '--s': '-2s', '--sz': '3px' }} />
+        <span style={{ '--x': '28%', '--d': '15s', '--s': '-6s', '--sz': '4px' }} />
+        <span style={{ '--x': '44%', '--d': '10s', '--s': '-3s', '--sz': '3px' }} />
+        <span style={{ '--x': '62%', '--d': '14s', '--s': '-9s', '--sz': '5px' }} />
+        <span style={{ '--x': '78%', '--d': '11s', '--s': '-4s', '--sz': '3px' }} />
+        <span style={{ '--x': '90%', '--d': '16s', '--s': '-7s', '--sz': '4px' }} />
       </div>
 
-      <div className="auth-card">
-        <div className="auth-header">
-          <span className="auth-eyebrow">Solar Pulse Secure Access</span>
-          <h1>{authView === 'signin' ? 'Welcome back' : 'Create your account'}</h1>
-          <p>
-            Sign in to access energy insights, ROI modeling, and premium solar
-            planning tools designed for technical teams.
-          </p>
+      {/* Top Banner to the New Interactive 3D Showcase & Download Page */}
+      <aside className="auth-top-banner">
+        <div className="auth-top-banner-inner">
+          <span className="auth-banner-badge"><Sparkles size={13} /> NEW SHOWCASE</span>
+          <span className="auth-banner-text">Experience the interactive 3D solar telemetry &amp; download hub:</span>
+          <a href="/landing/index.html" className="auth-banner-link">
+            Open Download &amp; Showcase Page <ArrowRight size={14} />
+          </a>
+        </div>
+      </aside>
+
+      <div className="auth-layout-container">
+        {/* Left Side: Photorealistic Solar Installation Showcase */}
+        <div className="auth-visual-showcase">
+          <div className="auth-visual-frame">
+            <img
+              src="/landing/img/usecase-residential.jpg"
+              alt="Modern solar-powered residence with rooftop PV panels at golden hour"
+              className="auth-visual-img"
+              loading="eager"
+            />
+            <div className="auth-visual-gradient" />
+            
+            {/* Live Glass Telemetry Overlay Chips */}
+            <div className="auth-visual-chips">
+              <div className="auth-glass-chip chip-yield">
+                <Zap size={15} style={{ color: '#f59e0b' }} />
+                <div>
+                  <div className="chip-label">Active Solar Yield</div>
+                  <div className="chip-val">6.5 kW Monitored</div>
+                </div>
+              </div>
+
+              <div className="auth-glass-chip chip-storage">
+                <Battery size={15} style={{ color: '#10b981' }} />
+                <div>
+                  <div className="chip-label">Storage Readiness</div>
+                  <div className="chip-val">13.5 kWh Lithium</div>
+                </div>
+              </div>
+
+              <div className="auth-glass-chip chip-region">
+                <Leaf size={15} style={{ color: '#06b6d4' }} />
+                <div>
+                  <div className="chip-label">Irradiance Region</div>
+                  <div className="chip-val">West Africa Baseline</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="auth-visual-caption">
+              <div className="auth-caption-pill">Enterprise Solar Intelligence</div>
+              <h3>Empowering Clean Energy Sizing &amp; 25-Year Lifecycle ROI</h3>
+              <p>Trusted by residential homeowners, commercial developers, and solar field engineers.</p>
+            </div>
+          </div>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {authView === 'signup' && (
+        {/* Right Side: High-End Authentication Card */}
+        <div className="auth-card">
+          <div className="auth-header">
+            <div className="auth-brand-row">
+              <div className="auth-brand-icon">
+                <Sun size={26} style={{ color: '#f97316' }} />
+              </div>
+              <span className="auth-brand-name">Solar Pulse</span>
+            </div>
+            <span className="auth-eyebrow">Secure Engineering Station</span>
+            <h1>{authView === 'signin' ? 'Welcome back' : 'Create your account'}</h1>
+            <p>
+              Sign in to access real-time energy telemetry, battery curves, and accurate equipment sizing models.
+            </p>
+          </div>
+
+          <form className="auth-form" onSubmit={handleSubmit}>
+            {authView === 'signup' && (
+              <label className="auth-field">
+                <span>Full name</span>
+                <input
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Jane Doe"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                />
+              </label>
+            )}
+
             <label className="auth-field">
-              <span>Name</span>
+              <span>Email address</span>
               <input
-                type="text"
-                autoComplete="name"
-                placeholder="Jane Doe"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
+                type="email"
+                autoComplete="email"
+                placeholder="analyst@solarpulse.io"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 required
               />
             </label>
-          )}
 
-          <label className="auth-field">
-            <span>Email address</span>
-            <input
-              type="email"
-              autoComplete="email"
-              placeholder="you@company.com"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </label>
-
-          <label className="auth-field">
-            <span>Password</span>
-            <input
-              type="password"
-              autoComplete={authView === 'signin' ? 'current-password' : 'new-password'}
-              placeholder="••••••••"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              minLength={8}
-              required
-            />
-          </label>
-
-          {authView === 'signup' && (
             <label className="auth-field">
-              <span>Confirm password</span>
+              <span>Password</span>
               <input
                 type="password"
-                autoComplete="new-password"
+                autoComplete={authView === 'signin' ? 'current-password' : 'new-password'}
                 placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
                 minLength={8}
                 required
               />
             </label>
-          )}
 
-          <button className="auth-submit-btn" type="submit" disabled={loading} aria-busy={loading}>
-            {loading ? 'Processing...' : authView === 'signin' ? 'Sign in' : 'Create account'}
-          </button>
+            {authView === 'signup' && (
+              <label className="auth-field">
+                <span>Confirm password</span>
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  minLength={8}
+                  required
+                />
+              </label>
+            )}
 
-          {statusMessage && (
-            <p className="auth-status-message" role="alert" aria-live="polite">{statusMessage}</p>
-          )}
-        </form>
-
-        <div className="auth-footer">
-          <p>
-            {authView === 'signin'
-              ? "Don't have an account?"
-              : 'Already have an account?'}
-            <button
-              type="button"
-              className="auth-toggle-btn"
-              onClick={() => setAuthView(authView === 'signin' ? 'signup' : 'signin')}
-            >
-              {authView === 'signin' ? 'Create one' : 'Sign in'}
+            <button className="auth-submit-btn" type="submit" disabled={loading} aria-busy={loading}>
+              {loading ? 'Authenticating...' : authView === 'signin' ? 'Sign In to Station →' : 'Create Account →'}
             </button>
-          </p>
 
-          {onGuestLogin && (
-            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', width: '100%' }}>
+            {statusMessage && (
+              <p className="auth-status-message" role="alert" aria-live="polite">{statusMessage}</p>
+            )}
+          </form>
+
+          <div className="auth-footer">
+            <p>
+              {authView === 'signin'
+                ? "Don't have an account yet?"
+                : 'Already registered?'}
               <button
                 type="button"
-                className="btn-outline auth-guest-btn"
-                onClick={onGuestLogin}
-                style={{
-                  width: '100%',
-                  minHeight: '44px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  fontSize: '0.88rem',
-                  fontWeight: 600,
-                  color: 'hsl(var(--color-solar))',
-                  borderColor: 'rgba(249, 115, 22, 0.4)'
-                }}
+                className="auth-toggle-btn"
+                onClick={() => setAuthView(authView === 'signin' ? 'signup' : 'signin')}
               >
-                ⚡ Explore Platform in Demo Mode
+                {authView === 'signin' ? 'Create an account' : 'Sign in'}
               </button>
+            </p>
+
+            {onGuestLogin && (
+              <div className="auth-guest-wrap">
+                <button
+                  type="button"
+                  className="auth-guest-btn"
+                  onClick={onGuestLogin}
+                >
+                  <Zap size={16} style={{ color: '#f97316' }} />
+                  <span>Instant Demo Access (Skip Login)</span>
+                </button>
+              </div>
+            )}
+
+            <div className="auth-external-links">
+              <a href="/landing/index.html" className="auth-sub-link">
+                <Download size={13} /> Download Mobile &amp; Desktop App
+              </a>
+              <span className="auth-dot-sep">·</span>
+              <span className="auth-sub-text">
+                <ShieldCheck size={13} style={{ color: '#10b981' }} /> 256-Bit SSL Encrypted
+              </span>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
