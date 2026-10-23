@@ -424,7 +424,6 @@ export default function App() {
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.4)' }}>
             <Leaf size={14} style={{ color: '#10b981' }} />
-            <span>Solar Pulse v2.0.0</span>
           </div>
         </div>
       </aside>
