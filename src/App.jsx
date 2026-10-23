@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Sun, 
-  Moon, 
-  Menu, 
-  X, 
-  LayoutDashboard, 
-  Calculator, 
-  DollarSign, 
-  MessageSquare, 
+import {
+  Sun,
+  Moon,
+  Menu,
+  X,
+  LayoutDashboard,
+  Calculator,
+  DollarSign,
+  MessageSquare,
   Leaf,
   Compass,
   UserCircle,
@@ -80,7 +80,7 @@ export default function App() {
       if (typeof window !== 'undefined' && window.matchMedia) {
         if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
       }
-    } catch (_) {}
+    } catch (_) { }
     return 'dark'; // Dark mode is the primary default
   });
 
@@ -93,7 +93,7 @@ export default function App() {
         media.addEventListener('change', listener);
         return () => media.removeEventListener('change', listener);
       }
-    } catch (_) {}
+    } catch (_) { }
   }, []);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -103,7 +103,7 @@ export default function App() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [complaintOpen, setComplaintOpen] = useState(false);
-  
+
   // Shared state: passed from Calculator to Estimator
   const [calculatorRecommendation, setCalculatorRecommendation] = useState(null);
 
@@ -129,8 +129,8 @@ export default function App() {
       profile: 'Profile',
       admin: 'Admin',
       plans: 'Plans'
-      ,paymentMethods: 'Payment methods'
-      ,checkout: 'Checkout'
+      , paymentMethods: 'Payment methods'
+      , checkout: 'Checkout'
     };
     document.title = `${viewNames[activeView] || 'Solar Pulse'} | Solar Pulse`;
   }, [activeView]);
@@ -239,11 +239,11 @@ export default function App() {
         return <Dashboard user={user} onNavigate={setActiveView} onComplaint={() => setComplaintOpen(true)} />;
       case 'calculator':
         return (
-          <ConsumptionCalculator 
+          <ConsumptionCalculator
             user={user}
             subscription={subscription}
-            setActiveView={setActiveView} 
-            setRecommendation={setCalculatorRecommendation} 
+            setActiveView={setActiveView}
+            setRecommendation={setCalculatorRecommendation}
             region={region}
             setRegion={setRegion}
             sunHours={sunHours}
@@ -254,9 +254,9 @@ export default function App() {
         );
       case 'estimator':
         return (
-          <Estimator 
-            recommendation={calculatorRecommendation} 
-            clearRecommendation={clearRecommendation} 
+          <Estimator
+            recommendation={calculatorRecommendation}
+            clearRecommendation={clearRecommendation}
             region={region}
             setRegion={setRegion}
             sunHours={sunHours}
@@ -349,7 +349,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      
+
       {/* Sidebar Navigation */}
       <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="sidebar-header-bar">
@@ -362,7 +362,7 @@ export default function App() {
               </span>
             </div>
           </div>
-          <button 
+          <button
             className="sidebar-close-btn"
             onClick={() => setMobileMenuOpen(false)}
             aria-label="Close menu drawer"
@@ -373,8 +373,8 @@ export default function App() {
 
         <nav className="sidebar-nav">
           {navItems.map((item) => (
-            <div 
-              key={item.id} 
+            <div
+              key={item.id}
               className={`nav-item ${activeView === item.id ? 'active' : ''}`}
               onClick={() => {
                 setActiveView(item.id);
@@ -430,20 +430,20 @@ export default function App() {
       </aside>
 
       {/* Tap-to-Close Backdrop for Mobile Drawer */}
-      <div 
-        className={`sidebar-backdrop ${mobileMenuOpen ? 'visible' : ''}`} 
-        onClick={() => setMobileMenuOpen(false)} 
-        aria-hidden="true" 
+      <div
+        className={`sidebar-backdrop ${mobileMenuOpen ? 'visible' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
       />
 
       {/* Main Content Wrapper */}
       <div className="main-wrapper">
-        
+
         {/* Topbar Header */}
         <header className="topbar">
           <div className="topbar-title-wrap">
-            <button 
-              className="mobile-menu-btn" 
+            <button
+              className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? 'Close navigation drawer' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
@@ -456,8 +456,8 @@ export default function App() {
           </div>
 
           <div className="topbar-actions">
-            <button 
-              className="theme-toggle-btn" 
+            <button
+              className="theme-toggle-btn"
               onClick={toggleTheme}
               title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
               aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
@@ -572,7 +572,7 @@ export default function App() {
         <footer className="app-footer">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <Leaf size={16} style={{ color: '#10b981' }} />
-            <span><strong>Solar Pulse</strong> — A premium green engineering simulation platform. Engineered with React and optimized for sustainability.</span>
+            <span><strong>Solar Pulse</strong> — A premium green engineering simulation platform</span>
           </div>
         </footer>
 
