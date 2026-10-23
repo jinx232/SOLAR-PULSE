@@ -10,13 +10,13 @@
   <meta property="og:title" content="Solar Pulse – Smart Solar Energy Management" />
   <meta property="og:description"
     content="Monitor solar generation, battery storage, and savings in real time. Free to download." />
-  <!-- Favicon & Touch Icons (relative + absolute fallbacks) -->
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
-  <link rel="shortcut icon" href="favicon.ico" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
+  <!-- Favicon & touch icons (served from the site root) -->
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <link rel="preload" as="image" href="hero.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -987,22 +987,32 @@
       }
     }
 
-    /* ── SCROLL ANIMATIONS ── */
+    /* ── SCROLL ANIMATIONS ──
+       Uses the standalone `translate` property so it never fights with
+       hover `transform` effects on cards. --i is set per child by JS for stagger. */
     .fade-up {
       opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
+      translate: 0 32px;
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), translate 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      transition-delay: calc(var(--i, 0) * 90ms), calc(var(--i, 0) * 90ms), 0s, 0s, 0s;
     }
 
     .fade-up.visible {
       opacity: 1;
-      transform: translateY(0);
+      translate: 0 0;
     }
 
     /* ── GRADIENT DIVIDER ── */
     .divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.5), rgba(16, 185, 129, 0.5), transparent);
+      background-size: 200% 100%;
+      animation: dividerFlow 6s linear infinite;
+    }
+
+    @keyframes dividerFlow {
+      to { background-position: -200% 0; }
     }
 
     /* App store badge style */
@@ -1049,6 +1059,611 @@
     .store-badge-text strong {
       font-size: 0.9rem;
     }
+
+    /* ════════════════════════════════════════════
+       MOTION & ATMOSPHERE LAYER
+       ════════════════════════════════════════════ */
+
+    /* Nav: tightens and darkens once the page scrolls; thin progress bar */
+    nav {
+      transition: padding 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    nav.scrolled {
+      padding-top: 10px;
+      padding-bottom: 10px;
+      background: rgba(7, 10, 19, 0.92);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .scroll-progress {
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      height: 2px;
+      width: 100%;
+      transform-origin: 0 50%;
+      transform: scaleX(0);
+      background: linear-gradient(90deg, var(--solar), #fbbf24, var(--green));
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.7);
+    }
+
+    /* Hero atmosphere */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .aurora {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.55;
+      will-change: transform;
+    }
+
+    .aurora.a1 {
+      width: 620px; height: 620px; top: -220px; left: 50%; margin-left: -310px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.55), transparent 65%);
+      animation: auroraDrift1 18s ease-in-out infinite alternate;
+    }
+
+    .aurora.a2 {
+      width: 520px; height: 520px; bottom: -160px; right: -120px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.45), transparent 65%);
+      animation: auroraDrift2 22s ease-in-out infinite alternate;
+    }
+
+    .aurora.a3 {
+      width: 440px; height: 440px; top: 35%; left: -160px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.35), transparent 65%);
+      animation: auroraDrift3 26s ease-in-out infinite alternate;
+    }
+
+    @keyframes auroraDrift1 { to { transform: translate(80px, 60px) scale(1.15); } }
+    @keyframes auroraDrift2 { to { transform: translate(-120px, -80px) scale(1.2); } }
+    @keyframes auroraDrift3 { to { transform: translate(140px, -40px) scale(0.9); } }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+      background-size: 64px 64px;
+      -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
+      mask-image: radial-gradient(ellipse 70% 55% at 50% 30%, #000 30%, transparent 75%);
+      animation: gridPan 40s linear infinite;
+    }
+
+    @keyframes gridPan { to { background-position: 64px 64px, 64px 64px; } }
+
+    /* Slowly rotating "sun" rings behind the headline */
+    .sun-rings {
+      position: absolute;
+      top: 6%;
+      left: 50%;
+      width: 760px;
+      height: 760px;
+      margin-left: -380px;
+    }
+
+    .sun-rings span {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px dashed rgba(249, 115, 22, 0.18);
+      animation: spin 90s linear infinite;
+    }
+
+    .sun-rings span:nth-child(2) {
+      inset: 90px;
+      border-style: solid;
+      border-color: rgba(251, 191, 36, 0.10);
+      animation-duration: 60s;
+      animation-direction: reverse;
+    }
+
+    .sun-rings span:nth-child(3) {
+      inset: 190px;
+      border-color: rgba(16, 185, 129, 0.14);
+      animation-duration: 45s;
+    }
+
+    .sun-rings span::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      margin-left: -4px;
+      border-radius: 50%;
+      background: var(--solar);
+      box-shadow: 0 0 14px 4px rgba(249, 115, 22, 0.6);
+    }
+
+    .sun-rings span:nth-child(3)::after {
+      background: var(--green);
+      box-shadow: 0 0 14px 4px rgba(16, 185, 129, 0.6);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Rising sun embers */
+    .embers span {
+      position: absolute;
+      bottom: -10px;
+      left: var(--x);
+      width: var(--sz, 4px);
+      height: var(--sz, 4px);
+      border-radius: 50%;
+      background: radial-gradient(circle, #fde68a, rgba(249, 115, 22, 0.9) 60%, transparent 70%);
+      opacity: 0;
+      animation: emberRise var(--d, 12s) linear var(--s, 0s) infinite;
+    }
+
+    @keyframes emberRise {
+      0% { transform: translate(0, 0); opacity: 0; }
+      10% { opacity: 0.9; }
+      70% { opacity: 0.5; }
+      100% { transform: translate(var(--dx, 30px), -105vh); opacity: 0; }
+    }
+
+    /* Headline shimmer */
+    h1.hero-title {
+      background-image: linear-gradient(110deg, #ffffff 0%, #fdba74 22%, #ffffff 40%, #6ee7b7 62%, #fdba74 80%, #ffffff 100%);
+      background-size: 250% auto;
+      animation: titleShimmer 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes titleShimmer {
+      from { background-position: 0% 50%; }
+      to { background-position: 100% 50%; }
+    }
+
+    /* Hero product visual: glow, gentle float, pointer tilt (via --rx/--ry) */
+    .hero-visual {
+      position: relative;
+      max-width: 860px;
+      margin: 0 auto;
+      transform: perspective(1400px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.9s ease, translate 0.9s ease;
+    }
+
+    .hero-visual .hero-img {
+      position: relative;
+      animation: heroFloat 8s ease-in-out infinite;
+    }
+
+    .hero-visual-glow {
+      position: absolute;
+      inset: 8% 6% -6%;
+      border-radius: 40px;
+      background: conic-gradient(from 180deg, rgba(249, 115, 22, 0.55), rgba(16, 185, 129, 0.45), rgba(139, 92, 246, 0.35), rgba(249, 115, 22, 0.55));
+      filter: blur(60px);
+      opacity: 0.55;
+      animation: spin 24s linear infinite;
+    }
+
+    .hero-visual::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.10) 48%, transparent 60%);
+      background-size: 250% 100%;
+      animation: glassSweep 7s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes heroFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @keyframes glassSweep {
+      0%, 60% { background-position: 150% 0; }
+      100% { background-position: -100% 0; }
+    }
+
+    /* Primary buttons: light sweep on hover */
+    .btn-primary-lg,
+    .btn-download-primary,
+    .nav-cta {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .btn-primary-lg::after,
+    .btn-download-primary::after,
+    .nav-cta::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+      transform: translateX(-120%);
+      transition: transform 0.7s ease;
+      z-index: -1;
+    }
+
+    .btn-primary-lg:hover::after,
+    .btn-download-primary:hover::after,
+    .nav-cta:hover::after {
+      transform: translateX(120%);
+    }
+
+    /* Cursor spotlight on cards (--mx/--my set by JS) */
+    .feature-card,
+    .download-card,
+    .review-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::after,
+    .download-card::after,
+    .review-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(360px circle at var(--mx, 50%) var(--my, -20%), rgba(249, 115, 22, 0.13), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+    }
+
+    .feature-card:hover::after,
+    .download-card:hover::after,
+    .review-card:hover::after {
+      opacity: 1;
+    }
+
+    .feature-card:hover,
+    .download-card:hover,
+    .review-card:hover {
+      box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(249, 115, 22, 0.18);
+    }
+
+    .feature-icon {
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.12) rotate(-6deg);
+    }
+
+    /* Features section: soft moving glow behind the grid */
+    #features {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #features::before {
+      content: '';
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      right: -250px;
+      top: -200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.10), transparent 65%);
+      animation: auroraDrift2 24s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    #features .section-inner {
+      position: relative;
+    }
+
+    /* ── STORAGE SHOWCASE ── */
+    .showcase {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 60% 50% at 15% 50%, rgba(16, 185, 129, 0.08), transparent 70%),
+        var(--bg);
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .showcase-media {
+      position: relative;
+    }
+
+    .showcase-media img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border);
+    }
+
+    .showcase-media::before {
+      content: '';
+      position: absolute;
+      inset: -18px;
+      border-radius: 32px;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.35), transparent 40%, transparent 60%, rgba(16, 185, 129, 0.35));
+      filter: blur(28px);
+      z-index: -1;
+      opacity: 0.7;
+    }
+
+    .glass-chip {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(10, 14, 26, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+      animation: chipBob 6s ease-in-out infinite;
+    }
+
+    .glass-chip small {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .glass-chip strong {
+      font-size: 0.95rem;
+    }
+
+    .glass-chip .chip-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .chip-a { top: 8%; left: -28px; }
+    .chip-b { top: 44%; right: -32px; animation-delay: -2s; }
+    .chip-c { bottom: 7%; left: 10%; animation-delay: -4s; }
+
+    @keyframes chipBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .charge-bar {
+      width: 64px;
+      height: 6px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .charge-bar i {
+      display: block;
+      height: 100%;
+      width: 84%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #10b981, #6ee7b7);
+      animation: charge 3.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes charge {
+      from { width: 38%; }
+      to { width: 92%; }
+    }
+
+    .showcase-copy .section-sub {
+      margin-bottom: 28px;
+    }
+
+    .check-list {
+      list-style: none;
+      display: grid;
+      gap: 14px;
+      margin-bottom: 34px;
+    }
+
+    .check-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+    }
+
+    .check-list li svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--green);
+    }
+
+    .showcase-note {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    /* ── DOWNLOAD: cinematic photo backdrop ── */
+    #download {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .download-bg {
+      position: absolute;
+      inset: -40px;
+      z-index: -2;
+      background: url('img/bg-solar-farm.jpg') center 60% / cover no-repeat;
+      opacity: 0.6;
+      animation: kenBurns 32s ease-in-out infinite alternate;
+    }
+
+    #download::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(180deg, var(--bg) 0%, rgba(10, 14, 26, 0.55) 30%, rgba(10, 14, 26, 0.6) 70%, var(--bg) 100%),
+        radial-gradient(ellipse 70% 60% at 50% 40%, transparent, rgba(10, 14, 26, 0.6));
+    }
+
+    @keyframes kenBurns {
+      from { transform: scale(1) translate(0, 0); }
+      to { transform: scale(1.12) translate(-2%, -1.5%); }
+    }
+
+    #download .download-card {
+      background: rgba(17, 24, 39, 0.68);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ── USE-CASE PHOTO HEADERS ── */
+    .usecase-media {
+      position: relative;
+      margin: -28px -28px 22px;
+      height: 190px;
+      overflow: hidden;
+    }
+
+    .usecase-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .review-card:hover .usecase-media img {
+      transform: scale(1.08);
+    }
+
+    .usecase-media::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, var(--bg2) 100%);
+    }
+
+    .usecase-chip {
+      position: absolute;
+      left: 16px;
+      bottom: 14px;
+      z-index: 1;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border-radius: 99px;
+      background: rgba(10, 14, 26, 0.75);
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      color: #fdba74;
+      backdrop-filter: blur(8px);
+    }
+
+    #reviews {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #reviews::before {
+      content: '';
+      position: absolute;
+      width: 640px;
+      height: 640px;
+      left: -260px;
+      bottom: -260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.09), transparent 65%);
+      animation: auroraDrift1 26s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    #reviews .section-inner {
+      position: relative;
+    }
+
+    /* ── RESPONSIVE (motion layer) ── */
+    @media (max-width: 900px) {
+      .showcase-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .chip-a { left: 8px; }
+      .chip-b { right: 8px; }
+
+      .sun-rings {
+        width: 520px;
+        height: 520px;
+        margin-left: -260px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .embers span:nth-child(n+9) {
+        display: none;
+      }
+
+      .aurora {
+        filter: blur(60px);
+      }
+
+      .glass-chip {
+        padding: 8px 10px;
+      }
+
+      .glass-chip .chip-icon {
+        display: none;
+      }
+    }
+
+    /* Respect users who ask for less motion */
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
+      }
+
+      .fade-up {
+        opacity: 1;
+        translate: none;
+      }
+
+      .embers {
+        display: none;
+      }
+    }
   </style>
 </head>
 
@@ -1056,6 +1671,7 @@
 
   <!-- ── NAVIGATION ── -->
   <nav role="navigation" aria-label="Main navigation">
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
     <a href="#" class="nav-logo" aria-label="Solar Pulse Home">
       <div class="nav-logo-icon">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true" style="display:block;">
@@ -1112,7 +1728,27 @@
   <!-- ── HERO ── -->
   <main>
     <section class="hero" aria-labelledby="hero-heading">
-      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-bg" aria-hidden="true">
+        <div class="aurora a1"></div>
+        <div class="aurora a2"></div>
+        <div class="aurora a3"></div>
+        <div class="hero-grid"></div>
+        <div class="sun-rings"><span></span><span></span><span></span></div>
+        <div class="embers">
+          <span style="--x:6%;--d:14s;--s:-2s;--sz:3px;--dx:40px"></span>
+          <span style="--x:14%;--d:11s;--s:-7s;--sz:5px;--dx:-30px"></span>
+          <span style="--x:22%;--d:16s;--s:-4s;--sz:3px;--dx:20px"></span>
+          <span style="--x:31%;--d:12s;--s:-10s;--sz:4px;--dx:-50px"></span>
+          <span style="--x:40%;--d:18s;--s:-1s;--sz:2px;--dx:30px"></span>
+          <span style="--x:48%;--d:13s;--s:-8s;--sz:5px;--dx:-20px"></span>
+          <span style="--x:57%;--d:15s;--s:-5s;--sz:3px;--dx:45px"></span>
+          <span style="--x:65%;--d:10s;--s:-3s;--sz:4px;--dx:-35px"></span>
+          <span style="--x:73%;--d:17s;--s:-12s;--sz:2px;--dx:25px"></span>
+          <span style="--x:81%;--d:12s;--s:-6s;--sz:5px;--dx:-40px"></span>
+          <span style="--x:88%;--d:14s;--s:-9s;--sz:3px;--dx:35px"></span>
+          <span style="--x:95%;--d:16s;--s:-11s;--sz:4px;--dx:-25px"></span>
+        </div>
+      </div>
       <div class="hero-inner">
         <div class="hero-badge">
           <div class="hero-badge-dot"></div>
@@ -1138,25 +1774,28 @@
           Honest engineering estimates, not contractor quotes · Real solar irradiance models · 100% transparent
         </p>
 
-        <img src="hero.jpg"
-          alt="Solar Pulse app running on mobile and desktop showing solar dashboard and battery metrics"
-          class="hero-img fade-up" loading="lazy" />
+        <div class="hero-visual fade-up" id="heroVisual">
+          <div class="hero-visual-glow" aria-hidden="true"></div>
+          <img src="hero.jpg" width="1376" height="768"
+            alt="Solar Pulse app running on mobile and desktop showing solar dashboard and battery metrics"
+            class="hero-img" fetchpriority="high" />
+        </div>
 
         <div class="hero-stats">
           <div class="hero-stat">
-            <div class="hero-stat-value">10+</div>
+            <div class="hero-stat-value" data-count="10" data-suffix="+">10+</div>
             <div class="hero-stat-label">Core Load Presets</div>
           </div>
           <div class="hero-stat">
-            <div class="hero-stat-value">25-Yr</div>
+            <div class="hero-stat-value" data-count="25" data-suffix="-Yr">25-Yr</div>
             <div class="hero-stat-label">Financial Modeling</div>
           </div>
           <div class="hero-stat">
-            <div class="hero-stat-value">100%</div>
+            <div class="hero-stat-value" data-count="100" data-suffix="%">100%</div>
             <div class="hero-stat-label">Client-Side Logic</div>
           </div>
           <div class="hero-stat">
-            <div class="hero-stat-value">±0.5%</div>
+            <div class="hero-stat-value" data-count="0.5" data-decimals="1" data-prefix="±" data-suffix="%">±0.5%</div>
             <div class="hero-stat-label">Annual PV Degradation</div>
           </div>
         </div>
@@ -1224,8 +1863,73 @@
       </div>
     </section>
 
+    <!-- ── STORAGE SHOWCASE ── -->
+    <section id="storage" class="showcase" aria-labelledby="storage-heading">
+      <div class="section-inner showcase-grid">
+        <div class="showcase-media fade-up">
+          <img src="img/feature-storage.jpg" width="1100" height="821" loading="lazy"
+            alt="Wall-mounted hybrid solar inverter beside a stack of lithium battery modules in a home utility room" />
+
+          <div class="glass-chip chip-a">
+            <span class="chip-icon" style="background:rgba(16,185,129,0.18); color:#34d399;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="18" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+            </span>
+            <div>
+              <small>Battery bank</small>
+              <strong>15.4 kWh</strong>
+              <div class="charge-bar"><i></i></div>
+            </div>
+          </div>
+
+          <div class="glass-chip chip-b">
+            <span class="chip-icon" style="background:rgba(249,115,22,0.18); color:#fb923c;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </span>
+            <div>
+              <small>Hybrid inverter</small>
+              <strong>5 kVA · 48 V</strong>
+            </div>
+          </div>
+
+          <div class="glass-chip chip-c">
+            <span class="chip-icon" style="background:rgba(59,130,246,0.18); color:#60a5fa;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </span>
+            <div>
+              <small>Night backup</small>
+              <strong>~9 h at 1.4 kW</strong>
+            </div>
+          </div>
+          <p class="showcase-note">Example sizing output for a 3-bedroom home. Your numbers come from your own appliance list.</p>
+        </div>
+
+        <div class="showcase-copy fade-up">
+          <span class="section-tag">Sizing Engine</span>
+          <h2 class="section-title" id="storage-heading">Size the inverter and battery bank before you spend a naira</h2>
+          <p class="section-sub">List your appliances once. Solar Pulse works out continuous load, motor surge, depth-of-discharge and
+            autonomy, then recommends an inverter, battery bank and panel array that actually fit together.</p>
+          <ul class="check-list">
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Surge-aware inverter sizing for pumps, ACs and fridges
+            </li>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Battery capacity from your real overnight usage and chemistry (Li-ion or lead-acid)
+            </li>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Panel count matched to your city's peak sun hours
+            </li>
+          </ul>
+          <a href="/index.html#/calculator" class="btn-primary-lg">Size my system →</a>
+        </div>
+      </div>
+    </section>
+
     <!-- ── DOWNLOAD ── -->
     <section id="download" aria-labelledby="download-heading">
+      <div class="download-bg" aria-hidden="true"></div>
       <div class="section-inner">
         <span class="section-tag">Get Solar Pulse</span>
         <h2 class="section-title" id="download-heading">Available on all<br />your devices</h2>
@@ -1363,6 +2067,11 @@
 
         <div class="reviews-grid">
           <div class="review-card fade-up">
+            <div class="usecase-media">
+              <img src="img/usecase-residential.jpg" width="1000" height="747" loading="lazy"
+                alt="Modern family home in Lagos with rooftop solar panels at golden hour" />
+              <span class="usecase-chip">Residential</span>
+            </div>
             <div class="review-stars">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -1375,12 +2084,17 @@
             <div class="reviewer">
               <div class="reviewer-avatar">NG</div>
               <div>
-                <div class="reviewer-name">Homeowners & Estates</div>
-                <div class="reviewer-loc">Lagos, Abuja & West Africa</div>
+                <div class="reviewer-name">Homeowners &amp; Estates</div>
+                <div class="reviewer-loc">Lagos, Abuja &amp; West Africa</div>
               </div>
             </div>
           </div>
           <div class="review-card fade-up">
+            <div class="usecase-media">
+              <img src="img/usecase-commercial.jpg" width="1000" height="747" loading="lazy"
+                alt="Aerial view of a commercial rooftop in Accra covered in rows of solar panels at sunset" />
+              <span class="usecase-chip">Commercial</span>
+            </div>
             <div class="review-stars">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -1393,12 +2107,17 @@
             <div class="reviewer">
               <div class="reviewer-avatar">GL</div>
               <div>
-                <div class="reviewer-name">Commercial & Diaspora Investors</div>
-                <div class="reviewer-loc">Accra, Nairobi & Global</div>
+                <div class="reviewer-name">Commercial &amp; Diaspora Investors</div>
+                <div class="reviewer-loc">Accra, Nairobi &amp; Global</div>
               </div>
             </div>
           </div>
           <div class="review-card fade-up">
+            <div class="usecase-media">
+              <img src="img/usecase-installers.jpg" width="1000" height="747" loading="lazy"
+                alt="Two solar technicians in safety gear mounting a panel on a Nigerian rooftop while reviewing data on a tablet" />
+              <span class="usecase-chip">Installers</span>
+            </div>
             <div class="review-stars">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -1411,7 +2130,7 @@
             <div class="reviewer">
               <div class="reviewer-avatar">PV</div>
               <div>
-                <div class="reviewer-name">Installers & Technicians</div>
+                <div class="reviewer-name">Installers &amp; Technicians</div>
                 <div class="reviewer-loc">Certified Field Engineers</div>
               </div>
             </div>
@@ -1638,11 +2357,99 @@
     mobileMenu.addEventListener('click', (e) => { if (e.target === mobileMenu) closeMobileMenu(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMobileMenu(); });
 
-    // ── SCROLL ANIMATIONS ──
+    // ── MOTION SYSTEM ──
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Stagger: give each card in a grid an index so reveals cascade
+    document.querySelectorAll('.features-grid, .download-grid, .reviews-grid').forEach(grid => {
+      [...grid.children].forEach((child, i) => child.style.setProperty('--i', i));
+    });
+
+    // Scroll reveal (one-shot)
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.12 });
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Count-up for hero stats (HTML holds the final value as a no-JS fallback)
+    function renderCount(el, value) {
+      const dec = Number(el.dataset.decimals || 0);
+      el.textContent = (el.dataset.prefix || '') + value.toFixed(dec) + (el.dataset.suffix || '');
+    }
+    function animateCount(el) {
+      const target = parseFloat(el.dataset.count);
+      const duration = 1600;
+      const start = performance.now();
+      function step(now) {
+        const p = Math.min(1, (now - start) / duration);
+        renderCount(el, target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    if (!reduceMotion) {
+      const countObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          countObserver.unobserve(e.target);
+          animateCount(e.target);
+        });
+      }, { threshold: 0.6 });
+      document.querySelectorAll('[data-count]').forEach(el => {
+        renderCount(el, 0);
+        countObserver.observe(el);
+      });
+    }
+
+    // Cursor spotlight on cards
+    document.querySelectorAll('.feature-card, .download-card, .review-card').forEach(card => {
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+    });
+
+    // Nav state + scroll progress (rAF-throttled)
+    const navEl = document.querySelector('nav');
+    const progressEl = document.getElementById('scrollProgress');
+    let scrollTicking = false;
+    function onScroll() {
+      const y = window.scrollY;
+      navEl.classList.toggle('scrolled', y > 24);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progressEl.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, y / max) : 0) + ')';
+      scrollTicking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if (!scrollTicking) {
+        requestAnimationFrame(onScroll);
+        scrollTicking = true;
+      }
+    }, { passive: true });
+    onScroll();
+
+    // Hero product tilt follows the pointer (desktop only)
+    const heroSection = document.querySelector('.hero');
+    const heroVisual = document.getElementById('heroVisual');
+    if (heroSection && heroVisual && !reduceMotion && window.matchMedia('(pointer: fine)').matches) {
+      heroSection.addEventListener('pointermove', (e) => {
+        const r = heroSection.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        heroVisual.style.setProperty('--rx', (-y * 6).toFixed(2) + 'deg');
+        heroVisual.style.setProperty('--ry', (x * 8).toFixed(2) + 'deg');
+      });
+      heroSection.addEventListener('pointerleave', () => {
+        heroVisual.style.setProperty('--rx', '0deg');
+        heroVisual.style.setProperty('--ry', '0deg');
+      });
+    }
 
     // ── TOAST ──
     let toastTimeout;

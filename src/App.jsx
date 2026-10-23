@@ -422,9 +422,6 @@ export default function App() {
           >
             <HelpCircle size={14} /> Support &amp; Feedback
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.4)' }}>
-            <Leaf size={14} style={{ color: '#10b981' }} />
-          </div>
         </div>
       </aside>
 
