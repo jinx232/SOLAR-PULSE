@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Leaf, Battery, ShieldCheck, ArrowRight, Download, Sparkles } from 'lucide-react';
+import { Sun, Leaf, Battery, ShieldCheck, ArrowRight, Download, Sparkles, Zap } from 'lucide-react';
 import {
   auth,
   createUserWithEmailAndPassword,
