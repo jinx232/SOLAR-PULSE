@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Leaf, Zap, Battery, ShieldCheck, ArrowRight, Download, Sparkles } from 'lucide-react';
+import { Sun, Leaf, Battery, ShieldCheck, ArrowRight, Download, Sparkles } from 'lucide-react';
 import {
   auth,
   createUserWithEmailAndPassword,
@@ -231,7 +231,6 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
                   className="auth-guest-btn"
                   onClick={onGuestLogin}
                 >
-                  <Zap size={16} style={{ color: '#f97316' }} />
                   <span>Instant Demo Access (Skip Login)</span>
                 </button>
               </div>
