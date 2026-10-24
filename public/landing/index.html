@@ -48,6 +48,8 @@
 
     html {
       scroll-behavior: smooth;
+      overflow-x: hidden;
+      max-width: 100vw;
     }
 
     body {
@@ -56,6 +58,8 @@
       color: var(--text);
       line-height: 1.6;
       overflow-x: hidden;
+      max-width: 100vw;
+      position: relative;
     }
 
     /* ── NAV ── */
@@ -929,6 +933,24 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
+      section {
+        padding: 56px 16px;
+      }
+
+      .section-title {
+        font-size: clamp(1.65rem, 5vw, 2.2rem);
+        line-height: 1.2;
+      }
+
+      .section-sub {
+        font-size: 0.92rem;
+        margin-bottom: 32px;
+      }
+
+      nav {
+        padding: 12px 16px;
+      }
+
       .nav-links {
         display: none;
       }
@@ -938,7 +960,153 @@
       }
 
       .hero {
-        padding: 100px 20px 60px;
+        padding: 88px 16px 44px;
+        min-height: auto;
+      }
+
+      .hero-badge {
+        font-size: 0.72rem;
+        padding: 6px 12px;
+        margin-bottom: 20px;
+        max-width: 100%;
+        line-height: 1.4;
+      }
+
+      h1.hero-title {
+        font-size: clamp(1.75rem, 6.5vw, 2.3rem);
+        line-height: 1.15;
+        margin-bottom: 16px;
+      }
+
+      .hero-sub {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 28px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+        margin-bottom: 36px;
+      }
+
+      .btn-primary-lg,
+      .btn-outline-lg {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+        font-size: 0.95rem;
+      }
+
+      .hero-visual {
+        transform: none !important;
+        max-width: 100%;
+      }
+
+      .hero-visual .hero-img {
+        animation: none;
+        border-radius: 16px;
+      }
+
+      .hero-visual-glow {
+        inset: 2% 2% -2%;
+        filter: blur(35px);
+      }
+
+      .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 32px;
+        width: 100%;
+      }
+
+      .hero-stat {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 14px 10px;
+        text-align: center;
+      }
+
+      .hero-stat-value {
+        font-size: 1.55rem;
+      }
+
+      .hero-stat-label {
+        font-size: 0.72rem;
+        margin-top: 2px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .feature-card {
+        padding: 22px 18px;
+        border-radius: 16px;
+      }
+
+      .showcase-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+
+      .showcase-media::before {
+        inset: 0;
+        filter: blur(16px);
+      }
+
+      .chip-a {
+        top: 10px;
+        left: 10px;
+        right: auto;
+      }
+
+      .chip-b {
+        top: auto;
+        bottom: 10px;
+        right: 10px;
+        left: auto;
+      }
+
+      .chip-c {
+        display: none;
+      }
+
+      .glass-chip {
+        padding: 7px 11px;
+      }
+
+      .glass-chip strong {
+        font-size: 0.82rem;
+      }
+
+      .reviews-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .review-card {
+        padding: 20px 18px;
+        border-radius: 16px;
+      }
+
+      .usecase-media {
+        height: 190px;
+        border-radius: 14px;
+      }
+
+      .download-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .download-card {
+        padding: 26px 18px;
+        border-radius: 18px;
       }
 
       .form-row {
@@ -951,39 +1119,26 @@
       }
 
       .complaint-form {
-        padding: 24px 20px;
+        padding: 24px 18px;
       }
     }
 
     @media (max-width: 480px) {
       .footer-inner {
         grid-template-columns: 1fr;
+        gap: 24px;
       }
 
       .footer-bottom {
         flex-direction: column;
         text-align: center;
+        gap: 12px;
       }
 
-      .hero-stats {
-        gap: 16px;
-      }
-
-      .hero-actions {
-        flex-direction: column;
-        width: 100%;
-      }
-
-      .btn-primary-lg,
-      .btn-outline-lg {
-        width: 100%;
-        justify-content: center;
-        padding: 14px 20px;
-        font-size: 0.95rem;
-      }
-
-      .hero-title {
-        font-size: 2.1rem;
+      .mobile-menu a {
+        width: 270px;
+        font-size: 1.05rem;
+        padding: 12px 18px;
       }
     }
 

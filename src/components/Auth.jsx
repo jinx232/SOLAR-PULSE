@@ -63,7 +63,6 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
       {/* Top Banner to the New Interactive 3D Showcase & Download Page */}
       <aside className="auth-top-banner">
         <div className="auth-top-banner-inner">
-          <span className="auth-banner-badge"><Sparkles size={13} /> NEW SHOWCASE</span>
           <span className="auth-banner-text">Experience the interactive 3D solar telemetry &amp; download hub:</span>
           <a href="/landing/index.html" className="auth-banner-link">
             Open Download &amp; Showcase Page <ArrowRight size={14} />
@@ -82,7 +81,7 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
               loading="eager"
             />
             <div className="auth-visual-gradient" />
-            
+
             {/* Live Glass Telemetry Overlay Chips */}
             <div className="auth-visual-chips">
               <div className="auth-glass-chip chip-yield">
@@ -132,6 +131,19 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
             <p>
               Sign in to access real-time energy telemetry, battery curves, and accurate equipment sizing models.
             </p>
+          </div>
+
+          {/* Compact Visual Header for Mobile Viewports */}
+          <div className="auth-mobile-visual-banner">
+            <img
+              src="/landing/img/usecase-residential.jpg"
+              alt="Residential solar installation"
+              className="auth-mobile-visual-img"
+              loading="eager"
+            />
+            <div className="auth-mobile-visual-overlay">
+              <span className="auth-mobile-badge"><Zap size={12} /> 6.5 kW Active · 13.5 kWh Storage Ready</span>
+            </div>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>

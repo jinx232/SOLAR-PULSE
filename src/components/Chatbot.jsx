@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Send, 
-  Sparkles, 
-  RotateCcw, 
-  Bot, 
+import {
+  Send,
+  Sparkles,
+  RotateCcw,
+  Bot,
   User
 } from 'lucide-react';
 import { isAdminUser } from '../utils/firebase';
@@ -51,8 +51,8 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
       };
       setMessages([initialGreeting]);
     }
-  // Re-initialize when user changes (prevents cross-user data leaking)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Re-initialize when user changes (prevents cross-user data leaking)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatHistoryKey]);
 
   // Clean up streaming interval on unmount
@@ -80,7 +80,7 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
   const streamText = (fullText, messageId, sources = []) => {
     let currentIdx = 0;
     const words = fullText.split(' ');
-    
+
     // Insert an empty bot message
     setMessages(prev => [
       ...prev,
@@ -169,7 +169,7 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
     } catch (error) {
       console.error('AI chat error:', error);
       const errMsg = "I encountered an unexpected issue while retrieving solar intelligence. Please try rephrasing your question.";
-      
+
       setMessages(prev => [
         ...prev,
         {
@@ -269,12 +269,11 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
 
   return (
     <div className="animate-slide-up chatbot-container">
-      
+
       {/* Title */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sparkles size={22} className="logo-icon" />
             Solar AI Advisor
           </h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
@@ -292,7 +291,7 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
             </span>
           </div>
         </div>
-        
+
         <div style={{ display: 'flex', gap: '10px' }}>
           <button className="btn-outline" onClick={clearChatLogs} style={{ padding: '8px', borderRadius: '50%', width: '38px', height: '38px' }} title="Clear conversation history" aria-label="Clear conversation history">
             <RotateCcw size={16} />
@@ -315,33 +314,33 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
       )}
 
       {/* Main chat window container */}
-      <div className="premium-card" style={{ 
-        flex: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        padding: '0', 
+      <div className="premium-card" style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '0',
         overflow: 'hidden',
         position: 'relative'
       }}>
-        
+
         {/* Messages viewport */}
-        <div style={{ 
-          flex: 1, 
-          overflowY: 'auto', 
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
           padding: '24px',
           display: 'flex',
           flexDirection: 'column',
           gap: '24px'
         }}>
           {messages.map((msg) => (
-            <div key={msg.id} style={{ 
-              display: 'flex', 
+            <div key={msg.id} style={{
+              display: 'flex',
               gap: '12px',
               maxWidth: '85%',
               alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
               flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
             }}>
-              
+
               {/* Avatar */}
               <div style={{
                 width: '36px', height: '36px', borderRadius: '50%',
@@ -394,10 +393,10 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
                   </div>
                 )}
 
-                <span style={{ 
-                  display: 'block', 
-                  textAlign: msg.sender === 'user' ? 'right' : 'left', 
-                  fontSize: '0.7rem', 
+                <span style={{
+                  display: 'block',
+                  textAlign: msg.sender === 'user' ? 'right' : 'left',
+                  fontSize: '0.7rem',
                   color: 'var(--text-muted)',
                   marginTop: '8px'
                 }}>
@@ -437,18 +436,18 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
         </div>
 
         {/* Input & Suggestions Deck */}
-        <div style={{ 
-          padding: '16px 24px', 
-          borderTop: '1px solid var(--border-color)', 
+        <div style={{
+          padding: '16px 24px',
+          borderTop: '1px solid var(--border-color)',
           backgroundColor: 'var(--bg-primary)'
         }}>
-          
+
           {/* Prompt suggestions row — shown until user sends first message */}
           {messages.filter(m => m.sender === 'user').length === 0 && (
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '4px' }}>
               {suggestions.map((sug, idx) => (
-                <button 
-                  key={idx} 
+                <button
+                  key={idx}
                   onClick={() => handleSendMessage(sug)}
                   style={{
                     backgroundColor: 'var(--bg-secondary)',
@@ -471,7 +470,7 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
 
           {/* Message input elements */}
           <div style={{ display: 'flex', gap: '12px' }}>
-            <textarea 
+            <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyPress}
@@ -492,8 +491,8 @@ export default function Chatbot({ user, subscription, region, sunHours }) {
                 transition: 'all var(--transition-fast)'
               }}
             />
-            <button 
-              className="btn-primary" 
+            <button
+              className="btn-primary"
               onClick={() => handleSendMessage(inputText)}
               disabled={isLoading || !inputText.trim()}
               style={{ width: '48px', height: '48px', padding: '0', borderRadius: '12px' }}

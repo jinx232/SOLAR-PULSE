@@ -124,66 +124,32 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
       
       {/* Primary First Screen Action: Enhanced Photorealistic Visual Hero Banner */}
-      <div className="premium-card dashboard-hero-banner" style={{
-        position: 'relative',
-        overflow: 'hidden',
-        padding: '32px 32px 28px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        borderRadius: '20px',
-        border: '1px solid rgba(249, 115, 22, 0.35)',
-        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(7, 11, 19, 0.96) 100%)',
-        boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 40px -10px rgba(249, 115, 22, 0.15)'
-      }}>
+      <div className="premium-card dashboard-hero-banner">
         {/* Photorealistic Solar Background Layer with Gradient Mask */}
-        <div 
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            width: '55%',
-            backgroundImage: 'url(/landing/img/feature-storage.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            opacity: 0.22,
-            maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.85) 60%, black 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.85) 60%, black 100%)',
-            pointerEvents: 'none'
-          }}
-        />
+        <div aria-hidden="true" className="dashboard-hero-bg-media" />
 
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
-          <div style={{ maxWidth: '600px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '5px 12px', borderRadius: '99px', background: 'rgba(249, 115, 22, 0.14)', border: '1px solid rgba(249, 115, 22, 0.3)', marginBottom: '12px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f97316', animation: 'pulse-dot 2s infinite' }} />
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#f97316' }}>
+        <div className="dashboard-hero-inner">
+          <div className="dashboard-hero-copy">
+            <div className="dashboard-hero-badge">
+              <span className="dashboard-hero-dot" />
+              <span className="dashboard-hero-tag">
                 Next-Gen Solar Intelligence Engine
               </span>
             </div>
 
-            <h2 style={{ fontSize: 'clamp(1.4rem, 2.5vw, 1.85rem)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.25, letterSpacing: '-0.02em' }}>
+            <h2 className="dashboard-hero-title">
               How big a solar system do I need, and what will it cost?
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginTop: '10px', lineHeight: 1.55 }}>
+            <p className="dashboard-hero-sub">
               Accurately size continuous &amp; surge kW, specify lithium battery storage, and calculate 25-year lifecycle savings against utility grid inflation.
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+          <div className="dashboard-hero-actions">
             <button
               className="btn-primary"
               onClick={() => onNavigate?.('calculator')}
               aria-label="Calculate my solar system size and cost"
-              style={{
-                padding: '14px 26px',
-                fontSize: '0.95rem',
-                fontWeight: 800,
-                boxShadow: '0 8px 24px -4px rgba(249, 115, 22, 0.5)',
-                whiteSpace: 'nowrap'
-              }}
             >
               Calculate System Size &amp; Cost →
             </button>
@@ -192,45 +158,19 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
               href="/landing/index.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary"
-              style={{
-                padding: '13px 20px',
-                fontSize: '0.9rem',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                textDecoration: 'none',
-                background: 'rgba(255, 255, 255, 0.06)',
-                border: '1px solid rgba(255, 255, 255, 0.14)',
-                color: 'var(--text-primary)',
-                borderRadius: '12px',
-                transition: 'all 0.2s'
-              }}
+              className="btn-secondary dashboard-showcase-link"
             >
               <Download size={16} /> 3D App Showcase
             </a>
           </div>
         </div>
 
-        <div style={{
-          position: 'relative',
-          zIndex: 1,
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-          paddingTop: '14px',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '12px',
-          fontSize: '0.8rem',
-          color: 'var(--text-muted)'
-        }}>
+        <div className="dashboard-hero-footer">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <AlertCircle size={15} style={{ color: '#f97316', flexShrink: 0 }} />
             <span>Honest engineering estimates based on local solar irradiation curves • Not contractor markup quotes.</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <Zap size={13} style={{ color: '#10b981' }} /> Live 4.28 kW Simulated
             </span>
