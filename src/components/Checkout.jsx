@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, CheckCircle2, CreditCard, LockKeyhole, AlertCircle, Loader2 } from 'lucide-react';
 import { callInitializeTransaction, callVerifyTransaction } from '../utils/firebase';
 import { PLAN_CATALOGUE, formatMoney } from '../utils/plans';
+import { PaystackIcon, FlutterwaveIcon } from './ProviderIcons';
 
 export default function Checkout({ plan, method, user, onBack, onComplete }) {
   const [status, setStatus] = useState('');
@@ -324,9 +325,13 @@ export default function Checkout({ plan, method, user, onBack, onComplete }) {
           </strong>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
           <span>Payment provider</span>
-          <strong style={{ color: 'var(--text-primary)' }}>{safeMethod}</strong>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.05)', padding: '5px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+            {safeMethod.toLowerCase().includes('paystack') && <PaystackIcon size={18} />}
+            {safeMethod.toLowerCase().includes('flutterwave') && <FlutterwaveIcon size={18} />}
+            <strong style={{ color: 'var(--text-primary)' }}>{safeMethod}</strong>
+          </div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
@@ -346,7 +351,7 @@ export default function Checkout({ plan, method, user, onBack, onComplete }) {
           onClick={handleContinue}
           disabled={loading}
           aria-busy={loading}
-          style={{ width: '100%', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: 700 }}
+          style={{ width: '100%', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '0.95rem', fontWeight: 700 }}
         >
           {loading ? (
             <>
@@ -354,7 +359,11 @@ export default function Checkout({ plan, method, user, onBack, onComplete }) {
               <span>Processing...</span>
             </>
           ) : (
-            `Pay ${formatMoney(amountNaira)} via ${safeMethod}`
+            <>
+              {safeMethod.toLowerCase().includes('paystack') && <PaystackIcon size={18} />}
+              {safeMethod.toLowerCase().includes('flutterwave') && <FlutterwaveIcon size={18} />}
+              <span>Pay {formatMoney(amountNaira)} via {safeMethod}</span>
+            </>
           )}
         </button>
 
