@@ -1334,16 +1334,10 @@
       100% { transform: translate(var(--dx, 30px), -105vh); opacity: 0; }
     }
 
-    /* Headline shimmer */
+    /* Hero headline styling */
     h1.hero-title {
-      background-image: linear-gradient(110deg, #ffffff 0%, #fdba74 22%, #ffffff 40%, #6ee7b7 62%, #fdba74 80%, #ffffff 100%);
-      background-size: 250% auto;
-      animation: titleShimmer 10s ease-in-out infinite alternate;
-    }
-
-    @keyframes titleShimmer {
-      from { background-position: 0% 50%; }
-      to { background-position: 100% 50%; }
+      color: #ffffff;
+      background: none;
     }
 
     /* Hero product visual: glow, gentle float, pointer tilt (via --rx/--ry) */

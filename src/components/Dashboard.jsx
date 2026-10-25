@@ -131,9 +131,8 @@ export default function Dashboard({ user, onNavigate, onComplaint }) {
         <div className="dashboard-hero-inner">
           <div className="dashboard-hero-copy">
             <div className="dashboard-hero-badge">
-              <span className="dashboard-hero-dot" />
               <span className="dashboard-hero-tag">
-                Next-Gen Solar Intelligence Engine
+                Solar Architecture &amp; ROI Engine
               </span>
             </div>
 
