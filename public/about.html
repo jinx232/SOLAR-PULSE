@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us | Solar Pulse – Clean Energy Engineering & System Sizing</title>
+  <meta name="description" content="Learn about Solar Pulse — our engineering mission, physics-first solar modeling methodology, and commitment to transparent clean energy deployment." />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#070b13" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #070b13;
+      --bg-card: #0f172a;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --green: #10b981;
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 0;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 11, 19, 0.88);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 16px 24px;
+    }
+    .header-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(249, 115, 22, 0.12);
+      border: 1px solid rgba(249, 115, 22, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-actions a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-actions a:hover {
+      color: var(--text);
+    }
+    .btn-calc {
+      background: var(--accent);
+      color: #070b13 !important;
+      font-weight: 700 !important;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .btn-calc:hover {
+      background: var(--accent-hover);
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 64px 24px 96px;
+    }
+    .hero-section {
+      margin-bottom: 56px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.12;
+      color: #ffffff;
+      margin-bottom: 20px;
+    }
+    .lead {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 760px;
+      line-height: 1.7;
+    }
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 56px;
+    }
+    @media (max-width: 768px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+    .card p {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      line-height: 1.65;
+    }
+    .card p:last-child {
+      margin-bottom: 0;
+    }
+    .principles-list {
+      list-style: none;
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .principles-list li {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .standards-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 56px;
+    }
+    .standards-box h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+    .standards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .standard-item {
+      padding: 16px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+    }
+    .standard-item strong {
+      display: block;
+      color: #ffffff;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    .standard-item span {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .cta-banner {
+      background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+    }
+    .cta-banner h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+    .cta-banner p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto 28px;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #070b13;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <a href="/landing/index.html" class="brand-link" aria-label="Solar Pulse Home">
+        <div class="brand-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" aria-hidden="true">
+            <rect width="100" height="100" rx="22" fill="#070b13" />
+            <circle cx="50" cy="50" r="23" fill="#0b1120" stroke="#f97316" stroke-width="3" />
+            <path d="M 28,50 L 40,50 L 45,34 L 51,64 L 56,42 L 60,50 L 72,50" fill="none" stroke="#f97316" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        Solar Pulse
+      </a>
+      <nav class="nav-actions">
+        <a href="/landing/index.html">Overview</a>
+        <a href="/contact.html">Contact Us</a>
+        <a href="/index.html#/calculator" class="btn-calc">Size My System →</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-section">
+      <span class="tag">Engineering Philosophy</span>
+      <h1>Built for honest solar sizing, not sales quotas.</h1>
+      <p class="lead">
+        Solar Pulse was founded to eliminate the guesswork, overselling, and undersized battery banks that plague residential and commercial clean energy projects across emerging markets.
+      </p>
+    </section>
+
+    <div class="content-grid">
+      <div class="card">
+        <h2>The Industry Problem</h2>
+        <p>
+          Most consumers and facility managers receive quotes from solar vendors based on crude rules of thumb. Vendors routinely underestimate air conditioning and pumping motor inrush currents, omit battery Depth-of-Discharge (DoD) degradation, and quote undersized inverters that trip under everyday surges.
+        </p>
+        <p>
+          The consequence is expensive premature battery failure, frequent blackout interruptions, and customer distrust in clean renewable energy.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Our Engineering Solution</h2>
+        <p>
+          Solar Pulse provides transparent, physics-grounded modeling directly to property owners, solar engineers, and commercial developers before any equipment is purchased.
+        </p>
+        <ul class="principles-list">
+          <li>
+            <div class="step-num">1</div>
+            <div>
+              <strong>Motor Surge Awareness:</strong> Automatic calculation of locked-rotor inductive surges for pumps, refrigeration, and air conditioning.
+            </div>
+          </li>
+          <li>
+            <div class="step-num">2</div>
+            <div>
+              <strong>True Usable Battery Autonomy:</strong> Accurate chemistry-based sizing (Lithium LiFePO4 85-90% DoD vs. Lead-Acid 50% DoD) for overnight loads.
+            </div>
+          </li>
+          <li>
+            <div class="step-num">3</div>
+            <div>
+              <strong>Regional Irradiance Baselines:</strong> Grounded in real NASA/NREL solar radiation metrics (e.g. 5.4h average peak sun hours across West Africa).
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="standards-box">
+      <h2>Engineering Standards &amp; Principles</h2>
+      <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px;">
+        Our algorithms and sizing models adhere to globally recognized electrical and renewable energy engineering guidelines:
+      </p>
+      <div class="standards-grid">
+        <div class="standard-item">
+          <strong>IEC 62548:2016</strong>
+          <span>Design requirements for photovoltaic (PV) arrays and protective balance of system (BOS).</span>
+        </div>
+        <div class="standard-item">
+          <strong>IEEE 1547 Standards</strong>
+          <span>Interconnection and interoperability of distributed energy resources with associated electric power systems.</span>
+        </div>
+        <div class="standard-item">
+          <strong>25-Year Lifecycle NPV</strong>
+          <span>Financial ROI modeling factoring in 0.5% annual PV degradation, utility inflation, and diesel displacement savings.</span>
+        </div>
+        <div class="standard-item">
+          <strong>Zero Forced Login</strong>
+          <span>The calculator runs entirely client-side in your browser. Size your system freely without mandatory sign-in or data harvesting.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-banner">
+      <h2>Ready to size your system accurately?</h2>
+      <p>
+        Add your household or commercial appliances to calculate exact inverter kVA, lithium battery kWh storage, and recommended solar panel array size.
+      </p>
+      <div class="cta-buttons">
+        <a href="/index.html#/calculator" class="btn-primary">Open Sizing Calculator →</a>
+        <a href="/contact.html" class="btn-secondary">Speak With an Engineer</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/landing/index.html">Home</a>
+      <a href="/about.html">About Us</a>
+      <a href="/contact.html">Contact Us</a>
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Service</a>
+      <a href="/cookies.html">Cookie Policy</a>
+    </div>
+    <p>© 2026 Solar Pulse Technologies Ltd. Built for honest clean energy engineering.</p>
+  </footer>
+
+</body>
+</html>

@@ -60,12 +60,20 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
         <span style={{ '--x': '90%', '--d': '16s', '--s': '-7s', '--sz': '4px' }} />
       </div>
 
-      {/* Top Banner to the New Interactive 3D Showcase & Download Page */}
+      {/* Top Banner with Direct Links to Sizing Calculator & Overview */}
       <aside className="auth-top-banner">
         <div className="auth-top-banner-inner">
-          <span className="auth-banner-text">Experience the interactive 3D solar telemetry &amp; download hub:</span>
+          <span className="auth-banner-text">Looking to size appliances without signing in?</span>
+          <a href="/index.html#/calculator" className="auth-banner-link">
+            Free Sizing Calculator <ArrowRight size={14} />
+          </a>
+          <span style={{ opacity: 0.3 }}>·</span>
           <a href="/landing/index.html" className="auth-banner-link">
-            Open Download &amp; Showcase Page <ArrowRight size={14} />
+            Landing Overview
+          </a>
+          <span style={{ opacity: 0.3 }}>·</span>
+          <a href="/about.html" className="auth-banner-link">
+            About Us
           </a>
         </div>
       </aside>
@@ -237,8 +245,16 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
             )}
 
             <div className="auth-external-links">
-              <a href="/landing/index.html" className="auth-sub-link">
-                <Download size={13} /> Download Mobile &amp; Desktop App
+              <a href="/index.html#/calculator" className="auth-sub-link">
+                Launch Free Calculator
+              </a>
+              <span className="auth-dot-sep">·</span>
+              <a href="/about.html" className="auth-sub-link">
+                About Us
+              </a>
+              <span className="auth-dot-sep">·</span>
+              <a href="/contact.html" className="auth-sub-link">
+                Contact Desk
               </a>
               <span className="auth-dot-sep">·</span>
               <span className="auth-sub-text">

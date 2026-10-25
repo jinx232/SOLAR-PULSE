@@ -34,7 +34,8 @@ import PaymentMethods from './components/PaymentMethods';
 import Checkout from './components/Checkout';
 import ComplaintModal from './components/ComplaintModal';
 
-const VALID_VIEWS = ['dashboard', 'calculator', 'estimator', 'orientation', 'chatbot', 'profile', 'admin', 'plans', 'paymentMethods', 'checkout'];
+const PUBLIC_VIEWS = ['calculator', 'estimator', 'orientation'];
+const VALID_VIEWS = ['dashboard', 'calculator', 'estimator', 'orientation', 'chatbot', 'profile', 'admin', 'plans', 'paymentMethods', 'checkout', 'auth'];
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -43,7 +44,8 @@ export default function App() {
 
   const getInitialView = () => {
     const hash = window.location.hash.replace(/^#\/?/, '').trim();
-    return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
+    if (VALID_VIEWS.includes(hash)) return hash;
+    return 'calculator';
   };
 
   const [activeView, setActiveViewRaw] = useState(getInitialView);
@@ -59,6 +61,17 @@ export default function App() {
       }
     }
   };
+
+  // If visitor arrives at root without any hash while not authenticated, guide to landing page
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      const hash = window.location.hash.replace(/^#\/?/, '').trim();
+      const path = window.location.pathname;
+      if (!hash && (path === '/' || path === '/index.html')) {
+        window.location.replace('/landing/index.html');
+      }
+    }
+  }, [authLoading, isAuthenticated]);
 
   // Sync activeView with browser Back / Forward buttons and URL hash changes
   useEffect(() => {
@@ -324,7 +337,9 @@ export default function App() {
     );
   }
 
-  if (!isAuthenticated) {
+  const isProtectedView = !PUBLIC_VIEWS.includes(activeView);
+
+  if (!isAuthenticated && (activeView === 'auth' || isProtectedView)) {
     return (
       <Auth
         authView={authView}
@@ -388,23 +403,39 @@ export default function App() {
         </nav>
 
         <div className="sidebar-footer">
-          {/* Download App Button */}
+          {!isAuthenticated && (
+            <div style={{
+              padding: '12px 14px',
+              background: 'rgba(249, 115, 22, 0.08)',
+              borderRadius: '10px',
+              marginBottom: '12px',
+              border: '1px solid rgba(249, 115, 22, 0.2)'
+            }}>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '0 0 8px', lineHeight: 1.4 }}>
+                Guest Mode. Size appliances freely.
+              </p>
+              <button
+                className="btn-primary"
+                onClick={() => setActiveView('auth')}
+                style={{ width: '100%', height: '32px', fontSize: '0.8rem', padding: '0 10px', fontWeight: 700 }}
+              >
+                Sign In to Save
+              </button>
+            </div>
+          )}
+          {/* Landing Overview Link */}
           <a
             href="/landing/index.html"
-            target="_blank"
-            rel="noopener noreferrer"
             style={{
               display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '10px 14px', borderRadius: '10px', marginBottom: '8px',
-              background: 'var(--btn-primary-bg, #f97316)',
-              color: 'var(--btn-primary-text, #070b13)', fontWeight: 700, fontSize: '0.8rem',
-              textDecoration: 'none', transition: 'opacity 0.2s',
+              padding: '9px 14px', borderRadius: '10px', marginBottom: '8px',
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+              color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.8rem',
+              textDecoration: 'none', transition: 'background 0.2s',
             }}
-            onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
-            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-            aria-label="Download Solar Pulse mobile app"
+            aria-label="Back to overview landing page"
           >
-            <Download size={14} /> Download App
+            ← Overview Landing
           </a>
           {/* Support Button */}
           <button
@@ -454,27 +485,19 @@ export default function App() {
           <div className="topbar-actions">
             <a
               href="/landing/index.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="topbar-showcase-btn"
-              title="Experience 3D telemetry showcase & download options"
+              className="btn-outline"
+              title="Return to the overview landing page"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '7px 14px',
-                borderRadius: '99px',
-                background: 'rgba(249, 115, 22, 0.12)',
-                border: '1px solid rgba(249, 115, 22, 0.3)',
-                color: '#f97316',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                textDecoration: 'none',
-                transition: 'all 0.2s'
+                padding: '6px 14px',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                textDecoration: 'none'
               }}
             >
-              <Download size={14} />
-              <span>Showcase &amp; Download</span>
+              <span>← Landing Overview</span>
             </a>
 
             <button
@@ -486,21 +509,30 @@ export default function App() {
               {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
             </button>
 
-            {/* Avatar + dropdown */}
-            <div style={{ position: 'relative' }}>
+            {!isAuthenticated ? (
               <button
-                className="avatar"
-                title={user?.email ? `Signed in as ${user.email}` : 'Account'}
-                onClick={() => setAvatarDropdownOpen(prev => !prev)}
-                aria-label="Open account menu"
-                style={{ cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, hsl(var(--color-solar)) 0%, hsl(var(--color-bat)) 100%)' }}
+                className="btn-primary"
+                onClick={() => setActiveView('auth')}
+                style={{ height: '36px', padding: '0 16px', fontSize: '0.85rem', fontWeight: 700 }}
               >
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="avatar-image" />
-                ) : (
-                  profileInitial
-                )}
+                Sign In
               </button>
+            ) : (
+              /* Avatar + dropdown */
+              <div style={{ position: 'relative' }}>
+                <button
+                  className="avatar"
+                  title={user?.email ? `Signed in as ${user.email}` : 'Account'}
+                  onClick={() => setAvatarDropdownOpen(prev => !prev)}
+                  aria-label="Open account menu"
+                  style={{ cursor: 'pointer', border: 'none', background: 'linear-gradient(135deg, hsl(var(--color-solar)) 0%, hsl(var(--color-bat)) 100%)' }}
+                >
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" className="avatar-image" />
+                  ) : (
+                    profileInitial
+                  )}
+                </button>
 
               {avatarDropdownOpen && (
                 <div style={{
@@ -581,8 +613,9 @@ export default function App() {
                 </div>
               )}
             </div>
-          </div>
-        </header>
+          )}
+        </div>
+      </header>
 
         {/* Content View Container */}
         <main className="content-container" onClick={() => setAvatarDropdownOpen(false)}>
