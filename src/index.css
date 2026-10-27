@@ -263,7 +263,8 @@ button, input, select, textarea {
 }
 
 .animate-float {
-  animation: float 4s ease-in-out infinite;
+  /* Stabilized per kill-ai-slop / clean design standards */
+  transform: none;
 }
 
 /* Layout Architecture */
@@ -989,6 +990,132 @@ button, input, select, textarea {
 .form-input:focus {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 3px var(--color-solar-glow);
+}
+
+/* Category Filter Bar */
+.category-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.category-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.category-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.category-filter-btn:hover {
+  border-color: hsl(var(--color-solar));
+  color: var(--text-primary);
+}
+
+.category-filter-btn.active {
+  background: hsl(var(--color-solar));
+  border-color: hsl(var(--color-solar));
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Appliance Row Controls Grid */
+.appliance-controls-grid {
+  display: grid;
+  grid-template-columns: 130px 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .appliance-controls-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.appliance-control-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.appliance-control-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.appliance-control-num {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Stepper Component */
+.stepper-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  height: 34px;
+  width: 100%;
+  max-width: 120px;
+  overflow: hidden;
+}
+
+.stepper-btn {
+  background: none;
+  border: none;
+  height: 100%;
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.stepper-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: hsl(var(--color-solar));
+}
+
+.stepper-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  flex: 1;
+}
+
+/* Sticky Recommendation Sizing Card on Desktop */
+@media (min-width: 961px) {
+  .sticky-recommendation-card {
+    position: sticky;
+    top: 24px;
+    z-index: 10;
+  }
 }
 
 /* Sliders */

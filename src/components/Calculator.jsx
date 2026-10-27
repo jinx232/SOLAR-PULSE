@@ -19,7 +19,11 @@ import {
   Activity,
   Compass,
   Plus,
-  Trash2
+  Minus,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  SlidersHorizontal
 } from 'lucide-react';
 import { loadSolarProject, saveSolarProject, auth } from '../utils/firebase';
 
@@ -368,15 +372,24 @@ export default function Calculator({
     }
   };
 
-  // Color mappings — includes Custom category
+  // Refined accessible category color mappings
   const categoryColors = {
-    Kitchen: '#eab308', 
-    HVAC: '#f43f5e', 
+    Kitchen: '#f97316', 
+    HVAC: '#0284c7', 
     Lights: '#10b981', 
-    Entertainment: '#3b82f6', 
+    Entertainment: '#6366f1', 
     Laundry: '#8b5cf6',
     Custom: '#64748b',
   };
+
+  // Category filter state for progressive disclosure
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [outageDrawerOpen, setOutageDrawerOpen] = useState(false);
+
+  const allCategoryTabs = ['All', 'Kitchen', 'HVAC', 'Lights', 'Entertainment', 'Laundry', 'Custom'];
+  const filteredAppliances = activeCategory === 'All'
+    ? appliances
+    : appliances.filter(app => app.category === activeCategory);
 
   return (
     <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -498,43 +511,96 @@ export default function Calculator({
             </div>
           )}
 
+          {/* Category Filter Bar */}
+          <div className="category-filter-bar" role="tablist" aria-label="Filter appliances by category">
+            {allCategoryTabs.map(cat => {
+              const count = cat === 'All' 
+                ? appliances.length 
+                : appliances.filter(a => a.category === cat).length;
+              if (cat !== 'All' && count === 0) return null;
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  className={`category-filter-btn ${isActive ? 'active' : ''}`}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  <span>{cat}</span>
+                  <span style={{
+                    fontSize: '0.7rem',
+                    opacity: isActive ? 1 : 0.7,
+                    backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : 'var(--bg-secondary)',
+                    padding: '1px 6px',
+                    borderRadius: '99px'
+                  }}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
           {/* Table list of appliances */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '600px', overflowY: 'auto', paddingRight: '4px' }}>
-            {appliances.map(app => {
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '640px', overflowY: 'auto', paddingRight: '4px' }}>
+            {filteredAppliances.map(app => {
               const currentKwh = Math.round(calculateKwh(app) * 100) / 100;
               return (
                 <div key={app.id} style={{
-                  padding: '16px',
+                  padding: '14px 16px',
                   backgroundColor: 'var(--bg-primary)',
                   borderRadius: '12px',
-                  border: app.isCritical ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid var(--border-color)',
-                  boxShadow: app.isCritical ? '0 0 10px rgba(16, 185, 129, 0.05)' : 'none',
+                  border: app.isCritical ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid var(--border-color)',
+                  boxShadow: app.isCritical ? '0 2px 8px rgba(16, 185, 129, 0.06)' : 'none',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '12px',
-                  position: 'relative',
-                  transition: 'all var(--transition-fast)'
+                  transition: 'border-color var(--transition-fast)'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  {/* Top Header: Identification & Badges */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                       <span style={{
                         display: 'inline-block',
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        backgroundColor: categoryColors[app.category]
-                      }}></span>
-                      <strong style={{ fontSize: '0.95rem' }}>{app.name}</strong>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', backgroundColor: 'var(--bg-secondary)', padding: '2px 8px', borderRadius: '99px' }}>
+                        backgroundColor: categoryColors[app.category] || '#64748b'
+                      }} />
+                      <strong style={{ fontSize: '0.92rem', color: 'var(--text-primary)' }}>{app.name}</strong>
+                      <span style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        color: 'var(--text-muted)',
+                        backgroundColor: 'var(--bg-secondary)',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid var(--border-color)'
+                      }}>
                         {app.category}
                       </span>
+                      {app.isCritical && (
+                        <span style={{
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          color: '#10b981',
+                          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          border: '1px solid rgba(16, 185, 129, 0.25)'
+                        }}>
+                          Backup Critical
+                        </span>
+                      )}
                     </div>
                     
-                    {/* Critical Load Shield Toggle Button */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: 'auto' }}>
-                      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                        {currentKwh} <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>kWh/day</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+                      <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        {currentKwh} <span style={{ fontSize: '0.72rem', fontWeight: 500, color: 'var(--text-muted)' }}>kWh/day</span>
                       </span>
+                      {/* Critical Load Shield Toggle Button */}
                       <button 
                         onClick={() => toggleCritical(app.id)}
                         title={`Mark as ${app.isCritical ? 'Non-Critical' : 'Backup Critical'} Load`}
@@ -546,18 +612,16 @@ export default function Calculator({
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: app.isCritical ? 'hsl(var(--color-gen))' : 'var(--text-muted)',
-                          padding: '8px',
-                          minWidth: '36px',
-                          minHeight: '36px',
-                          borderRadius: '8px',
+                          color: app.isCritical ? '#10b981' : 'var(--text-muted)',
+                          padding: '6px',
+                          borderRadius: '6px',
                           backgroundColor: app.isCritical ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
                           transition: 'all var(--transition-fast)'
                         }}
                       >
-                        {app.isCritical ? <ShieldCheck size={20} /> : <Shield size={20} />}
+                        {app.isCritical ? <ShieldCheck size={18} /> : <Shield size={18} />}
                       </button>
-                      {/* Delete button for custom appliances or to remove any appliance */}
+                      {/* Delete button */}
                       <button
                         onClick={() => deleteAppliance(app.id)}
                         title={`Remove ${app.name}`}
@@ -567,45 +631,53 @@ export default function Calculator({
                           border: 'none',
                           cursor: 'pointer',
                           color: 'var(--text-muted)',
-                          padding: '8px',
-                          minWidth: '36px',
-                          minHeight: '36px',
-                          borderRadius: '8px',
+                          padding: '6px',
+                          borderRadius: '6px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          transition: 'all var(--transition-fast)'
+                          transition: 'color var(--transition-fast)'
                         }}
                         onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
                         onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
 
-                  {/* Range Sliders Group */}
-                  <div className="grid-cols-3" style={{ gap: '16px' }}>
-                    <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>
-                        <span>Quantity</span>
-                        <span>{app.qty}</span>
-                      </label>
-                      <input 
-                        type="range" 
-                        min="1" 
-                        max="15" 
-                        value={app.qty} 
-                        onChange={(e) => updateAppliance(app.id, 'qty', parseInt(e.target.value))} 
-                        style={{ height: '4px', margin: '4px 0' }}
-                      />
+                  {/* Compact Stepper & Sliders Grid */}
+                  <div className="appliance-controls-grid">
+                    {/* Quantity Stepper */}
+                    <div className="appliance-control-col">
+                      <span className="appliance-control-label">Quantity</span>
+                      <div className="stepper-wrap">
+                        <button 
+                          type="button" 
+                          className="stepper-btn" 
+                          onClick={() => updateAppliance(app.id, 'qty', Math.max(1, app.qty - 1))}
+                          aria-label={`Decrease ${app.name} quantity`}
+                        >
+                          <Minus size={12} />
+                        </button>
+                        <span className="stepper-val">{app.qty}</span>
+                        <button 
+                          type="button" 
+                          className="stepper-btn" 
+                          onClick={() => updateAppliance(app.id, 'qty', Math.min(20, app.qty + 1))}
+                          aria-label={`Increase ${app.name} quantity`}
+                        >
+                          <Plus size={12} />
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>
-                        <span>Power (Watts)</span>
-                        <span>{app.watts} W</span>
-                      </label>
+                    {/* Power (Watts) */}
+                    <div className="appliance-control-col">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span className="appliance-control-label">Power</span>
+                        <span className="appliance-control-num">{app.watts} W</span>
+                      </div>
                       <input 
                         type="range" 
                         min="5" 
@@ -617,11 +689,12 @@ export default function Calculator({
                       />
                     </div>
 
-                    <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>
-                        <span>Hours Used / Day</span>
-                        <span>{app.hours} h</span>
-                      </label>
+                    {/* Hours Used / Day */}
+                    <div className="appliance-control-col">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span className="appliance-control-label">Hours / Day</span>
+                        <span className="appliance-control-num">{app.hours} h</span>
+                      </div>
                       <input 
                         type="range" 
                         min="0" 
@@ -640,16 +713,146 @@ export default function Calculator({
         </div>
 
         {/* Real-time recommendations & SVG Category breakdown */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          {/* GEOGRAPHIC PRESETS CARD */}
-          <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* 1. SMART SOLAR & STORAGE RECOMMENDATION CARD (STICKY AT TOP) */}
+          {recommendedSystemSizeKw > 0 ? (
+            <div className="premium-card sticky-recommendation-card" style={{
+              backgroundImage: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%)',
+              border: '1px solid rgba(249, 115, 22, 0.35)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'hsl(var(--color-solar))', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
+                  Smart Solar Recommendation
+                </h4>
+                <span style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  backgroundColor: 'rgba(249, 115, 22, 0.15)',
+                  color: 'hsl(var(--color-solar))',
+                  padding: '2px 8px',
+                  borderRadius: '6px'
+                }}>
+                  Live Sized
+                </span>
+              </div>
+
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0 }}>
+                Based on your daily load of <strong>{Math.round(totalDailyKwh * 100) / 100} kWh</strong> at <strong>{sunHours} peak sun hours</strong>.
+              </p>
+              
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '10px',
+                padding: '10px 0',
+                borderTop: '1px solid var(--border-color)',
+                borderBottom: '1px solid var(--border-color)'
+              }}>
+                <div>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.4px' }}>RECOMMENDED SIZE</span>
+                  <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)' }}>{recommendedSystemSizeKw} kW</span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.4px' }}>400W PANEL COUNT</span>
+                  <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)' }}>{recommendedPanelCount} Panels</span>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.4px' }}>INVERTER CAPACITY</span>
+                  <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)' }}>{recommendedInverterKw} kW Hybrid</span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.4px' }}>SURGE HEADROOM</span>
+                  <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'hsl(var(--color-solar))' }}>{recommendedSurgeKw} kW</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+                <button className="btn-primary" onClick={handleProceedToEstimator} style={{ width: '100%', fontSize: '0.85rem', padding: '10px 16px' }}>
+                  Estimate System ROI <ArrowRight size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="btn-outline"
+                  onClick={() => {
+                    const isPro = subscription?.status === 'active' && ['pro', 'installer', 'admin'].includes((subscription?.plan || '').toLowerCase());
+                    if (!isPro) {
+                      setActiveView('plans');
+                    } else {
+                      window.print();
+                    }
+                  }}
+                  style={{ width: '100%', fontSize: '0.82rem', padding: '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                >
+                  <span>Export Engineering Audit Report</span>
+                  {!(subscription?.status === 'active' && ['pro', 'installer', 'admin'].includes((subscription?.plan || '').toLowerCase())) && (
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '1px 5px', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.15)', color: 'hsl(var(--color-solar))' }}>PRO</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="premium-card sticky-recommendation-card" style={{
+              border: '1px dashed var(--border-color)',
+              textAlign: 'center',
+              padding: '20px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '1.2rem' }}>⚡</span>
+              <strong style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>Configure Appliance Usage</strong>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0 }}>
+                Adjust hours and quantities in the left panel to generate your custom solar & inverter sizing recommendation.
+              </p>
+            </div>
+          )}
+
+          {/* 2. CONSUMPTION LEDGER CARD */}
+          <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>Consumption Ledger</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>Daily Consumption</span>
+                <span style={{ fontWeight: 700 }}>{Math.round(totalDailyKwh * 100) / 100} kWh</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>Monthly Consumption</span>
+                <span style={{ fontWeight: 700 }}>{Math.round(totalMonthlyKwh * 10) / 10} kWh</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>Current Utility Rate</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>$</span>
+                  <input 
+                    type="number" 
+                    value={gridRate}
+                    onChange={(e) => setGridRate(parseFloat(e.target.value) || 0)}
+                    step="0.01"
+                    aria-label="Grid rate per kilowatt-hour"
+                    style={{ width: '60px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)', textAlign: 'right', fontSize: '0.85rem' }} 
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.05rem', fontWeight: 'bold', color: 'hsl(var(--color-con))' }}>
+                <span>Estimated Monthly Bill</span>
+                <span>${Math.round(totalMonthlyCost).toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. GEOGRAPHIC PRESETS CARD */}
+          <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
               <Compass size={18} style={{ color: 'hsl(var(--color-solar))' }} />
               Geographic Sizing Zone
             </h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.85rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.85rem' }}>
               <div className="form-group">
                 <label className="form-label">
                   <span>Global solar zone</span>
@@ -700,47 +903,13 @@ export default function Calculator({
             </div>
           </div>
 
-          {/* Summary Metric Statement Card */}
-          <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Consumption Ledger</h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Daily Consumption</span>
-                <span style={{ fontWeight: 700 }}>{Math.round(totalDailyKwh * 100) / 100} kWh</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Monthly Consumption</span>
-                <span style={{ fontWeight: 700 }}>{Math.round(totalMonthlyKwh * 10) / 10} kWh</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Current Utility Rate</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>$</span>
-                  <input 
-                    type="number" 
-                    value={gridRate}
-                    onChange={(e) => setGridRate(parseFloat(e.target.value) || 0)}
-                    step="0.01"
-                    style={{ width: '60px', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--border-color)', textAlign: 'right', fontSize: '0.85rem' }} 
-                  />
-                </div>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.05rem', fontWeight: 'bold', color: 'hsl(var(--color-con))' }}>
-                <span>Estimated Monthly Bill</span>
-                <span>${Math.round(totalMonthlyCost).toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive SVG Category breakdown Card */}
-          <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Category Breakdown</h3>
+          {/* 4. INTERACTIVE CATEGORY BREAKDOWN CARD */}
+          <div className="premium-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>Category Breakdown</h3>
             
             {grandTotalKwh > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {/* Horizontal custom breakdown chart bars */}
-                <div style={{ display: 'flex', height: '14px', width: '100%', borderRadius: '99px', overflow: 'hidden', backgroundColor: 'var(--border-color)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ display: 'flex', height: '12px', width: '100%', borderRadius: '99px', overflow: 'hidden', backgroundColor: 'var(--border-color)' }}>
                   {categoryTotals.map(cat => {
                     const percentage = grandTotalKwh > 0 ? (cat.kwh / grandTotalKwh) * 100 : 0;
                     if (percentage === 0) return null;
@@ -749,7 +918,7 @@ export default function Calculator({
                         key={cat.name}
                         style={{ 
                           width: `${percentage}%`, 
-                          backgroundColor: categoryColors[cat.name], 
+                          backgroundColor: categoryColors[cat.name] || '#64748b', 
                           transition: 'width var(--transition-normal)' 
                         }}
                         title={`${cat.name}: ${cat.kwh} kWh (${Math.round(percentage)}%)`}
@@ -758,14 +927,13 @@ export default function Calculator({
                   })}
                 </div>
 
-                {/* Legends and percentages list */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {categoryTotals.map(cat => {
                     const percentage = grandTotalKwh > 0 ? (cat.kwh / grandTotalKwh) * 100 : 0;
                     return (
                       <div key={cat.name} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: categoryColors[cat.name] }}></span>
+                          <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: categoryColors[cat.name] || '#64748b' }}></span>
                           <span style={{ color: 'var(--text-secondary)' }}>{cat.name}</span>
                         </div>
                         <span style={{ fontWeight: 600 }}>
@@ -777,257 +945,219 @@ export default function Calculator({
                 </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '16px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                All appliance loads are set to zero. Increase usage hours to generate breakdowns!
+              <div style={{ textAlign: 'center', padding: '14px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                All appliance loads are set to zero. Increase usage hours to generate breakdowns.
               </div>
             )}
           </div>
 
-          {/* GRID OUTAGE SIMULATOR CARD */}
+          {/* 5. COLLAPSIBLE OUTAGE & STORAGE SIZER */}
           <div className="premium-card" style={{
             backgroundImage: isOutageActive ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(249, 115, 22, 0.08) 100%)' : 'none',
-            border: isOutageActive ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid var(--border-color)',
+            border: isOutageActive ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid var(--border-color)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '16px',
+            gap: '14px',
             transition: 'all var(--transition-normal)'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Battery size={20} style={{ color: isOutageActive ? '#f43f5e' : 'hsl(var(--color-bat))' }} />
-                Outage & Storage Sizer
-              </h3>
-              {isOutageActive && (
-                <span className="logo-icon" style={{ fontSize: '0.75rem', color: '#f43f5e', fontWeight: 700, backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '2px 8px', borderRadius: '99px' }}>
-                  Sim Active
+            {/* Collapsible Trigger Header */}
+            <div 
+              onClick={() => setOutageDrawerOpen(prev => !prev)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOutageDrawerOpen(prev => !prev); } }}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                userSelect: 'none'
+              }}
+              aria-expanded={outageDrawerOpen || isOutageActive}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Battery size={18} style={{ color: isOutageActive ? '#f43f5e' : 'hsl(var(--color-bat))' }} />
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
+                  Outage & Storage Sizer
+                </h3>
+                {isOutageActive && (
+                  <span style={{ fontSize: '0.7rem', color: '#f43f5e', fontWeight: 700, backgroundColor: 'rgba(239, 68, 68, 0.12)', padding: '2px 8px', borderRadius: '99px' }}>
+                    Sim Active
+                  </span>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{
+                  fontSize: '0.76rem',
+                  fontWeight: 700,
+                  color: 'hsl(var(--color-bat))',
+                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                  padding: '2px 8px',
+                  borderRadius: '6px'
+                }}>
+                  {recommendedBatteryKwh} kWh Pick
                 </span>
-              )}
+                <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+                  {(outageDrawerOpen || isOutageActive) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </span>
+              </div>
             </div>
 
-            {/* Recommended battery capacity statement */}
-            {!isOutageActive ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem' }}>
-                <p style={{ color: 'var(--text-secondary)' }}>
-                  Sizes backing storage based on your configured <strong>Backup Critical</strong> appliances.
-                </p>
-                <div style={{
-                  padding: '12px',
-                  backgroundColor: 'var(--bg-primary)',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-color)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Critical Load:</span>
-                    <strong>{appliances.filter(app => app.isCritical).length} appliances</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Recommended Size:</span>
-                    <strong style={{ color: 'hsl(var(--color-bat))' }}>{recommendedBatteryKwh} kWh</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', paddingTop: '6px', marginTop: '2px' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>System Pick:</span>
-                    <strong style={{ color: 'var(--text-primary)' }}>{recommendedBatterySystem}</strong>
-                  </div>
-                </div>
-
-                <button 
-                  className="btn-primary" 
-                  disabled={totalDailyKwh === 0}
-                  onClick={() => {
-                    setBatterySoc(100);
-                    setIsOutageActive(true);
-                  }}
-                  style={{ 
-                    width: '100%', 
-                    fontSize: '0.85rem', 
-                    padding: '10px 16px',
-                    backgroundColor: '#f43f5e',
-                    boxShadow: '0 4px 14px 0 rgba(244, 63, 94, 0.3)'
-                  }}
-                >
-                  <Play size={16} /> Simulate Grid Outage
-                </button>
-              </div>
-            ) : (
-              // Live Simulation workstation controls
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.85rem' }}>
-                
-                {/* SVG Visualizer Battery depleting */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '16px',
-                  padding: '12px',
-                  backgroundColor: 'var(--bg-primary)',
-                  borderRadius: '12px',
-                  border: '1px solid var(--border-color)'
-                }}>
-                  <svg viewBox="0 0 100 40" style={{ width: '90px', height: '36px', overflow: 'visible' }}>
-                    <rect x="5" y="5" width="80" height="30" rx="6" fill="none" stroke="var(--text-secondary)" strokeWidth="3" />
-                    <rect x="85" y="12" width="6" height="16" rx="2.5" fill="var(--text-secondary)" />
-                    <rect 
-                      x="9" 
-                      y="9" 
-                      width={Math.round(batterySoc * 0.72)} 
-                      height="22" 
-                      rx="3.5" 
-                      fill={batterySoc > 20 ? 'hsl(var(--color-gen))' : '#f43f5e'} 
-                      style={{ transition: 'width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)' }} 
-                    />
-                  </svg>
-                  <div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: batterySoc > 20 ? 'hsl(var(--color-gen))' : '#f43f5e' }}>
-                      {batterySoc}%
-                    </h2>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Backup Charge</span>
-                  </div>
-                </div>
-
-                {/* Simulated Outage Statistics */}
-                <div style={{
-                  padding: '12px',
-                  backgroundColor: 'var(--bg-primary)',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-color)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Active Backup Draw:</span>
-                    <strong>{simulatedOutageWatts} W</strong>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', paddingTop: '6px', marginTop: '2px' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Estimated Lifeline:</span>
-                    <strong style={{ color: batterySoc > 20 ? 'hsl(var(--color-gen))' : '#f43f5e', fontSize: '0.95rem' }}>
-                      {estimatedBackupHours === 99.9 ? 'Infinite' : `${estimatedBackupHours} hours`}
-                    </strong>
-                  </div>
-                </div>
-
-                {/* Overload Warning Banner if Non-critical active */}
-                {hasActiveNonCriticalWarning && (
-                  <div style={{
-                    padding: '12px',
-                    backgroundColor: 'rgba(249, 115, 22, 0.08)',
-                    border: '1px solid rgba(249, 115, 22, 0.25)',
-                    borderRadius: '8px',
-                    color: '#d97706',
-                    fontSize: '0.78rem',
-                    lineHeight: '1.4',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
-                      <ShieldAlert size={14} />
-                      <span>Backup Overload Warning!</span>
-                    </div>
-                    <p>
-                      Non-critical appliances (e.g. A/C, Dryer) are actively running. Turn them off or toggle their critical shields to extend battery backup duration!
+            {/* Collapsible Drawer Body */}
+            {(outageDrawerOpen || isOutageActive) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', borderTop: '1px solid var(--border-color)', paddingTop: '14px' }}>
+                {!isOutageActive ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem' }}>
+                    <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.82rem' }}>
+                      Sizes backup battery based on your configured <strong>Backup Critical</strong> appliances.
                     </p>
+                    <div style={{
+                      padding: '12px',
+                      backgroundColor: 'var(--bg-primary)',
+                      borderRadius: '10px',
+                      border: '1px solid var(--border-color)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '6px'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: 'var(--text-muted)' }}>Critical Load:</span>
+                        <strong>{appliances.filter(app => app.isCritical).length} appliances</strong>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: 'var(--text-muted)' }}>Recommended Size:</span>
+                        <strong style={{ color: 'hsl(var(--color-bat))' }}>{recommendedBatteryKwh} kWh</strong>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', paddingTop: '6px', marginTop: '2px' }}>
+                        <span style={{ color: 'var(--text-muted)' }}>System Pick:</span>
+                        <strong style={{ color: 'var(--text-primary)' }}>{recommendedBatterySystem}</strong>
+                      </div>
+                    </div>
+
+                    <button 
+                      className="btn-primary" 
+                      disabled={totalDailyKwh === 0}
+                      onClick={() => {
+                        setBatterySoc(100);
+                        setIsOutageActive(true);
+                      }}
+                      style={{ 
+                        width: '100%', 
+                        fontSize: '0.85rem', 
+                        padding: '10px 16px',
+                        backgroundColor: '#f43f5e',
+                        boxShadow: '0 4px 14px 0 rgba(244, 63, 94, 0.25)'
+                      }}
+                    >
+                      <Play size={16} /> Test Grid Outage Lifeline
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.85rem' }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '16px',
+                      padding: '12px',
+                      backgroundColor: 'var(--bg-primary)',
+                      borderRadius: '12px',
+                      border: '1px solid var(--border-color)'
+                    }}>
+                      <svg viewBox="0 0 100 40" style={{ width: '90px', height: '36px', overflow: 'visible' }}>
+                        <rect x="5" y="5" width="80" height="30" rx="6" fill="none" stroke="var(--text-secondary)" strokeWidth="3" />
+                        <rect x="85" y="12" width="6" height="16" rx="2.5" fill="var(--text-secondary)" />
+                        <rect 
+                          x="9" 
+                          y="9" 
+                          width={Math.round(batterySoc * 0.72)} 
+                          height="22" 
+                          rx="3.5" 
+                          fill={batterySoc > 20 ? 'hsl(var(--color-gen))' : '#f43f5e'} 
+                          style={{ transition: 'width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)' }} 
+                        />
+                      </svg>
+                      <div>
+                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: batterySoc > 20 ? 'hsl(var(--color-gen))' : '#f43f5e' }}>
+                          {batterySoc}%
+                        </h2>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Backup Charge</span>
+                      </div>
+                    </div>
+
+                    <div style={{
+                      padding: '12px',
+                      backgroundColor: 'var(--bg-primary)',
+                      borderRadius: '10px',
+                      border: '1px solid var(--border-color)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '6px'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: 'var(--text-muted)' }}>Active Backup Draw:</span>
+                        <strong>{simulatedOutageWatts} W</strong>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', paddingTop: '6px', marginTop: '2px' }}>
+                        <span style={{ color: 'var(--text-muted)' }}>Estimated Lifeline:</span>
+                        <strong style={{ color: batterySoc > 20 ? 'hsl(var(--color-gen))' : '#f43f5e', fontSize: '0.95rem' }}>
+                          {estimatedBackupHours === 99.9 ? 'Infinite' : `${estimatedBackupHours} hours`}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {hasActiveNonCriticalWarning && (
+                      <div style={{
+                        padding: '12px',
+                        backgroundColor: 'rgba(249, 115, 22, 0.08)',
+                        border: '1px solid rgba(249, 115, 22, 0.25)',
+                        borderRadius: '8px',
+                        color: '#d97706',
+                        fontSize: '0.78rem',
+                        lineHeight: '1.4',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
+                          <ShieldAlert size={14} />
+                          <span>Backup Overload Warning</span>
+                        </div>
+                        <p style={{ margin: 0 }}>
+                          Non-critical appliances are actively running. Turn them off or toggle their shields to extend battery backup duration.
+                        </p>
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      <button 
+                        className="btn-outline" 
+                        onClick={() => setBatterySoc(100)}
+                        style={{ flex: '1 1 130px', minHeight: '38px', padding: '8px 14px', fontSize: '0.85rem' }}
+                      >
+                        Recharge Battery
+                      </button>
+                      <button 
+                        className="btn-outline" 
+                        onClick={() => setIsOutageActive(false)}
+                        style={{ 
+                          flex: '1 1 130px',
+                          minHeight: '38px',
+                          padding: '8px 14px', 
+                          fontSize: '0.85rem',
+                          borderColor: '#f43f5e',
+                          color: '#f43f5e'
+                        }}
+                      >
+                        <Square size={12} /> Stop Outage
+                      </button>
+                    </div>
                   </div>
                 )}
-
-                {/* Control Action Buttons */}
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  <button 
-                    className="btn-outline" 
-                    onClick={() => setBatterySoc(100)}
-                    style={{ flex: '1 1 130px', minHeight: '40px', padding: '10px 14px', fontSize: '0.85rem' }}
-                  >
-                    Recharge Battery
-                  </button>
-                  <button 
-                    className="btn-outline" 
-                    onClick={() => setIsOutageActive(false)}
-                    style={{ 
-                      flex: '1 1 130px',
-                      minHeight: '40px',
-                      padding: '10px 14px', 
-                      fontSize: '0.85rem',
-                      borderColor: '#f43f5e',
-                      color: '#f43f5e'
-                    }}
-                  >
-                    <Square size={12} /> Stop Outage
-                  </button>
-                </div>
-
               </div>
             )}
           </div>
-
-          {/* Smart Solar Recommendation Card */}
-          {recommendedSystemSizeKw > 0 && (
-            <div className="premium-card animate-float" style={{
-              backgroundImage: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%)',
-              border: '1px solid rgba(249, 115, 22, 0.25)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}>
-              <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'hsl(var(--color-solar))', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                🎯 Smart Solar Recommendation
-              </h4>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Based on your daily load of <strong>{Math.round(totalDailyKwh * 100) / 100} kWh</strong>, your property is ideal for solar transformation.
-              </p>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '8px 0', fontSize: '0.85rem' }}>
-                <div>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem' }}>RECOMMENDED SIZE</span>
-                  <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)' }}>{recommendedSystemSizeKw} kW</span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem' }}>400W PANEL COUNT</span>
-                  <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)' }}>{recommendedPanelCount} Panels</span>
-                </div>
-              </div>
-
-              {/* Inverter & Surge Specifications */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', fontSize: '0.85rem' }}>
-                <div>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem' }}>INVERTER CAPACITY</span>
-                  <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{recommendedInverterKw} kW Hybrid</span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem' }}>MOTOR SURGE HEADROOM</span>
-                  <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'hsl(var(--color-solar))' }}>{recommendedSurgeKw} kW</span>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                <button className="btn-primary" onClick={handleProceedToEstimator} style={{ width: '100%', fontSize: '0.85rem', padding: '10px 16px' }}>
-                  Estimate System ROI <ArrowRight size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="btn-outline"
-                  onClick={() => {
-                    const isPro = subscription?.status === 'active' && ['pro', 'installer', 'admin'].includes((subscription?.plan || '').toLowerCase());
-                    if (!isPro) {
-                      setActiveView('plans');
-                    } else {
-                      window.print();
-                    }
-                  }}
-                  style={{ width: '100%', fontSize: '0.82rem', padding: '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                >
-                  <span>📄</span>
-                  <span>Export Engineering Audit Report</span>
-                  {!(subscription?.status === 'active' && ['pro', 'installer', 'admin'].includes((subscription?.plan || '').toLowerCase())) && (
-                    <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '1px 5px', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.15)', color: 'hsl(var(--color-solar))' }}>PRO</span>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-
         </div>
 
       </div>
