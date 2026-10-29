@@ -45,6 +45,52 @@ const initialAppliances = [
   { id: 10, name: 'Clothes Dryer', category: 'Laundry', watts: 3000, hours: 0.5, qty: 1, icon: 'laundry', isCritical: false },
 ];
 
+export const LOAD_ARCHETYPES = [
+  {
+    id: 'flat',
+    name: '1-Bed Flat / Studio',
+    tag: '~3.6 kWh/day • 1.2 kW solar',
+    appliances: [
+      { id: 1, name: 'Compact Refrigerator', category: 'Kitchen', watts: 120, hours: 24, qty: 1, icon: 'kitchen', isCritical: true },
+      { id: 2, name: 'Microwave', category: 'Kitchen', watts: 1000, hours: 0.3, qty: 1, icon: 'kitchen', isCritical: false },
+      { id: 3, name: 'Standing Inverter Fan', category: 'HVAC', watts: 60, hours: 10, qty: 2, icon: 'hvac', isCritical: true },
+      { id: 4, name: 'LED Lighting', category: 'Lights', watts: 10, hours: 6, qty: 6, icon: 'lights', isCritical: true },
+      { id: 5, name: 'Smart TV & WiFi', category: 'Entertainment', watts: 90, hours: 5, qty: 1, icon: 'entertainment', isCritical: false },
+      { id: 6, name: 'Laptops & Phones', category: 'Entertainment', watts: 65, hours: 8, qty: 2, icon: 'entertainment', isCritical: true },
+    ]
+  },
+  {
+    id: 'duplex',
+    name: '3-Bed Family Home',
+    tag: '~15.4 kWh/day • 4.5 kW solar',
+    appliances: [
+      { id: 1, name: 'Refrigerator', category: 'Kitchen', watts: 150, hours: 24, qty: 1, icon: 'kitchen', isCritical: true },
+      { id: 2, name: 'Chest Deep Freezer', category: 'Kitchen', watts: 180, hours: 14, qty: 1, icon: 'kitchen', isCritical: true },
+      { id: 3, name: 'Inverter AC (1.5 HP)', category: 'HVAC', watts: 1100, hours: 6, qty: 1, icon: 'hvac', isCritical: false },
+      { id: 4, name: 'Standing / Ceiling Fans', category: 'HVAC', watts: 70, hours: 8, qty: 3, icon: 'hvac', isCritical: true },
+      { id: 5, name: 'LED Bulbs', category: 'Lights', watts: 10, hours: 6, qty: 12, icon: 'lights', isCritical: true },
+      { id: 6, name: 'Televisions & Decoders', category: 'Entertainment', watts: 140, hours: 6, qty: 2, icon: 'entertainment', isCritical: false },
+      { id: 7, name: 'Home Office / Chargers', category: 'Entertainment', watts: 75, hours: 8, qty: 3, icon: 'entertainment', isCritical: true },
+      { id: 8, name: 'Washing Machine', category: 'Laundry', watts: 500, hours: 1, qty: 1, icon: 'laundry', isCritical: false },
+      { id: 9, name: 'Borehole / Water Pump', category: 'Kitchen', watts: 750, hours: 1, qty: 1, icon: 'kitchen', isCritical: false },
+    ]
+  },
+  {
+    id: 'clinic',
+    name: 'SME Office / Clinic',
+    tag: '~28.5 kWh/day • 8.0 kW solar',
+    appliances: [
+      { id: 1, name: 'Dual Office ACs (1.5 HP)', category: 'HVAC', watts: 1100, hours: 8, qty: 2, icon: 'hvac', isCritical: false },
+      { id: 2, name: 'Server & Network Rack', category: 'Entertainment', watts: 220, hours: 24, qty: 1, icon: 'entertainment', isCritical: true },
+      { id: 3, name: 'Medical / Drink Fridge', category: 'Kitchen', watts: 180, hours: 24, qty: 1, icon: 'kitchen', isCritical: true },
+      { id: 4, name: 'Office PCs & Displays', category: 'Entertainment', watts: 150, hours: 8, qty: 8, icon: 'entertainment', isCritical: true },
+      { id: 5, name: 'Commercial Lighting', category: 'Lights', watts: 15, hours: 10, qty: 16, icon: 'lights', isCritical: true },
+      { id: 6, name: 'Water Dispenser', category: 'Kitchen', watts: 450, hours: 4, qty: 1, icon: 'kitchen', isCritical: false },
+      { id: 7, name: 'CCTV Security & NVR', category: 'Entertainment', watts: 60, hours: 24, qty: 1, icon: 'entertainment', isCritical: true },
+    ]
+  }
+];
+
 export const globalSolarZones = [
   // Africa
   { continent: 'Africa', value: 'West Africa', label: 'West Africa (Nigeria, Ghana, Senegal, Côte d\'Ivoire) — 5.4h', sunHours: 5.4, postal: '101001' },
@@ -376,7 +422,12 @@ export default function Calculator({
       setRecommendation({
         systemSizeKw: recommendedSystemSizeKw,
         panelCount: recommendedPanelCount,
-        monthlyBill: totalMonthlyCost
+        monthlyBill: totalMonthlyCost,
+        dailyKwh: Math.round(totalDailyKwh * 10) / 10,
+        batteryCapacityKwh: batteryCapacityKwh,
+        batterySystem: recommendedBatterySystem,
+        criticalWatts: activeCriticalWatts,
+        totalWatts: totalRunningWatts
       });
       setActiveView('estimator');
     }
@@ -520,6 +571,56 @@ export default function Calculator({
               </div>
             </div>
           )}
+
+          {/* Quick Load Archetypes Bar */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            padding: '12px 14px',
+            backgroundColor: 'var(--bg-primary)',
+            borderRadius: '12px',
+            border: '1px solid var(--border-color)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Zap size={14} style={{ color: 'hsl(var(--color-solar))' }} /> Quick Load Archetypes:
+              </span>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>1-click template setup</span>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {LOAD_ARCHETYPES.map((arch) => (
+                <button
+                  key={arch.id}
+                  type="button"
+                  className="btn-outline"
+                  onClick={() => {
+                    setAppliances(arch.appliances);
+                    const maxId = arch.appliances.reduce((m, a) => Math.max(m, a.id || 0), 0);
+                    setNextId(maxId + 1);
+                    setActiveCategory('All');
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    fontSize: '0.78rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: '2px',
+                    flex: '1 1 calc(33.333% - 8px)',
+                    minWidth: '140px',
+                    borderRadius: '8px',
+                    textAlign: 'left',
+                    cursor: 'pointer'
+                  }}
+                  title={`Load ${arch.name} (${arch.tag})`}
+                >
+                  <strong style={{ color: 'var(--text-primary)', fontSize: '0.82rem' }}>{arch.name}</strong>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{arch.tag}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Category Filter Bar */}
           <div className="category-filter-bar" role="tablist" aria-label="Filter appliances by category">

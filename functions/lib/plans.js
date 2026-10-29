@@ -10,6 +10,7 @@
  * Amounts are expressed in MAJOR units (naira, not kobo).
  */
 const PLAN_CATALOGUE = Object.freeze({
+  audit: Object.freeze({ id: 'audit', name: 'Homeowner Audit Pass', amount: 3500, currency: 'NGN', durationDays: 7 }),
   pro: Object.freeze({ id: 'pro', name: 'Pro', amount: 5000, currency: 'NGN', durationDays: 30 }),
   installer: Object.freeze({ id: 'installer', name: 'Installer', amount: 15000, currency: 'NGN', durationDays: 30 }),
 });

@@ -26,16 +26,25 @@ export default function Chatbot({ user, subscription, region: propRegion, sunHou
   // Scoped localStorage key prevents chat history leaking between users
   const chatHistoryKey = `solar_pulse_chat_${user?.id || 'guest'}`;
 
+  const recommendation = solar.recommendation;
+
   const getProfessionalGreeting = () =>
     `Welcome to Solar Pulse AI Advisor. I provide concise, engineering-backed guidance on solar panels, system sizing, battery backup, and energy savings.`;
 
-  // Suggested prompt chips — reworded so the cost chip triggers the cost regex
-  const suggestions = [
-    "Monocrystalline vs Polycrystalline?",
-    "How does Net Metering work?",
-    "Do I need batteries for backup?",
-    "What does solar cost and how much can I save?"
-  ];
+  // Suggested prompt chips — dynamically tailored to active calculator recommendation
+  const suggestions = recommendation?.systemSizeKw
+    ? [
+        `Can my ${recommendation.systemSizeKw}kW system run an AC during blackouts?`,
+        `How long will my ${recommendation.batteryCapacityKwh ? `${recommendation.batteryCapacityKwh}kWh ` : ''}battery backup last?`,
+        `What inverter size fits my ${recommendation.systemSizeKw}kW array?`,
+        `How much generator fuel will ${recommendation.systemSizeKw}kW displace in ${region}?`
+      ]
+    : [
+        "Monocrystalline vs Polycrystalline?",
+        "How does Net Metering work?",
+        "Do I need batteries for backup?",
+        "What does solar cost and how much can I save?"
+      ];
 
   // Initialize messages from localStorage (scoped to user)
   useEffect(() => {
@@ -302,6 +311,32 @@ export default function Chatbot({ user, subscription, region: propRegion, sunHou
           </button>
         </div>
       </div>
+
+      {/* Active System Sizing Context Banner */}
+      {recommendation?.systemSizeKw && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          padding: '10px 16px',
+          backgroundColor: 'rgba(16, 185, 129, 0.08)',
+          border: '1px solid rgba(16, 185, 129, 0.25)',
+          borderRadius: '10px',
+          fontSize: '0.82rem',
+          marginBottom: '14px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#059669' }}>
+            <Sparkles size={16} style={{ flexShrink: 0 }} />
+            <span>
+              <strong>Active Profile:</strong> Tuned to your <strong>{recommendation.systemSizeKw} kW</strong> array ({recommendation.panelCount} panels{recommendation.batteryCapacityKwh ? `, ${recommendation.batteryCapacityKwh} kWh battery` : ''}) in {region}.
+            </span>
+          </div>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+            Linked with Sizing
+          </span>
+        </div>
+      )}
 
       {/* In-app confirmation modal to avoid browser native confirm */}
       {showClearConfirm && (

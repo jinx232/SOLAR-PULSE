@@ -14,6 +14,113 @@ import {
 import { globalSolarZones, normalizeSolarZone } from './Calculator';
 import { useSolar } from '../context/SolarContext';
 
+export const getRegionalEconomics = (region) => {
+  const reg = (region || '').toLowerCase();
+  
+  if (reg.includes('west africa') || reg.includes('africa')) {
+    return {
+      currency: 'NGN',
+      symbol: '₦',
+      gridRate: 225, // Band A NERC tariff ~₦225/kWh
+      costPerWatt: 1800, // ~₦1,800/W installed turnkey tier-1 system with hybrid inverter
+      utilityInflationRate: 0.12,
+      defaultBill: 120000,
+      minBill: 15000,
+      maxBill: 800000,
+      billStep: 5000,
+      inverterSwapCost: 1200000, // ₦1.2M inverter swap buffer at Yr 12
+      annualMaintenance: 30000,
+      hasGeneratorOffset: true,
+      fuelPricePerLiter: 1150, // ₦1,150/L petrol/diesel
+      itcRate: 0,
+      itcLabel: 'Tax Incentive / Rebate',
+      itcNote: 'No federal ITC applied. Primary ROI is driven by displacing expensive generator fuel (₦1,150/L) and Band A grid tariffs.'
+    };
+  }
+
+  if (reg.includes('western europe') || reg.includes('uk') || reg.includes('britain')) {
+    return {
+      currency: 'GBP',
+      symbol: '£',
+      gridRate: 0.28,
+      costPerWatt: 1.85,
+      utilityInflationRate: 0.045,
+      defaultBill: 160,
+      minBill: 40,
+      maxBill: 800,
+      billStep: 5,
+      inverterSwapCost: 1200,
+      annualMaintenance: 25,
+      hasGeneratorOffset: false,
+      fuelPricePerLiter: 0,
+      itcRate: 0.05,
+      itcLabel: 'Clean Energy VAT Relief (5%)',
+      itcNote: 'UK 0–5% VAT relief on qualifying residential energy-saving materials.'
+    };
+  }
+
+  if (reg.includes('southern europe') || reg.includes('europe')) {
+    return {
+      currency: 'EUR',
+      symbol: '€',
+      gridRate: 0.26,
+      costPerWatt: 1.95,
+      utilityInflationRate: 0.04,
+      defaultBill: 170,
+      minBill: 40,
+      maxBill: 800,
+      billStep: 5,
+      inverterSwapCost: 1300,
+      annualMaintenance: 25,
+      hasGeneratorOffset: false,
+      fuelPricePerLiter: 0,
+      itcRate: 0,
+      itcLabel: 'Regional Feed-In Tariff',
+      itcNote: 'EU feed-in tariff and local municipality clean energy subsidies apply.'
+    };
+  }
+
+  if (reg.includes('north america') || reg.includes('us ') || reg === 'us') {
+    return {
+      currency: 'USD',
+      symbol: '$',
+      gridRate: 0.16,
+      costPerWatt: 3.10,
+      utilityInflationRate: 0.035,
+      defaultBill: 180,
+      minBill: 50,
+      maxBill: 1000,
+      billStep: 5,
+      inverterSwapCost: 1500,
+      annualMaintenance: 30,
+      hasGeneratorOffset: false,
+      fuelPricePerLiter: 0,
+      itcRate: 0.26,
+      itcLabel: 'US Federal ITC (26%)',
+      itcNote: 'The residential ITC dropped to 26% after 2025 (July 2025 budget law). Verify with your tax adviser.'
+    };
+  }
+
+  return {
+    currency: 'USD',
+    symbol: '$',
+    gridRate: 0.18,
+    costPerWatt: 2.80,
+    utilityInflationRate: 0.04,
+    defaultBill: 180,
+    minBill: 50,
+    maxBill: 1000,
+    billStep: 5,
+    inverterSwapCost: 1500,
+    annualMaintenance: 30,
+    hasGeneratorOffset: false,
+    fuelPricePerLiter: 0,
+    itcRate: 0,
+    itcLabel: 'Solar Incentive / Rebate',
+    itcNote: 'Check local utility company for net-metering and state clean energy credits.'
+  };
+};
+
 export default function Estimator({ 
   recommendation: propRecommendation, 
   clearRecommendation: propClearRecommendation,
@@ -34,18 +141,30 @@ export default function Estimator({
   const zipCode = propZipCode ?? solar.zipCode;
   const setZipCode = propSetZipCode ?? solar.setZipCode;
 
+  const econ = getRegionalEconomics(region);
+
   // Slider Inputs (defaults from calculator recommendations if available)
-  const [monthlyBill, setMonthlyBill] = useState(180);
+  const [monthlyBill, setMonthlyBill] = useState(econ.defaultBill);
   const [roofArea, setRoofArea] = useState(650); // square feet
+  const [displacedGenHours, setDisplacedGenHours] = useState(4); // daily gen runtime displaced (hrs/day)
   const [selectedYearPoint, setSelectedYearPoint] = useState(null);
   const [copied, setCopied] = useState(false);
 
   // Constants
-  const costPerWatt = 3.10; // $3.10 gross installed cost per watt average
-  const gridRate = 0.16; // $ per kWh
+  const costPerWatt = econ.costPerWatt;
+  const gridRate = econ.gridRate;
   const panelWattage = 400; // watts per panel
   const panelArea = 18.5; // sq ft per panel
-  const utilityInflationRate = 0.035; // 3.5% average yearly increase in utility rates
+  const utilityInflationRate = econ.utilityInflationRate;
+
+  // Ensure monthly bill slider stays within sane bounds when switching regions
+  useEffect(() => {
+    if (!recommendation?.monthlyBill) {
+      if (monthlyBill < econ.minBill || monthlyBill > econ.maxBill) {
+        setMonthlyBill(econ.defaultBill);
+      }
+    }
+  }, [region, econ.minBill, econ.maxBill, econ.defaultBill, recommendation]);
 
   // Synchronize when a new recommendation is piped in from the Calculator
   useEffect(() => {
@@ -82,16 +201,11 @@ export default function Estimator({
     ? Math.min(100, Math.round((recommendedSystemSizeKw / neededSystemSizeKw) * 100)) 
     : 0;
 
-  // Region-aware configuration
-  // Tax credit: 30% US ITC was extended through 2032 by IRA (2022) but the July 2025
-  // budget law ended it for spending after 2025. For West Africa/other regions, there
-  // is no equivalent federal credit (local state incentives vary — check NERC/ECG programs).
+  // Region-aware incentives
   const isNorthAmerica = region && (region.toLowerCase().includes('north america') || region.toLowerCase().includes('us ') || region === 'us');
-  const federalItcRate = isNorthAmerica ? 0.26 : 0; // 26% post-2025 US residential; 0 elsewhere
-  const itcLabel = isNorthAmerica ? 'US Federal ITC (26%)' : 'Solar Incentive / Tax Credit';
-  const itcNote = isNorthAmerica
-    ? 'The residential ITC dropped to 26% after 2025 (July 2025 budget law). Verify current rate with your tax adviser.'
-    : 'No federal credit applied. Check your state/DISCOM for local incentive schemes.';
+  const federalItcRate = econ.itcRate;
+  const itcLabel = econ.itcLabel;
+  const itcNote = econ.itcNote;
 
   // Financial Sizing Math
   const grossCost = recommendedSystemSizeKw * 1000 * costPerWatt;
@@ -102,10 +216,17 @@ export default function Estimator({
   // Annual energy generated = System Size (kW) * sun hours * 365 days * efficiency (0.8)
   const annualGenerationKwh = recommendedSystemSizeKw * sunHours * 365 * 0.8;
   const annualSavingsYear1 = Math.min(annualConsumptionKwh, annualGenerationKwh) * gridRate;
-  
-  // Payback Period (Simple ROI) = Net Cost / Year 1 Savings
-  const paybackPeriodYears = annualSavingsYear1 > 0 
-    ? Math.round((netSystemCost / annualSavingsYear1) * 10) / 10 
+
+  // Generator fuel offset savings (when applicable)
+  const monthlyFuelSavings = econ.hasGeneratorOffset 
+    ? Math.round(displacedGenHours * 1.2 * econ.fuelPricePerLiter * 30.4) 
+    : 0;
+  const annualFuelSavings = monthlyFuelSavings * 12;
+
+  // Payback Period (Simple ROI) = Net Cost / (Year 1 Utility Savings + Fuel Savings)
+  const totalAnnualSavingsYear1 = annualSavingsYear1 + annualFuelSavings;
+  const paybackPeriodYears = totalAnnualSavingsYear1 > 0 
+    ? Math.round((netSystemCost / totalAnnualSavingsYear1) * 10) / 10 
     : 0;
 
   // 25-Year Cumulative Savings Data Generation
@@ -118,21 +239,24 @@ export default function Estimator({
     const yearlyProjections = [];
 
     for (let year = 1; year <= 25; year++) {
-      // Utility pricing rises due to inflation
+      // Escalating utility bill without solar
       const annualUtilityBillWithoutSolar = (monthlyBill * 12) * Math.pow(1 + utilityInflationRate, year - 1);
-      cumulativeUtilityOnly += annualUtilityBillWithoutSolar;
+      // Escalating fuel expenditure without solar (if generator is displaced)
+      const annualFuelExpenseWithoutSolar = annualFuelSavings * Math.pow(1 + utilityInflationRate, year - 1);
+      
+      cumulativeUtilityOnly += annualUtilityBillWithoutSolar + annualFuelExpenseWithoutSolar;
 
       // Solar generation offset accounts for 0.5% annual panel degradation
       const degradationFactor = Math.pow(1 - 0.005, year - 1);
       const yearGenerationKwh = annualGenerationKwh * degradationFactor;
       const solarEnergyValue = yearGenerationKwh * utilityRate;
       
-      // Net bill is total consumption cost minus solar generation value (not going below zero if no grid battery credit scheme)
+      // Net bill is total consumption cost minus solar generation value
       const standardCostNoSolar = annualConsumptionKwh * utilityRate;
       const netBillWithSolar = Math.max(0, standardCostNoSolar - solarEnergyValue);
       
       // Cumulative expense includes annual residual bill plus inverter replacement buffer in Year 12
-      const annualMaintenance = year === 12 ? 1500 : 30; // $1500 inverter swap at Year 12
+      const annualMaintenance = year === 12 ? econ.inverterSwapCost : econ.annualMaintenance;
       cumulativeWithSolar += netBillWithSolar + annualMaintenance;
 
       // Inflate grid rates for next year
@@ -160,7 +284,8 @@ export default function Estimator({
   const chartMax = Math.max(
     cashflowData[24].utilityOnly,
     cashflowData[24].withSolar,
-    120000  // minimum scale
+    netSystemCost * 1.4,
+    1000
   ) * 1.05; // 5% headroom
 
   return (
@@ -247,16 +372,18 @@ export default function Estimator({
                 `Location: ${region} (Postal code ${zipCode}) | ${sunHours} peak hrs/day`,
                 ``,
                 `📌 System Size: ${recommendedSystemSizeKw} kW (${recommendedPanelCount} x 400W panels)`,
-                `💰 Gross Cost: $${Math.round(grossCost).toLocaleString()}`,
-                `✅ ${itcLabel}: -$${Math.round(federalItcDiscount).toLocaleString()}`,
-                `💳 Net Capital Outlay: $${Math.round(netSystemCost).toLocaleString()}`,
+                `💰 Gross Cost: ${econ.symbol}${Math.round(grossCost).toLocaleString()}`,
+                federalItcDiscount > 0 ? `✅ ${itcLabel}: -${econ.symbol}${Math.round(federalItcDiscount).toLocaleString()}` : null,
+                `💳 Net Capital Outlay: ${econ.symbol}${Math.round(netSystemCost).toLocaleString()}`,
                 ``,
-                `📅 Year 1 Savings: $${Math.round(annualSavingsYear1).toLocaleString()}/yr`,
+                `⚡ Year 1 Utility Savings: ${econ.symbol}${Math.round(annualSavingsYear1).toLocaleString()}/yr`,
+                econ.hasGeneratorOffset && annualFuelSavings > 0 ? `⛽ Generator Fuel Displaced: ${econ.symbol}${Math.round(annualFuelSavings).toLocaleString()}/yr` : null,
+                `📅 Combined Year 1 Savings: ${econ.symbol}${Math.round(totalAnnualSavingsYear1).toLocaleString()}/yr`,
                 `⏱️ Payback Period: ${paybackPeriodYears} years`,
-                `📊 25-Year Net Savings: $${lifetimeSavings25Years.toLocaleString()}`,
+                `📊 25-Year Net Returns: ${econ.symbol}${lifetimeSavings25Years.toLocaleString()}`,
                 ``,
                 `Generated by Solar Pulse — ${new Date().toLocaleDateString()}`
-              ].join('\n');
+              ].filter(Boolean).join('\n');
               navigator.clipboard.writeText(summary).then(() => {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2500);
@@ -283,17 +410,47 @@ export default function Estimator({
             <div className="form-group">
               <label className="form-label">
                 <span>Avg Monthly Electric Bill</span>
-                <span className="value">${monthlyBill}</span>
+                <span className="value">{econ.symbol}{monthlyBill.toLocaleString()}</span>
               </label>
               <input 
                 type="range" 
-                min="50" 
-                max="800" 
-                step="5"
+                min={econ.minBill} 
+                max={econ.maxBill} 
+                step={econ.billStep}
                 value={monthlyBill} 
                 onChange={(e) => setMonthlyBill(parseInt(e.target.value))} 
               />
             </div>
+
+            {/* Generator Runtime Offset Input (West Africa & outage-prone regions) */}
+            {econ.hasGeneratorOffset && (
+              <div className="form-group" style={{
+                padding: '12px 14px',
+                backgroundColor: 'rgba(249, 115, 22, 0.05)',
+                borderRadius: '10px',
+                border: '1px solid rgba(249, 115, 22, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <label className="form-label" style={{ marginBottom: 0 }}>
+                  <span style={{ fontWeight: 600 }}>Generator Run Displaced</span>
+                  <span className="value" style={{ color: 'hsl(var(--color-solar))' }}>{displacedGenHours} hrs/day</span>
+                </label>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="12" 
+                  step="0.5"
+                  value={displacedGenHours} 
+                  onChange={(e) => setDisplacedGenHours(parseFloat(e.target.value))} 
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  <span>Displacing ~{Math.round(displacedGenHours * 1.2 * 30.4)} L/mo</span>
+                  <strong style={{ color: '#10b981' }}>+{econ.symbol}{monthlyFuelSavings.toLocaleString()}/mo saved</strong>
+                </div>
+              </div>
+            )}
 
             {/* Roof Sizing Input */}
             <div className="form-group">
@@ -541,11 +698,11 @@ export default function Estimator({
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#f43f5e', fontWeight: 600 }}>
                   <span>Utility Only:</span>
-                  <span>${selectedYearPoint.utilityOnly.toLocaleString()}</span>
+                  <span>{econ.symbol}{selectedYearPoint.utilityOnly.toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', fontWeight: 600 }}>
                   <span>With Solar:</span>
-                  <span>${selectedYearPoint.withSolar.toLocaleString()}</span>
+                  <span>{econ.symbol}{selectedYearPoint.withSolar.toLocaleString()}</span>
                 </div>
                 <div style={{ 
                   display: 'flex', 
@@ -557,7 +714,7 @@ export default function Estimator({
                   paddingTop: '4px'
                 }}>
                   <span>Net Savings:</span>
-                  <span>{selectedYearPoint.netSavings >= 0 ? `$${selectedYearPoint.netSavings.toLocaleString()}` : `-$${Math.abs(selectedYearPoint.netSavings).toLocaleString()}`}</span>
+                  <span>{selectedYearPoint.netSavings >= 0 ? `${econ.symbol}${selectedYearPoint.netSavings.toLocaleString()}` : `-${econ.symbol}${Math.abs(selectedYearPoint.netSavings).toLocaleString()}`}</span>
                 </div>
               </div>
             )}
@@ -580,15 +737,17 @@ export default function Estimator({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.875rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Gross Installed System Cost</span>
-              <strong>${Math.round(grossCost).toLocaleString()}</strong>
+              <strong>{econ.symbol}{Math.round(grossCost).toLocaleString()}</strong>
             </div>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'hsl(var(--color-gen))', fontWeight: 600 }}>
-              <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                {itcLabel} <Percent size={12} />
-              </span>
-              <span>-${Math.round(federalItcDiscount).toLocaleString()}</span>
-            </div>
+            {federalItcDiscount > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'hsl(var(--color-gen))', fontWeight: 600 }}>
+                <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  {itcLabel} <Percent size={12} />
+                </span>
+                <span>-{econ.symbol}{Math.round(federalItcDiscount).toLocaleString()}</span>
+              </div>
+            )}
 
             <div style={{ 
               display: 'flex', 
@@ -600,7 +759,7 @@ export default function Estimator({
               color: 'var(--text-primary)'
             }}>
               <span>Net Capital Outlay</span>
-              <span>${Math.round(netSystemCost).toLocaleString()}</span>
+              <span>{econ.symbol}{Math.round(netSystemCost).toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -615,8 +774,15 @@ export default function Estimator({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.875rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Year 1 Utility Savings</span>
-              <strong>${Math.round(annualSavingsYear1).toLocaleString()} / year</strong>
+              <strong>{econ.symbol}{Math.round(annualSavingsYear1).toLocaleString()} / yr</strong>
             </div>
+
+            {econ.hasGeneratorOffset && annualFuelSavings > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Generator Fuel Offset</span>
+                <strong>+{econ.symbol}{Math.round(annualFuelSavings).toLocaleString()} / yr</strong>
+              </div>
+            )}
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
@@ -643,7 +809,7 @@ export default function Estimator({
               color: '#10b981'
             }}>
               <span>25-Yr Cumulative Returns</span>
-              <span>${lifetimeSavings25Years.toLocaleString()}</span>
+              <span>{econ.symbol}{lifetimeSavings25Years.toLocaleString()}</span>
             </div>
           </div>
         </div>

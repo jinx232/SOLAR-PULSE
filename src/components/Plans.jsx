@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, CreditCard, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { Check, CreditCard, ShieldCheck, Sparkles, Users, FileText } from 'lucide-react';
 import { isAdminUser } from '../utils/firebase';
 import { PLAN_CATALOGUE, FREE_PLAN, getActivePlan, formatMoney } from '../utils/plans';
 
@@ -13,6 +13,16 @@ const plans = [
     icon: <ShieldCheck size={22} />,
     features: FREE_PLAN.features,
     action: 'Current plan',
+  },
+  {
+    id: 'audit',
+    name: PLAN_CATALOGUE.audit.name,
+    price: formatMoney(PLAN_CATALOGUE.audit.amount, PLAN_CATALOGUE.audit.currency),
+    cadence: '7-day pass',
+    description: PLAN_CATALOGUE.audit.description,
+    icon: <FileText size={22} />,
+    features: PLAN_CATALOGUE.audit.features,
+    action: 'Get Audit Pass',
   },
   {
     id: 'pro',

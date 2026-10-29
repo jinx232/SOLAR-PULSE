@@ -6,6 +6,15 @@
  */
 
 export const PLAN_CATALOGUE = {
+  audit: {
+    id: 'audit',
+    name: 'Homeowner Audit Pass',
+    amount: 3500,
+    currency: 'NGN',
+    durationDays: 7,
+    description: '7-day one-time pass for homeowners comparing vendor quotes and generating a final audit PDF.',
+    features: ['Report export (print / PDF)', 'Detailed 25-year cash-flow table', 'Up to 3 saved projects', '30 questions/day on Solar Guide'],
+  },
   pro: {
     id: 'pro',
     name: 'Pro',
@@ -36,6 +45,7 @@ export const FREE_PLAN = {
 /** What each plan unlocks. `Infinity` = unlimited. */
 export const ENTITLEMENTS = {
   free: { maxProjects: 1, reportExport: false, guideDailyLimit: 5, detailedCashflow: false },
+  audit: { maxProjects: 3, reportExport: true, guideDailyLimit: 30, detailedCashflow: true },
   pro: { maxProjects: Infinity, reportExport: true, guideDailyLimit: Infinity, detailedCashflow: true },
   installer: { maxProjects: Infinity, reportExport: true, guideDailyLimit: Infinity, detailedCashflow: true },
   admin: { maxProjects: Infinity, reportExport: true, guideDailyLimit: Infinity, detailedCashflow: true },
