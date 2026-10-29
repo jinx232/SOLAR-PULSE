@@ -342,7 +342,7 @@ export default function App() {
           <div className="sidebar-logo">
             <Sun className="logo-icon" size={28} />
             <div>
-              <span className="sidebar-brand">Solar Pulse</span>
+              <span className="sidebar-brand">Solar Pulse™</span>
               <span style={{ display: 'block', fontSize: '0.68rem', color: 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', fontWeight: 600, marginTop: '1px' }}>
                 Solar Sizing &amp; ROI
               </span>
@@ -597,7 +597,7 @@ export default function App() {
         <footer className="app-footer">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <Leaf size={16} style={{ color: '#10b981' }} />
-            <span><strong>Solar Pulse</strong> — A premium green engineering simulation platform</span>
+            <span><strong>Solar Pulse™</strong> — Proprietary green engineering simulation platform. All rights reserved.</span>
           </div>
         </footer>
 
