@@ -201,7 +201,7 @@ export default function Admin({ user }) {
                       fontSize: '0.7rem', padding: '1px 6px', borderRadius: '4px',
                       background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'var(--text-muted)'
                     }}>
-                      {isMobile ? '📱 Mobile' : '💻 Desktop'}
+                      {isMobile ? 'Mobile' : 'Desktop'}
                     </span>
                     {activeUser.path && (
                       <span style={{
@@ -266,7 +266,7 @@ export default function Admin({ user }) {
                 border: '1px solid rgba(249, 115, 22, 0.25)', fontWeight: 600
               }}
             >
-              ✉️ odumesamuel52@gmail.com
+              odumesamuel52@gmail.com
             </a>
             <span style={{
               padding: '4px 10px', borderRadius: '99px', fontSize: '0.78rem', fontWeight: 700,

@@ -7,20 +7,20 @@ import { db } from '../utils/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const CATEGORIES = [
-  { value: 'bug',         label: 'Bug Report',        icon: '🐛' },
-  { value: 'feature',     label: 'Feature Request',   icon: '💡' },
-  { value: 'billing',     label: 'Billing Issue',     icon: '💳' },
-  { value: 'account',     label: 'Account Problem',   icon: '👤' },
-  { value: 'performance', label: 'Performance Issue', icon: '⚡' },
-  { value: 'complaint',   label: 'Complaint',         icon: '⚠️' },
-  { value: 'general',     label: 'General Feedback',  icon: '💬' },
+  { value: 'bug',         label: 'Bug Report',        Icon: Bug },
+  { value: 'feature',     label: 'Feature Request',   Icon: Lightbulb },
+  { value: 'billing',     label: 'Billing Issue',     Icon: CreditCard },
+  { value: 'account',     label: 'Account Problem',   Icon: UserCircle },
+  { value: 'performance', label: 'Performance Issue', Icon: Zap },
+  { value: 'complaint',   label: 'Complaint',         Icon: AlertTriangle },
+  { value: 'general',     label: 'General Feedback',  Icon: MessageSquare },
 ];
 
 const PLATFORMS = [
-  { value: 'web',     label: '🌐 Web Browser' },
-  { value: 'ios',     label: '🍎 iOS (iPhone/iPad)' },
-  { value: 'android', label: '🤖 Android' },
-  { value: 'desktop', label: '🖥️ Desktop' },
+  { value: 'web',     label: 'Web Browser' },
+  { value: 'ios',     label: 'iOS (iPhone/iPad)' },
+  { value: 'android', label: 'Android' },
+  { value: 'desktop', label: 'Desktop' },
 ];
 
 const MAX_CHARS = 1500;
@@ -237,22 +237,28 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
               <div className="form-group">
                 <label className="form-label">Category *</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {CATEGORIES.map(cat => (
-                    <button
-                      key={cat.value} type="button"
-                      onClick={() => { setForm(p => ({ ...p, category: cat.value })); setErrors(p => ({ ...p, category: '' })); }}
-                      style={{
-                        padding: '6px 12px', borderRadius: 99,
-                        fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
-                        border: `1px solid ${form.category === cat.value ? 'hsl(var(--color-solar))' : 'var(--border-color)'}`,
-                        background: form.category === cat.value ? 'var(--color-solar-glow)' : 'var(--bg-primary)',
-                        color: form.category === cat.value ? 'hsl(var(--color-solar))' : 'var(--text-secondary)',
-                        transition: 'all 0.15s',
-                      }}
-                    >
-                      {cat.icon} {cat.label}
-                    </button>
-                  ))}
+                  {CATEGORIES.map(cat => {
+                    const CatIcon = cat.Icon;
+                    const isSelected = form.category === cat.value;
+                    return (
+                      <button
+                        key={cat.value} type="button"
+                        onClick={() => { setForm(p => ({ ...p, category: cat.value })); setErrors(p => ({ ...p, category: '' })); }}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                          padding: '6px 12px', borderRadius: 99,
+                          fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+                          border: `1px solid ${isSelected ? 'hsl(var(--color-solar))' : 'var(--border-color)'}`,
+                          background: isSelected ? 'var(--color-solar-glow)' : 'var(--bg-primary)',
+                          color: isSelected ? 'hsl(var(--color-solar))' : 'var(--text-secondary)',
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        <CatIcon size={13} />
+                        <span>{cat.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
                 {errors.category && <span style={{ fontSize: '0.72rem', color: '#ef4444', marginTop: 4, display: 'block' }}>{errors.category}</span>}
               </div>
@@ -262,9 +268,9 @@ export default function ComplaintModal({ isOpen, onClose, user }) {
                 <div className="form-group" style={{ margin: 0 }}>
                   <label className="form-label" htmlFor="cm-priority">Priority</label>
                   <select id="cm-priority" className="form-input" value={form.priority} onChange={set('priority')}>
-                    <option value="low">🟢 Low</option>
-                    <option value="normal">🟡 Normal</option>
-                    <option value="high">🔴 High — Urgent</option>
+                    <option value="low">Low</option>
+                    <option value="normal">Normal</option>
+                    <option value="high">High — Urgent</option>
                   </select>
                 </div>
                 <div className="form-group" style={{ margin: 0 }}>

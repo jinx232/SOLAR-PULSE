@@ -172,9 +172,7 @@ body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(ellipse 85% 55% at 50% -10%, rgba(249, 115, 22, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 65% 45% at 95% 85%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 40% at 5% 55%, rgba(6, 182, 212, 0.06) 0%, transparent 55%);
+    radial-gradient(ellipse 90% 40% at 50% -10%, rgba(249, 115, 22, 0.07) 0%, transparent 60%);
   background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.5;
@@ -331,8 +329,6 @@ button, input, select, textarea {
 
 .logo-icon {
   color: hsl(var(--color-solar));
-  filter: drop-shadow(0 0 8px hsl(var(--color-solar)));
-  animation: pulseGlow 2.5s infinite;
 }
 
 .sidebar-brand {
@@ -340,10 +336,7 @@ button, input, select, textarea {
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: 0.5px;
-  background: linear-gradient(135deg, #ffffff 30%, #f97316 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -1220,41 +1213,29 @@ input[type="range"]::-webkit-slider-thumb:hover {
   background: var(--bg-primary);
 }
 
-/* Aurora glow meshes for auth */
+/* Subtle ambient warmth for auth */
 .auth-aurora {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
+  filter: blur(80px);
   pointer-events: none;
-  opacity: 0.55;
-  will-change: transform;
+  opacity: 0.25;
 }
 
 .auth-aurora.a1 {
-  width: 550px;
-  height: 550px;
-  background: radial-gradient(circle, rgba(249, 115, 22, 0.28) 0%, transparent 70%);
-  top: -120px;
-  left: 10%;
-  animation: auth-float-1 20s ease-in-out infinite alternate;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.2) 0%, transparent 70%);
+  top: -100px;
+  left: 20%;
 }
 
 .auth-aurora.a2 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.22) 0%, transparent 70%);
-  bottom: -100px;
-  right: 5%;
-  animation: auth-float-2 24s ease-in-out infinite alternate;
+  display: none;
 }
 
 .auth-aurora.a3 {
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.18) 0%, transparent 70%);
-  top: 45%;
-  left: 50%;
-  animation: auth-float-3 18s ease-in-out infinite alternate;
+  display: none;
 }
 
 @keyframes auth-float-1 {
@@ -1380,10 +1361,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   position: relative;
   width: 100%;
   min-height: 520px;
-  border-radius: 28px;
+  border-radius: 16px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 40px -10px rgba(249, 115, 22, 0.2);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1493,11 +1474,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   position: relative;
   width: 100%;
   padding: 40px 36px;
-  border-radius: 24px;
+  border-radius: 16px;
   background: var(--bg-card, #0f172a);
   border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
   justify-content: center;
