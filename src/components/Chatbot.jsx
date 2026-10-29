@@ -8,8 +8,12 @@ import {
 } from 'lucide-react';
 import { isAdminUser } from '../utils/firebase';
 import { queryLocalExpert } from '../utils/solarExpert';
+import { useSolar } from '../context/SolarContext';
 
-export default function Chatbot({ user, subscription, region, sunHours }) {
+export default function Chatbot({ user, subscription, region: propRegion, sunHours: propSunHours }) {
+  const solar = useSolar();
+  const region = propRegion ?? solar.region;
+  const sunHours = propSunHours ?? solar.sunHours;
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);

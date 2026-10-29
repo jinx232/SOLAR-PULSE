@@ -33,6 +33,7 @@ import Plans from './components/Plans';
 import PaymentMethods from './components/PaymentMethods';
 import Checkout from './components/Checkout';
 import ComplaintModal from './components/ComplaintModal';
+import { SolarProvider } from './context/SolarContext';
 
 const PUBLIC_VIEWS = ['calculator', 'estimator', 'orientation'];
 const VALID_VIEWS = ['dashboard', 'calculator', 'estimator', 'orientation', 'chatbot', 'profile', 'admin', 'plans', 'paymentMethods', 'checkout', 'auth'];
@@ -116,14 +117,6 @@ export default function App() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [complaintOpen, setComplaintOpen] = useState(false);
-
-  // Shared state: passed from Calculator to Estimator
-  const [calculatorRecommendation, setCalculatorRecommendation] = useState(null);
-
-  // Geographic Location & Irradiance Shared States
-  const [region, setRegion] = useState('West Africa');
-  const [sunHours, setSunHours] = useState(5.4);
-  const [zipCode, setZipCode] = useState('101001');
 
   // Sync theme with HTML data-theme attribute and persist it
   useEffect(() => {
@@ -240,11 +233,6 @@ export default function App() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  // Clear recommended size passed from calculator
-  const clearRecommendation = () => {
-    setCalculatorRecommendation(null);
-  };
-
   // Render active view component
   const renderContent = () => {
     switch (activeView) {
@@ -256,32 +244,14 @@ export default function App() {
             user={user}
             subscription={subscription}
             setActiveView={setActiveView}
-            setRecommendation={setCalculatorRecommendation}
-            region={region}
-            setRegion={setRegion}
-            sunHours={sunHours}
-            setSunHours={setSunHours}
-            zipCode={zipCode}
-            setZipCode={setZipCode}
           />
         );
       case 'estimator':
-        return (
-          <Estimator
-            recommendation={calculatorRecommendation}
-            clearRecommendation={clearRecommendation}
-            region={region}
-            setRegion={setRegion}
-            sunHours={sunHours}
-            setSunHours={setSunHours}
-            zipCode={zipCode}
-            setZipCode={setZipCode}
-          />
-        );
+        return <Estimator />;
       case 'orientation':
         return <Orientation />;
       case 'chatbot':
-        return <Chatbot user={user} subscription={subscription} region={region} sunHours={sunHours} />;
+        return <Chatbot user={user} subscription={subscription} />;
       case 'profile':
         return <Profile user={user} setUser={setUser} onComplaint={() => setComplaintOpen(true)} />;
       case 'admin':
@@ -363,7 +333,8 @@ export default function App() {
   ];
 
   return (
-    <div className="app-container">
+    <SolarProvider>
+      <div className="app-container">
 
       {/* Sidebar Navigation */}
       <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
@@ -710,6 +681,7 @@ export default function App() {
         user={user}
       />
 
-    </div>
+      </div>
+    </SolarProvider>
   );
 }

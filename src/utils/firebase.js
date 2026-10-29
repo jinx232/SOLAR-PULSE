@@ -62,7 +62,11 @@ const subscriptionsCollection = collection(db, 'subscriptions');
 const supportTicketsCollection = collection(db, 'supportTickets');
 
 export const isAdminUser = (firebaseUser) => Boolean(
-  firebaseUser && ADMIN_EMAIL && firebaseUser.email?.toLowerCase() === ADMIN_EMAIL
+  firebaseUser && (
+    firebaseUser.admin === true ||
+    firebaseUser.claims?.admin === true ||
+    (ADMIN_EMAIL && firebaseUser.email?.toLowerCase() === ADMIN_EMAIL)
+  )
 );
 
 export const subscribeToUserPlan = (firebaseUser, onPlan) => {
@@ -101,7 +105,7 @@ export const startPresence = (user, activePath = '') => {
     sessionId = 'session_' + Math.random().toString(36).substring(2, 12);
   }
 
-  const recordId = user?.uid || (user?.id && user.id !== 'demo-guest' ? user.id : sessionId);
+  const recordId = user?.uid ? user.uid : sessionId;
   const presenceRef = doc(presenceCollection, recordId);
 
   const updatePresence = () => {
@@ -119,7 +123,7 @@ export const startPresence = (user, activePath = '') => {
   };
 
   updatePresence();
-  const intervalId = window.setInterval(updatePresence, 20 * 1000); // 20s active heartbeat
+  const intervalId = window.setInterval(updatePresence, 90 * 1000); // 90s optimized heartbeat
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') updatePresence();
   };

@@ -12,17 +12,28 @@ import {
   Globe
 } from 'lucide-react';
 import { globalSolarZones, normalizeSolarZone } from './Calculator';
+import { useSolar } from '../context/SolarContext';
 
 export default function Estimator({ 
-  recommendation, 
-  clearRecommendation,
-  region,
-  setRegion,
-  sunHours,
-  setSunHours,
-  zipCode,
-  setZipCode
+  recommendation: propRecommendation, 
+  clearRecommendation: propClearRecommendation,
+  region: propRegion,
+  setRegion: propSetRegion,
+  sunHours: propSunHours,
+  setSunHours: propSetSunHours,
+  zipCode: propZipCode,
+  setZipCode: propSetZipCode
 }) {
+  const solar = useSolar();
+  const recommendation = propRecommendation ?? solar.recommendation;
+  const clearRecommendation = propClearRecommendation ?? solar.clearRecommendation;
+  const region = propRegion ?? solar.region;
+  const setRegion = propSetRegion ?? solar.setRegion;
+  const sunHours = propSunHours ?? solar.sunHours;
+  const setSunHours = propSetSunHours ?? solar.setSunHours;
+  const zipCode = propZipCode ?? solar.zipCode;
+  const setZipCode = propSetZipCode ?? solar.setZipCode;
+
   // Slider Inputs (defaults from calculator recommendations if available)
   const [monthlyBill, setMonthlyBill] = useState(180);
   const [roofArea, setRoofArea] = useState(650); // square feet

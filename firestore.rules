@@ -19,8 +19,12 @@ service cloud.firestore {
           'uid', 'email', 'displayName', 'lastActiveAt', 'platform', 'path'
         ])
         && request.resource.data.uid is string
-        && request.resource.data.lastActiveAt is number;
-      allow delete: if isSignedIn() || isAdmin();
+        && request.resource.data.lastActiveAt is number
+        && (
+          (isSignedIn() && request.auth.uid == userId && request.resource.data.uid == userId) ||
+          (!isSignedIn() && userId.matches('^session_[a-z0-9]+$') && request.resource.data.uid == userId)
+        );
+      allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
       // Restrict presence reads to the record owner and administrators
       allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow list: if isAdmin();

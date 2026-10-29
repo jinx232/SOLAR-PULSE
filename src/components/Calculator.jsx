@@ -26,6 +26,7 @@ import {
   SlidersHorizontal
 } from 'lucide-react';
 import { loadSolarProject, saveSolarProject, auth } from '../utils/firebase';
+import { useSolar } from '../context/SolarContext';
 
 const initialAppliances = [
   // Kitchen
@@ -117,14 +118,23 @@ export default function Calculator({
   user,
   subscription,
   setActiveView, 
-  setRecommendation,
-  region,
-  setRegion,
-  sunHours,
-  setSunHours,
-  zipCode,
-  setZipCode
+  setRecommendation: propSetRecommendation,
+  region: propRegion,
+  setRegion: propSetRegion,
+  sunHours: propSunHours,
+  setSunHours: propSetSunHours,
+  zipCode: propZipCode,
+  setZipCode: propSetZipCode
 }) {
+  const solar = useSolar();
+  const region = propRegion ?? solar.region;
+  const setRegion = propSetRegion ?? solar.setRegion;
+  const sunHours = propSunHours ?? solar.sunHours;
+  const setSunHours = propSetSunHours ?? solar.setSunHours;
+  const zipCode = propZipCode ?? solar.zipCode;
+  const setZipCode = propSetZipCode ?? solar.setZipCode;
+  const setRecommendation = propSetRecommendation ?? solar.setRecommendation;
+
   const [appliances, setAppliances] = useState(initialAppliances);
   const [gridRate, setGridRate] = useState(0.16); // $ per kWh
   const [showAddForm, setShowAddForm] = useState(false);
