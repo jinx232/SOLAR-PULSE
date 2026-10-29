@@ -456,7 +456,7 @@ export default function App() {
           <div className="topbar-actions">
             <a
               href="/landing/index.html"
-              className="btn-outline"
+              className="btn-outline topbar-showcase-btn"
               title="Return to the overview landing page"
               style={{
                 display: 'inline-flex',

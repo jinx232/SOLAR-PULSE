@@ -534,18 +534,18 @@ export default function Estimator({
         </div>
 
         {/* ROI Cashflow Line Graph Card */}
-        <div className="premium-card grid-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
+        <div className="premium-card grid-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ minWidth: 0 }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>25-Year Cumulative Cashflow</h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Comparison of cumulative capital outflow with vs. without solar</p>
             </div>
-            <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', gap: '14px', fontSize: '0.82rem', flexWrap: 'wrap' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
                 <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.7)' }}></span>
                 Utility Only
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
                 <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.7)' }}></span>
                 With Solar
               </span>
@@ -553,7 +553,7 @@ export default function Estimator({
           </div>
 
           {/* Interactive Chart Canvas */}
-          <div style={{ position: 'relative', width: '100%', height: '240px', padding: '10px 0' }}>
+          <div style={{ position: 'relative', width: '100%', height: '240px', padding: '10px 0', overflow: 'hidden' }}>
             <svg viewBox="0 0 500 200" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
               
               {/* Custom SVG Gradients */}

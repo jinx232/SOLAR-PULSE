@@ -453,12 +453,12 @@ export default function Calculator({
     : appliances.filter(app => app.category === activeCategory);
 
   return (
-    <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+    <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', maxWidth: '100%', minWidth: 0 }}>
       
       {/* Title banner */}
-      <div>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Appliance Solar & Battery Backup Workstation</h2>
-        <p style={{ color: 'var(--text-secondary)' }}>Identify your home's exact energy footprint, configure critical emergency backup loads, and size custom storage for grid reliability.</p>
+      <div style={{ minWidth: 0 }}>
+        <h2 style={{ fontSize: 'clamp(1.3rem, 4.5vw, 1.75rem)', fontWeight: 800, lineHeight: 1.25 }}>Appliance Solar & Battery Backup Workstation</h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginTop: '4px' }}>Identify your home's exact energy footprint, configure critical emergency backup loads, and size custom storage for grid reliability.</p>
       </div>
 
       {/* Live Outage Simulation Announcement Banner */}
@@ -477,7 +477,7 @@ export default function Calculator({
           color: '#f43f5e',
           animation: 'pulseGlow 2s infinite'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 280px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 240px', minWidth: 0 }}>
             <Activity size={18} className="logo-icon" style={{ color: '#f43f5e', flexShrink: 0 }} />
             <span><strong>GRID BLACKOUT ACTIVE</strong>: Main power utility offline. The home is now running on backup battery reserves!</span>
           </div>
@@ -490,14 +490,14 @@ export default function Calculator({
       <div className="grid-cols-3">
         
         {/* Sliders Input Workstation */}
-        <div className="premium-card grid-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Active Household Appliances</h3>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: 'auto' }}>
+        <div className="premium-card grid-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '20px', minWidth: 0 }}>
+          <div className="calc-header-row">
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>Active Household Appliances</h3>
+            <div className="calc-header-actions">
               <button
                 className="btn-primary"
                 onClick={handleSaveProject}
-                style={{ padding: '9px 14px', fontSize: '0.85rem', minHeight: '40px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                style={{ padding: '9px 14px', fontSize: '0.84rem', minHeight: '40px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 aria-label="Save solar project"
               >
                 Save Project
@@ -505,7 +505,7 @@ export default function Calculator({
               <button
                 className="btn-outline"
                 onClick={() => setShowAddForm(prev => !prev)}
-                style={{ padding: '9px 14px', fontSize: '0.85rem', minHeight: '40px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                style={{ padding: '9px 14px', fontSize: '0.84rem', minHeight: '40px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 aria-label="Add custom appliance"
               >
                 <Plus size={14} /> Add Appliance
@@ -513,7 +513,7 @@ export default function Calculator({
               <button 
                 className="btn-outline" 
                 onClick={resetToDefault} 
-                style={{ padding: '9px 14px', fontSize: '0.85rem', minHeight: '40px', display: 'inline-flex', alignItems: 'center', gap: '6px' }} 
+                style={{ padding: '9px 14px', fontSize: '0.84rem', minHeight: '40px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }} 
                 aria-label="Reset to defaults"
               >
                 <RotateCcw size={14} /> Reset
@@ -535,19 +535,20 @@ export default function Calculator({
               border: '1px solid rgba(249, 115, 22, 0.25)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '12px'
+              gap: '12px',
+              minWidth: 0
             }}>
               <strong style={{ fontSize: '0.9rem', color: 'hsl(var(--color-solar))' }}>+ New Custom Appliance</strong>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <input
                   type="text"
                   placeholder="Appliance name (e.g. Pool Pump)"
                   value={newAppName}
                   onChange={(e) => setNewAppName(e.target.value)}
                   className="form-input"
-                  style={{ flex: '2 1 200px', minWidth: '140px', padding: '10px 12px', fontSize: '0.9rem' }}
+                  style={{ flex: '2 1 180px', minWidth: '0', padding: '10px 12px', fontSize: '0.9rem' }}
                 />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1 1 120px', minWidth: '100px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1 1 110px', minWidth: '0' }}>
                   <input
                     type="number"
                     placeholder="Watts"
@@ -556,7 +557,7 @@ export default function Calculator({
                     max={10000}
                     onChange={(e) => setNewAppWatts(parseInt(e.target.value) || 0)}
                     className="form-input"
-                    style={{ width: '100%', padding: '10px 12px', fontSize: '0.9rem' }}
+                    style={{ width: '100%', minWidth: '0', padding: '10px 12px', fontSize: '0.9rem' }}
                   />
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>W</span>
                 </div>
@@ -564,7 +565,7 @@ export default function Calculator({
                   className="btn-primary"
                   onClick={handleAddAppliance}
                   disabled={!newAppName.trim() || newAppWatts <= 0}
-                  style={{ padding: '10px 18px', fontSize: '0.85rem', flex: '0 0 auto' }}
+                  style={{ padding: '10px 18px', fontSize: '0.85rem', flex: '1 1 auto' }}
                 >
                   <Plus size={14} /> Add
                 </button>
@@ -581,14 +582,16 @@ export default function Calculator({
             backgroundColor: 'var(--bg-primary)',
             borderRadius: '12px',
             border: '1px solid var(--border-color)',
+            minWidth: 0,
+            maxWidth: '100%'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
               <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Zap size={14} style={{ color: 'hsl(var(--color-solar))' }} /> Quick Load Archetypes:
+                <Zap size={14} style={{ color: 'hsl(var(--color-solar))', flexShrink: 0 }} /> Quick Load Archetypes:
               </span>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>1-click template setup</span>
             </div>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div className="calc-archetypes-grid">
               {LOAD_ARCHETYPES.map((arch) => (
                 <button
                   key={arch.id}
@@ -601,14 +604,14 @@ export default function Calculator({
                     setActiveCategory('All');
                   }}
                   style={{
-                    padding: '8px 12px',
+                    padding: '9px 12px',
                     fontSize: '0.78rem',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'flex-start',
                     gap: '2px',
-                    flex: '1 1 calc(33.333% - 8px)',
-                    minWidth: '140px',
+                    width: '100%',
+                    minWidth: 0,
                     borderRadius: '8px',
                     textAlign: 'left',
                     cursor: 'pointer'
@@ -974,12 +977,17 @@ export default function Calculator({
                   onChange={(e) => handleRegionChange(e.target.value)}
                   style={{
                     width: '100%',
+                    maxWidth: '100%',
+                    minWidth: 0,
                     padding: '8px 12px',
                     borderRadius: '8px',
                     border: '1px solid var(--border-color)',
                     backgroundColor: 'var(--bg-primary)',
                     color: 'var(--text-primary)',
-                    outline: 'none'
+                    outline: 'none',
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {Array.from(new Set(globalSolarZones.map((z) => z.continent))).map((continent) => (
@@ -1081,14 +1089,17 @@ export default function Calculator({
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '8px',
                 cursor: 'pointer',
-                userSelect: 'none'
+                userSelect: 'none',
+                minWidth: 0
               }}
               aria-expanded={outageDrawerOpen || isOutageActive}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Battery size={18} style={{ color: isOutageActive ? '#f43f5e' : 'hsl(var(--color-bat))' }} />
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                <Battery size={18} style={{ color: isOutageActive ? '#f43f5e' : 'hsl(var(--color-bat))', flexShrink: 0 }} />
+                <h3 style={{ fontSize: '1.02rem', fontWeight: 700, margin: 0 }}>
                   Outage & Storage Sizer
                 </h3>
                 {isOutageActive && (
