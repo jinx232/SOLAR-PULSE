@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 110" width="840" height="220">
+  <defs>
+    <linearGradient id="sgDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+    <linearGradient id="pgDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+  </defs>
+  <rect width="420" height="110" rx="20" fill="#070b13" />
+  <g transform="translate(12, 5)">
+    <circle cx="50" cy="50" r="32" fill="none" stroke="rgba(249, 115, 22, 0.25)" stroke-width="1.5" />
+    <g fill="url(#sgDark)">
+      <polygon points="50,11 46,24 54,24" />
+      <polygon points="69.5,16.2 63.5,27.7 70.4,31.7" />
+      <polygon points="83.8,30.5 73.3,37.6 77.3,44.5" />
+      <polygon points="89,50 76,46 76,54" />
+      <polygon points="83.8,69.5 77.3,55.5 73.3,62.4" />
+      <polygon points="69.5,83.8 70.4,68.3 63.5,72.3" />
+      <polygon points="50,89 54,76 46,76" />
+      <polygon points="30.5,83.8 36.5,72.3 29.6,68.3" />
+      <polygon points="16.2,69.5 26.7,62.4 22.7,55.5" />
+      <polygon points="11,50 24,54 24,46" />
+      <polygon points="16.2,30.5 22.7,44.5 26.7,37.6" />
+      <polygon points="30.5,16.2 29.6,31.7 36.5,27.7" />
+    </g>
+    <circle cx="50" cy="50" r="23" fill="#0b1120" stroke="url(#sgDark)" stroke-width="2.5" />
+    <circle cx="50" cy="50" r="19.5" fill="none" stroke="rgba(249, 115, 22, 0.4)" stroke-width="1" />
+    <path d="M 28,50 L 40,50 L 45,34 L 51,64 L 56,42 L 60,50 L 72,50" fill="none" stroke="url(#pgDark)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+  <text x="122" y="56" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="38" font-weight="800" fill="#f8fafc" letter-spacing="-0.8">Solar <tspan fill="#f97316">Pulse</tspan><tspan font-size="18" dy="-14" fill="#94a3b8" font-weight="600">™</tspan></text>
+  <text x="124" y="80" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="12.5" font-weight="600" fill="#94a3b8" letter-spacing="2.2">SOLAR SIZING &amp; ROI PLATFORM</text>
+</svg>
+

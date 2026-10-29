@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brand Identity &amp; Press Kit | Solar Pulse™</title>
+  <meta name="description" content="Official Brand Guidelines, Logo Download Studio, Color Architecture, Typography, and Press Kit for Solar Pulse™ (Solar Pulse Technologies Ltd)." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --solar: #f97316;
+      --solar-dark: #ea580c;
+      --solar-deep: #c2410c;
+      --amber: #f59e0b;
+      --green: #10b981;
+      --cyan: #06b6d4;
+      --red: #ef4444;
+      --bg: #070b13;
+      --bg2: #0f172a;
+      --bg3: #1e293b;
+      --card: rgba(17, 24, 39, 0.85);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(249, 115, 22, 0.28);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --radius: 16px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 11, 19, 0.88);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-link img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+    }
+    .brand-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(249, 115, 22, 0.14);
+      color: var(--solar);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+    }
+    .nav-pills {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .nav-pills a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .nav-pills a:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .nav-cta {
+      background: var(--solar);
+      color: #070b13 !important;
+      font-weight: 700 !important;
+      padding: 7px 14px !important;
+    }
+    .nav-cta:hover {
+      background: #fb923c !important;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    section {
+      padding: 72px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-kicker {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--solar);
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: clamp(1.75rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .section-desc {
+      font-size: 1.02rem;
+      color: var(--muted);
+      max-width: 720px;
+      margin-bottom: 40px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 88px 0 72px;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(249, 115, 22, 0.14), transparent 45%),
+        radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.08), transparent 45%);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 40px;
+      align-items: center;
+    }
+    @media (max-width: 860px) {
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+    .hero h1 {
+      font-size: clamp(2.3rem, 4.5vw, 3.6rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      margin-bottom: 20px;
+    }
+    .hero h1 span {
+      color: var(--solar);
+    }
+    .hero-lead {
+      font-size: 1.12rem;
+      color: #cbd5e1;
+      margin-bottom: 28px;
+      max-width: 620px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: var(--solar);
+      color: #070b13;
+    }
+    .btn-primary:hover {
+      background: #fb923c;
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.09);
+    }
+    .hero-showcase-card {
+      background: var(--bg2);
+      border: 1px solid var(--border-strong);
+      border-radius: 24px;
+      padding: 36px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    }
+    .hero-showcase-card img {
+      width: 140px;
+      height: 140px;
+      margin-bottom: 18px;
+      filter: drop-shadow(0 8px 28px rgba(249, 115, 22, 0.35));
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+      text-align: left;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+      font-size: 0.8rem;
+    }
+    .meta-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .meta-item strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* ── BRAND ESSENCE & STRATEGY ── */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .pillar-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .pillar-num {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--solar);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .pillar-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .pillar-card p {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    /* ── LOGO STUDIO ── */
+    .logo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px;
+    }
+    .logo-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .logo-stage {
+      height: 210px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .stage-dark {
+      background:
+        radial-gradient(circle at center, rgba(249, 115, 22, 0.08), transparent 70%),
+        #070b13;
+    }
+    .stage-checker {
+      background-color: #0b1120;
+      background-image:
+        linear-gradient(45deg, #131c31 25%, transparent 25%),
+        linear-gradient(-45deg, #131c31 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #131c31 75%),
+        linear-gradient(-45deg, transparent 75%, #131c31 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+    }
+    .stage-light {
+      background: #f8fafc;
+    }
+    .logo-stage img {
+      max-width: 100%;
+      max-height: 140px;
+      width: auto;
+      height: auto;
+    }
+    .logo-info {
+      padding: 22px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .logo-info h3 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .logo-info p {
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+    .logo-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-sm {
+      padding: 7px 12px;
+      font-size: 0.78rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.18s;
+      font-family: inherit;
+    }
+    .btn-sm:hover {
+      background: var(--solar);
+      color: #070b13;
+      border-color: var(--solar);
+    }
+
+    /* ── EMBLEM ANATOMY & CLEAR SPACE ── */
+    .anatomy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 36px;
+    }
+    @media (max-width: 860px) {
+      .anatomy-grid { grid-template-columns: 1fr; }
+    }
+    .blueprint-box {
+      background: #080d1a;
+      border: 1px solid rgba(6, 182, 212, 0.28);
+      border-radius: var(--radius);
+      padding: 28px;
+      position: relative;
+      background-image:
+        linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .blueprint-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--cyan);
+      background: rgba(6, 182, 212, 0.12);
+      padding: 3px 9px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+    }
+    .blueprint-box h3 {
+      font-size: 1.15rem;
+      margin-bottom: 12px;
+    }
+    .blueprint-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .blueprint-list li {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      padding-left: 16px;
+      border-left: 2px solid var(--solar);
+    }
+    .blueprint-list strong {
+      color: var(--text);
+    }
+
+    /* ── COLOR ARCHITECTURE ── */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .swatch-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.18s, border-color 0.18s;
+    }
+    .swatch-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(249, 115, 22, 0.45);
+    }
+    .swatch-color {
+      height: 115px;
+      padding: 14px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .swatch-body {
+      padding: 16px;
+    }
+    .swatch-name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .swatch-role {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .swatch-codes {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .type-showcase {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 28px;
+    }
+    @media (max-width: 860px) {
+      .type-showcase { grid-template-columns: 1fr; }
+    }
+    .type-specimen-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+    }
+    .big-aa {
+      font-size: 5.5rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--solar);
+      margin-bottom: 16px;
+    }
+    .glyph-set {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: 0.06em;
+      color: #cbd5e1;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      word-break: break-all;
+    }
+    .scale-table {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .scale-row {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 22px;
+    }
+    .scale-meta {
+      font-size: 0.75rem;
+      color: var(--solar);
+      font-family: ui-monospace, monospace;
+      margin-bottom: 6px;
+    }
+
+    /* ── VERBAL IDENTITY & PRESS COPY ── */
+    .copy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .copy-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .copy-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--solar);
+      margin-bottom: 8px;
+    }
+    .copy-text {
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 10px;
+      font-style: normal;
+    }
+
+    /* ── DO'S AND DON'TS ── */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .rule-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+    .rule-do {
+      border-top: 3px solid var(--green);
+    }
+    .rule-dont {
+      border-top: 3px solid var(--red);
+    }
+    .rule-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 9px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .rule-do .rule-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+    }
+    .rule-dont .rule-badge {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+    }
+    .rule-card h4 {
+      font-size: 1.02rem;
+      margin-bottom: 6px;
+    }
+    .rule-card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    /* ── TOAST ── */
+    #brandToast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #111827;
+      color: var(--text);
+      border: 1px solid var(--solar);
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 999;
+      pointer-events: none;
+    }
+    #brandToast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+    footer a {
+      color: var(--solar);
+      text-decoration: none;
+      margin: 0 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── STICKY NAVIGATION ── -->
+  <header class="topbar">
+    <a href="/landing/index.html" class="brand-link">
+      <img src="/brand/solar-pulse-mark-dark.svg" alt="Solar Pulse™ Emblem" />
+      <span>Solar Pulse™</span>
+      <span class="brand-badge">Brand System v2.6</span>
+    </a>
+    <nav class="nav-pills" aria-label="Brand Manual Navigation">
+      <a href="#strategy">01. Strategy</a>
+      <a href="#logos">02. Logo Studio</a>
+      <a href="#colors">03. Color System</a>
+      <a href="#typography">04. Typography</a>
+      <a href="#verbal">05. Press &amp; Copy</a>
+      <a href="#rules">06. Usage Rules</a>
+      <a href="/trademark.html">IP Policy</a>
+      <a href="/index.html#/calculator" class="nav-cta">Launch App →</a>
+    </nav>
+  </header>
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="section-kicker">Official Agency Brand Book &amp; Media Kit</span>
+        <h1>Precision Energy.<br /><span>Unmistakable Identity.</span></h1>
+        <p class="hero-lead">
+          Welcome to the official brand architecture system for <strong>Solar Pulse™</strong>. This specification governs our visual marks, color telemetry, typographic hierarchy, and verbal positioning across web, mobile, hardware, and statutory trademark filings.
+        </p>
+        <div class="hero-actions">
+          <a href="#logos" class="btn btn-primary">Download Official Logos ↓</a>
+          <a href="/trademark.html" class="btn btn-secondary">View Trademark &amp; IP Notice</a>
+        </div>
+      </div>
+
+      <div class="hero-showcase-card">
+        <img src="/brand/solar-pulse-mark-dark.svg" alt="Solar Pulse Official Mark" />
+        <div style="font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;">
+          Solar <span style="color: var(--solar);">Pulse</span><sup style="font-size: 0.75rem; color: var(--muted);">™</sup>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 4px;">
+          Solar Sizing &amp; ROI Platform
+        </div>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span>Owner</span>
+            <strong>Solar Pulse Technologies Ltd</strong>
+          </div>
+          <div class="meta-item">
+            <span>Nice Classes</span>
+            <strong>Class 9, 42 &amp; 37</strong>
+          </div>
+          <div class="meta-item">
+            <span>Primary Hue</span>
+            <strong>#F97316 (Pulse Orange)</strong>
+          </div>
+          <div class="meta-item">
+            <span>Primary Typeface</span>
+            <strong>Inter (Tabular Telemetry)</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="container">
+
+    <!-- ── 01. BRAND STRATEGY & ESSENCE ── -->
+    <section id="strategy">
+      <span class="section-kicker">01 / Brand Strategy &amp; Positioning</span>
+      <h2 class="section-title">The Precision Pioneer</h2>
+      <p class="section-desc">
+        Solar Pulse bridges the gap between complex photovoltaic electrical engineering and everyday financial clarity. Our brand projects engineering authority, dark-mode telemetry precision, and unwavering reliability during grid blackouts.
+      </p>
+
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <span class="pillar-num">Pillar 01 • Archetype</span>
+          <h3>Engineering Rigor Without Friction</h3>
+          <p>
+            Unlike generic solar calculators that rely on rough guesses, Solar Pulse models real motor surge currents, inverter efficiency derating, battery depth-of-discharge (DoD), and regional peak sun hours with laboratory-grade accuracy.
+          </p>
+        </div>
+        <div class="pillar-card">
+          <span class="pillar-num">Pillar 02 • Financial Truth</span>
+          <h3>25-Year Compounding Clarity</h3>
+          <p>
+            Every watt is translated into hard financial returns. We empower homeowners, businesses, and EPC installers to compare solar investments against diesel generator and utility tariff inflation over a 25-year horizon.
+          </p>
+        </div>
+        <div class="pillar-card">
+          <span class="pillar-num">Pillar 03 • Visual Signature</span>
+          <h3>High-Contrast Telemetry Trade Dress</h3>
+          <p>
+            Our signature Obsidian (`#070B13`) canvas paired with Radiant Pulse Orange (`#F97316`) and Grid Emerald (`#10B981`) ensures zero eye strain in low-light environments and instant readability on field tablets.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 02. LOGO DOWNLOAD STUDIO ── -->
+    <section id="logos">
+      <span class="section-kicker">02 / Official Mark &amp; Lockups</span>
+      <h2 class="section-title">Logo System &amp; Download Studio</h2>
+      <p class="section-desc">
+        Download vector `.SVG` master files or export high-resolution `.PNG` assets directly from your browser. Never recreate, trace, or alter the proportions of these master lockups.
+      </p>
+
+      <div class="logo-grid">
+        <!-- Asset 1: Primary Emblem Dark -->
+        <div class="logo-card">
+          <div class="logo-stage stage-dark">
+            <img src="/brand/solar-pulse-mark-dark.svg" alt="Solar Pulse Primary Dark Emblem" id="img-mark-dark" />
+          </div>
+          <div class="logo-info">
+            <div>
+              <h3>Primary App Emblem (Obsidian Container)</h3>
+              <p>Official app icon, favicon, and avatar mark with enclosed `#070B13` squircle container and corona glow.</p>
+            </div>
+            <div class="logo-actions">
+              <a href="/brand/solar-pulse-mark-dark.svg" download="solar-pulse-mark-dark.svg" class="btn-sm">↓ Download SVG</a>
+              <button type="button" class="btn-sm" onclick="exportPng('/brand/solar-pulse-mark-dark.svg', 'solar-pulse-mark-dark-1024.png', 1024, 1024)">↓ Export PNG (1024px)</button>
+              <button type="button" class="btn-sm" onclick="copySvg('/brand/solar-pulse-mark-dark.svg')">Copy SVG</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset 2: Transparent Emblem -->
+        <div class="logo-card">
+          <div class="logo-stage stage-checker">
+            <img src="/brand/solar-pulse-mark-transparent.svg" alt="Solar Pulse Transparent Emblem" />
+          </div>
+          <div class="logo-info">
+            <div>
+              <h3>Isolated Sun-Pulse Emblem (Transparent)</h3>
+              <p>Unbounded geometric emblem for placement over custom dark UI headers, partner badges, and print collateral.</p>
+            </div>
+            <div class="logo-actions">
+              <a href="/brand/solar-pulse-mark-transparent.svg" download="solar-pulse-mark-transparent.svg" class="btn-sm">↓ Download SVG</a>
+              <button type="button" class="btn-sm" onclick="exportPng('/brand/solar-pulse-mark-transparent.svg', 'solar-pulse-mark-transparent-1024.png', 1024, 1024)">↓ Export PNG (1024px)</button>
+              <button type="button" class="btn-sm" onclick="copySvg('/brand/solar-pulse-mark-transparent.svg')">Copy SVG</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset 3: Horizontal Lockup Dark -->
+        <div class="logo-card">
+          <div class="logo-stage stage-dark">
+            <img src="/brand/solar-pulse-lockup-dark.svg" alt="Solar Pulse Horizontal Dark Lockup" />
+          </div>
+          <div class="logo-info">
+            <div>
+              <h3>Master Horizontal Lockup (Dark Mode)</h3>
+              <p>Primary signature lockup combining the Solar Pulse emblem, wordmark, `™` claim, and platform descriptor.</p>
+            </div>
+            <div class="logo-actions">
+              <a href="/brand/solar-pulse-lockup-dark.svg" download="solar-pulse-lockup-dark.svg" class="btn-sm">↓ Download SVG</a>
+              <button type="button" class="btn-sm" onclick="exportPng('/brand/solar-pulse-lockup-dark.svg', 'solar-pulse-lockup-dark.png', 1680, 440)">↓ Export PNG (1680px)</button>
+              <button type="button" class="btn-sm" onclick="copySvg('/brand/solar-pulse-lockup-dark.svg')">Copy SVG</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset 4: Horizontal Lockup Light -->
+        <div class="logo-card">
+          <div class="logo-stage stage-light">
+            <img src="/brand/solar-pulse-lockup-light.svg" alt="Solar Pulse Horizontal Light Lockup" />
+          </div>
+          <div class="logo-info">
+            <div>
+              <h3>Master Horizontal Lockup (Light / Print)</h3>
+              <p>High-contrast daylight lockup engineered for white paper invoices, PDF engineering reports, and press releases.</p>
+            </div>
+            <div class="logo-actions">
+              <a href="/brand/solar-pulse-lockup-light.svg" download="solar-pulse-lockup-light.svg" class="btn-sm">↓ Download SVG</a>
+              <button type="button" class="btn-sm" onclick="exportPng('/brand/solar-pulse-lockup-light.svg', 'solar-pulse-lockup-light.png', 1680, 440)">↓ Export PNG (1680px)</button>
+              <button type="button" class="btn-sm" onclick="copySvg('/brand/solar-pulse-lockup-light.svg')">Copy SVG</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset 5: Monochrome White -->
+        <div class="logo-card">
+          <div class="logo-stage stage-dark">
+            <img src="/brand/solar-pulse-monochrome-white.svg" alt="Solar Pulse Monochrome White Lockup" />
+          </div>
+          <div class="logo-info">
+            <div>
+              <h3>Monochrome Stencil Lockup (Pure White)</h3>
+              <p>Single-channel white mark for laser hardware engraving, inverter chassis decals, embossing, and watermarks.</p>
+            </div>
+            <div class="logo-actions">
+              <a href="/brand/solar-pulse-monochrome-white.svg" download="solar-pulse-monochrome-white.svg" class="btn-sm">↓ Download SVG</a>
+              <button type="button" class="btn-sm" onclick="exportPng('/brand/solar-pulse-monochrome-white.svg', 'solar-pulse-monochrome-white.png', 1680, 440)">↓ Export PNG (1680px)</button>
+              <button type="button" class="btn-sm" onclick="copySvg('/brand/solar-pulse-monochrome-white.svg')">Copy SVG</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emblem Anatomy & Clear Space -->
+      <div class="anatomy-grid">
+        <div class="blueprint-box">
+          <span class="blueprint-tag">Trademark Specimen Description</span>
+          <h3>Anatomy of the Solar Pulse™ Emblem</h3>
+          <ul class="blueprint-list">
+            <li><strong>12 Geometric Cardinal Rays:</strong> Arranged at exact 30° radial intervals, symbolizing both the 12 hours of equatorial solar irradiance and 12 months of annual energy yield modeling.</li>
+            <li><strong>Dual Concentric Corona Rings:</strong> Represent continuous battery storage autonomy and protective isolation from utility grid blackouts.</li>
+            <li><strong>Central Oscilloscope Pulse Waveform:</strong> A 7-vertex bi-phasic power wave (`M28,50 → L45,34 → L51,64 → L72,50`) representing live inverter heartbeat telemetry and financial ROI vitality.</li>
+          </ul>
+        </div>
+
+        <div class="blueprint-box">
+          <span class="blueprint-tag">Spatial Geometry</span>
+          <h3>Clear Space &amp; Minimum Scale Rules</h3>
+          <ul class="blueprint-list">
+            <li><strong>Minimum Clear Zone (`0.25X`):</strong> Always maintain an unobstructed perimeter equal to at least 25% of the emblem's height (`X`) on all four sides.</li>
+            <li><strong>Minimum Digital Scale:</strong> Emblem only: `24px × 24px` (favicons). Full horizontal lockup: `140px` width minimum.</li>
+            <li><strong>Minimum Physical Print Scale:</strong> Emblem only: `8mm × 8mm`. Full horizontal lockup: `32mm` width minimum.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 03. COLOR ARCHITECTURE ── -->
+    <section id="colors">
+      <span class="section-kicker">03 / Chromatic System</span>
+      <h2 class="section-title">Official Color Architecture</h2>
+      <p class="section-desc">
+        Click any swatch card below to copy its HEX code to your clipboard. Our palette pairs high-energy solar warmth with deep obsidian telemetry surfaces.
+      </p>
+
+      <div class="swatch-grid">
+        <div class="swatch-card" onclick="copyText('#F97316', 'Solar Pulse Orange (#F97316)')">
+          <div class="swatch-color" style="background: linear-gradient(135deg, #fb923c, #f97316); color: #070b13;">
+            <span>PRIMARY BRAND</span>
+            <span>AAA Contrast</span>
+          </div>
+          <div class="swatch-body">
+            <div class="swatch-name">Solar Pulse Orange <span>📋</span></div>
+            <div class="swatch-role">Primary CTA, Emblem Core, Active Highlights</div>
+            <div class="swatch-codes">
+              <span>HEX: #F97316</span>
+              <span>RGB: 249, 115, 22</span>
+              <span>CSS: var(--solar)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="swatch-card" onclick="copyText('#EA580C', 'Deep Corona Orange (#EA580C)')">
+          <div class="swatch-color" style="background: #ea580c; color: #ffffff;">
+            <span>GRADIENT ANCHOR</span>
+            <span>Print Safe</span>
+          </div>
+          <div class="swatch-body">
+            <div class="swatch-name">Deep Corona <span>📋</span></div>
+            <div class="swatch-role">Ray Gradient Stop, Light-Mode Brand Accent</div>
+            <div class="swatch-codes">
+              <span>HEX: #EA580C</span>
+              <span>RGB: 234, 88, 12</span>
+              <span>CSS: var(--solar-dark)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="swatch-card" onclick="copyText('#070B13', 'Midnight Obsidian (#070B13)')">
+          <div class="swatch-color" style="background: #070b13; color: #94a3b8; border-bottom: 1px solid var(--border);">
+            <span>CANVAS BASE</span>
+            <span>Dark Default</span>
+          </div>
+          <div class="swatch-body">
+            <div class="swatch-name">Midnight Obsidian <span>📋</span></div>
+            <div class="swatch-role">Primary App Canvas &amp; Icon Squircle Base</div>
+            <div class="swatch-codes">
+              <span>HEX: #070B13</span>
+              <span>RGB: 7, 11, 19</span>
+              <span>CSS: var(--bg)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="swatch-card" onclick="copyText('#111827', 'Telemetry Slate (#111827)')">
+          <div class="swatch-color" style="background: #111827; color: #cbd5e1; border-bottom: 1px solid var(--border);">
+            <span>ELEVATED SURFACE</span>
+            <span>Card Layer</span>
+          </div>
+          <div class="swatch-body">
+            <div class="swatch-name">Telemetry Slate <span>📋</span></div>
+            <div class="swatch-role">Dashboard Cards, Modals &amp; Sidebar Containers</div>
+            <div class="swatch-codes">
+              <span>HEX: #111827</span>
+              <span>RGB: 17, 24, 39</span>
+              <span>CSS: var(--bg2)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="swatch-card" onclick="copyText('#10B981', 'Grid Emerald (#10B981)')">
+          <div class="swatch-color" style="background: #10b981; color: #052e16;">
+            <span>SEMANTIC POSITIVE</span>
+            <span>ROI / Battery</span>
+          </div>
+          <div class="swatch-body">
+            <div class="swatch-name">Grid Emerald <span>📋</span></div>
+            <div class="swatch-role">Net Savings, Payback Breakeven &amp; Full Charge</div>
+            <div class="swatch-codes">
+              <span>HEX: #10B981</span>
+              <span>RGB: 16, 185, 129</span>
+              <span>CSS: var(--green)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="swatch-card" onclick="copyText('#06B6D4', 'Photovoltaic Cyan (#06B6D4)')">
+          <div class="swatch-color" style="background: #06b6d4; color: #083344;">
+            <span>TELEMETRY ACCENT</span>
+            <span>AI &amp; Tilt</span>
+          </div>
+          <div class="swatch-body">
+            <div class="swatch-name">Photovoltaic Cyan <span>📋</span></div>
+            <div class="swatch-role">Azimuth/Tilt Vectors, AI Advisor &amp; Irradiance</div>
+            <div class="swatch-codes">
+              <span>HEX: #06B6D4</span>
+              <span>RGB: 6, 182, 212</span>
+              <span>CSS: var(--cyan)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 04. TYPOGRAPHY ── -->
+    <section id="typography">
+      <span class="section-kicker">04 / Typographic Hierarchy</span>
+      <h2 class="section-title">Inter &amp; Tabular Engineering Numerals</h2>
+      <p class="section-desc">
+        Solar Pulse uses <strong>Inter</strong> across all marketing, dashboard interfaces, and exported PDF engineering reports. All kW, kWh, and currency readouts enforce `font-variant-numeric: tabular-nums` for vertical alignment.
+      </p>
+
+      <div class="type-showcase">
+        <div class="type-specimen-card">
+          <div class="big-aa">Aa</div>
+          <h3 style="font-size: 1.35rem; margin-bottom: 6px;">Inter Variable / Geometric Neo-Grotesque</h3>
+          <p style="font-size: 0.9rem; color: var(--muted);">
+            Designed by Rasmus Andersson for high-density computer screens. Open apertures and a tall x-height guarantee legibility from 11px telemetry badges up to 64px hero headlines.
+          </p>
+          <div class="glyph-set">
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ<br />
+            abcdefghijklmnopqrstuvwxyz<br />
+            0123456789 • ₦ $ € £ % kW kWh VA η ™
+          </div>
+        </div>
+
+        <div class="scale-table">
+          <div class="scale-row">
+            <div class="scale-meta">Display Hero • 800/900 ExtraBold • -0.035em Tracking</div>
+            <div style="font-size: 2rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1.15;">
+              25-Year Solar Payback Engine
+            </div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">Section Header • 700 Bold • -0.02em Tracking</div>
+            <div style="font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em;">
+              Appliance Surge &amp; Battery Autonomy Modeling
+            </div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">Telemetry Readout • 800 ExtraBold • tabular-nums</div>
+            <div style="font-size: 1.65rem; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums;">
+              14.85 kWp • 32.4 kWh LiFePO₄ • 94.2% ROI
+            </div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">Body Copy • 400 Regular • 1.65 Line Height</div>
+            <div style="font-size: 0.95rem; color: #cbd5e1;">
+              Our sizing engine accounts for inductive motor starting currents, ambient temperature derating, and lithium iron phosphate depth-of-discharge limits.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 05. VERBAL IDENTITY & PRESS COPY ── -->
+    <section id="verbal">
+      <span class="section-kicker">05 / Verbal Identity &amp; Boilerplates</span>
+      <h2 class="section-title">Approved Taglines &amp; Press Copy</h2>
+      <p class="section-desc">
+        Use these official descriptions when referencing Solar Pulse™ in media coverage, app directories, investor decks, or partner integrations.
+      </p>
+
+      <div class="copy-grid">
+        <div class="copy-card">
+          <div>
+            <h3>Official Taglines</h3>
+            <div class="copy-text" id="copy-taglines">• Primary: "Smart Solar Sizing &amp; Lifecycle ROI Platform"
+• Technical: "Precision Photovoltaic Sizing, Battery Autonomy &amp; 25-Year Cashflow Simulation"
+• Short Hook: "Size Your Solar. Prove Your ROI."</div>
+          </div>
+          <button type="button" class="btn-sm" onclick="copyElement('copy-taglines', 'Official Taglines')">Copy Taglines</button>
+        </div>
+
+        <div class="copy-card">
+          <div>
+            <h3>Short Directory Bio (45 Words)</h3>
+            <div class="copy-text" id="copy-short">Solar Pulse™ is an intelligent solar energy sizing and ROI simulation platform. Built for homeowners, commercial developers, and solar installers, it calculates exact appliance loads, inverter surge capacity, battery storage autonomy, panel orientation, and 25-year compounding financial payback in real time.</div>
+          </div>
+          <button type="button" class="btn-sm" onclick="copyElement('copy-short', 'Short Directory Bio')">Copy Short Bio</button>
+        </div>
+
+        <div class="copy-card">
+          <div>
+            <h3>Standard Press Boilerplate</h3>
+            <div class="copy-text" id="copy-press">About Solar Pulse™:
+Solar Pulse™ (operated by Solar Pulse Technologies Ltd) is a premier renewable energy engineering and financial simulation SaaS platform. By combining appliance-level electrical load modeling, geographic solar irradiance tuning, AI-assisted engineering advisory, and 25-year compounding cashflow projections, Solar Pulse eliminates guesswork from clean energy transitions across residential and commercial deployments.</div>
+          </div>
+          <button type="button" class="btn-sm" onclick="copyElement('copy-press', 'Press Boilerplate')">Copy Press Boilerplate</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 06. USAGE RULES (DO'S & DON'TS) ── -->
+    <section id="rules" style="border-bottom: none;">
+      <span class="section-kicker">06 / Brand Governance</span>
+      <h2 class="section-title">Logo &amp; Identity Usage Rules</h2>
+      <p class="section-desc">
+        Consistent presentation strengthens our statutory and common-law trademark protection globally. Adhere strictly to these six standards.
+      </p>
+
+      <div class="rules-grid">
+        <div class="rule-card rule-do">
+          <span class="rule-badge">✓ Do</span>
+          <h4>Use Master Vector Files</h4>
+          <p>Always scale the logo proportionally from the official `.SVG` master files provided in Section 02 above.</p>
+        </div>
+
+        <div class="rule-card rule-do">
+          <span class="rule-badge">✓ Do</span>
+          <h4>Include the ™ Symbol</h4>
+          <p>Apply the `™` symbol (`Solar Pulse™`) on the first or most prominent appearance in headlines, footers, and press materials.</p>
+        </div>
+
+        <div class="rule-card rule-do">
+          <span class="rule-badge">✓ Do</span>
+          <h4>Match Lockup to Background</h4>
+          <p>Use the Dark Lockup on obsidian/slate surfaces and the Light Lockup on white paper or light-mode documents.</p>
+        </div>
+
+        <div class="rule-card rule-dont">
+          <span class="rule-badge">✕ Don't</span>
+          <h4>Never Alter the Pulse Waveform</h4>
+          <p>Do not flatten, invert, or animate the central 7-vertex oscilloscope waveform in ways that change its recognizable silhouette.</p>
+        </div>
+
+        <div class="rule-card rule-dont">
+          <span class="rule-badge">✕ Don't</span>
+          <h4>Never Substitute Brand Colors</h4>
+          <p>Do not recolor the sun rays into blue, purple, or neon green. For single-color applications, use the official Monochrome White stencil.</p>
+        </div>
+
+        <div class="rule-card rule-dont">
+          <span class="rule-badge">✕ Don't</span>
+          <h4>Never Imply False Endorsement</h4>
+          <p>Third-party installers and hardware vendors may not combine the Solar Pulse emblem with their own company name into a single composite mark.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p style="margin-bottom: 10px;">
+        © 2026 <strong>Solar Pulse™</strong> (Solar Pulse Technologies Ltd). All rights reserved.
+      </p>
+      <div>
+        <a href="/landing/index.html">Home</a> •
+        <a href="/trademark.html">Trademark &amp; IP Policy</a> •
+        <a href="/terms.html">Terms of Service</a> •
+        <a href="/privacy.html">Privacy Policy</a> •
+        <a href="/contact.html">Contact Legal &amp; Press Desk</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="brandToast" role="status" aria-live="polite">Copied to clipboard!</div>
+
+  <script>
+    let toastTimer;
+    function showBrandToast(message) {
+      const t = document.getElementById('brandToast');
+      t.textContent = '✓ ' + message;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function copyText(text, label) {
+      navigator.clipboard.writeText(text).then(() => {
+        showBrandToast('Copied ' + (label || text));
+      });
+    }
+
+    function copyElement(id, label) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      navigator.clipboard.writeText(el.innerText).then(() => {
+        showBrandToast('Copied ' + label + ' to clipboard');
+      });
+    }
+
+    async function copySvg(url) {
+      try {
+        const res = await fetch(url);
+        const svgText = await res.text();
+        await navigator.clipboard.writeText(svgText);
+        showBrandToast('Copied raw SVG markup to clipboard');
+      } catch (err) {
+        showBrandToast('Could not copy SVG markup');
+      }
+    }
+
+    async function exportPng(svgUrl, filename, width, height) {
+      try {
+        showBrandToast('Rendering high-res PNG...');
+        const res = await fetch(svgUrl);
+        const svgText = await res.text();
+        const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          URL.revokeObjectURL(url);
+          canvas.toBlob((pngBlob) => {
+            const dlUrl = URL.createObjectURL(pngBlob);
+            const a = document.createElement('a');
+            a.href = dlUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(dlUrl);
+            showBrandToast('Downloaded ' + filename);
+          }, 'image/png');
+        };
+        img.src = url;
+      } catch (err) {
+        showBrandToast('PNG export failed');
+      }
+    }
+  </script>
+</body>
+</html>
+
