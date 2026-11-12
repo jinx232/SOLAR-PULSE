@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commercial Studio &amp; Ad Exporter | Solar Pulse™</title>
+  <meta name="description" content="Broadcast motion-graphics commercial player, 16:9 and 9:16 video exporter, and production ad scripts for Solar Pulse™." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #070b13;
+      --surface: #0f1623;
+      --surface-raised: #161f30;
+      --border: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --accent: #f97316;
+      --green: #10b981;
+      --red: #ef4444;
+      --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .studio-header {
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .studio-header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand-id {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-id img {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+    }
+    .brand-id span.sub {
+      color: var(--dim);
+      font-weight: 400;
+      font-size: 0.88rem;
+    }
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .header-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .header-links a:hover {
+      color: var(--text);
+    }
+    .header-links a.cta {
+      background: var(--accent);
+      color: #070b13;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 6px;
+    }
+
+    /* ── MAIN CONTAINER ── */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    .intro-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .intro-bar h1 {
+      font-size: clamp(1.65rem, 3vw, 2.25rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .intro-bar p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 640px;
+    }
+    .aspect-switcher {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .aspect-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .aspect-btn.active {
+      background: var(--surface-raised);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* ── CINEMA WORKSTATION ── */
+    .workstation {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 980px) {
+      .workstation {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .player-shell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .viewport-stage {
+      background: #030509;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      min-height: 440px;
+      position: relative;
+    }
+    canvas#adCanvas {
+      width: 100%;
+      max-width: 860px;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      background: #070b13;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      display: block;
+      cursor: pointer;
+    }
+    canvas#adCanvas.vertical {
+      max-width: 340px;
+      aspect-ratio: 9 / 16;
+    }
+
+    /* ── TRANSPORT & TIMELINE BAR ── */
+    .transport-bar {
+      padding: 16px 20px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .timeline-track-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .timeline-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: var(--surface-raised);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+    .timeline-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--accent);
+      cursor: pointer;
+    }
+    .timecode {
+      font-size: 0.8rem;
+      color: var(--muted);
+      min-width: 115px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .transport-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .transport-left, .transport-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .ctrl-btn {
+      background: var(--surface-raised);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--sans);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ctrl-btn:hover {
+      border-color: var(--muted);
+    }
+    .ctrl-btn.primary {
+      background: var(--accent);
+      color: #070b13;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+    .ctrl-btn.record-btn {
+      border-color: rgba(249, 115, 22, 0.45);
+      color: var(--accent);
+    }
+    .ctrl-btn.record-btn.recording {
+      background: var(--red);
+      color: #ffffff;
+      border-color: var(--red);
+    }
+
+    /* ── SCENE LIST SIDEBAR ── */
+    .scene-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .scene-panel h2 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .scene-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      color: var(--text);
+      font-family: var(--sans);
+    }
+    .scene-item:hover {
+      border-color: var(--border);
+    }
+    .scene-item.active {
+      border-color: var(--accent);
+      background: rgba(249, 115, 22, 0.07);
+    }
+    .scene-time {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .scene-title {
+      font-size: 0.86rem;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 3px;
+    }
+    .scene-caption {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+      display: block;
+    }
+
+    /* ── AD COPY & SCRIPTS SECTION ── */
+    .scripts-section {
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .scripts-header {
+      margin-bottom: 28px;
+    }
+    .scripts-header h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 6px;
+    }
+    .scripts-header p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      max-width: 680px;
+    }
+    .scripts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+      gap: 20px;
+    }
+    .script-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .script-meta {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--dim);
+      margin-bottom: 6px;
+    }
+    .script-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .script-body {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      white-space: pre-line;
+      background: #070b13;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 24px 14px 60px;
+      }
+      .viewport-stage {
+        padding: 10px;
+        min-height: 240px;
+      }
+      .transport-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .transport-left, .transport-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .ctrl-btn {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="studio-header">
+    <div class="studio-header-inner">
+      <a href="/landing/index.html" class="brand-id">
+        <img src="/brand/solar-pulse-mark-dark.svg" alt="Solar Pulse" />
+        <span>Solar Pulse™</span>
+        <span class="sub">/ Commercial Cut (30.0s)</span>
+      </a>
+      <nav class="header-links">
+        <a href="/landing/index.html">Overview</a>
+        <a href="/brand.html">Brand Assets</a>
+        <a href="/index.html#/calculator" class="cta">Open Calculator →</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="intro-bar">
+      <div>
+        <h1>Product Commercial &amp; Video Exporter</h1>
+        <p>
+          A 30-second motion-graphics commercial built on real electrical and financial telemetry. Switch between 16:9 widescreen and 9:16 vertical reel formats, or export a `.webm` video file directly from your browser.
+        </p>
+      </div>
+      <div class="aspect-switcher" role="group" aria-label="Video aspect ratio">
+        <button type="button" class="aspect-btn active" id="btn16x9" onclick="setAspect('16:9')">16:9 Landscape (LinkedIn / YouTube)</button>
+        <button type="button" class="aspect-btn" id="btn9x16" onclick="setAspect('9:16')">9:16 Vertical (Reels / Shorts)</button>
+      </div>
+    </div>
+
+    <div class="workstation">
+      <!-- Left: Canvas Cinema Player -->
+      <div class="player-shell">
+        <div class="viewport-stage">
+          <canvas id="adCanvas" width="1920" height="1080" title="Click to Play / Pause"></canvas>
+        </div>
+        <div class="transport-bar">
+          <div class="timeline-track-wrap">
+            <input
+              type="range"
+              id="scrubber"
+              class="timeline-slider"
+              min="0"
+              max="30"
+              step="0.02"
+              value="0"
+              aria-label="Commercial timeline scrubber"
+            />
+            <span class="timecode" id="timecodeDisplay">00:00.0 / 00:30.0</span>
+          </div>
+          <div class="transport-controls">
+            <div class="transport-left">
+              <button type="button" class="ctrl-btn primary" id="playPauseBtn" onclick="togglePlay()">Play Commercial</button>
+              <button type="button" class="ctrl-btn" onclick="restartAd()">Restart</button>
+              <button type="button" class="ctrl-btn" id="audioBtn" onclick="toggleAudio()">Sound: On</button>
+            </div>
+            <div class="transport-right">
+              <button type="button" class="ctrl-btn record-btn" id="exportVideoBtn" onclick="exportCommercialVideo()">
+                Export Video (.webm)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: 5-Act Editorial Cut Sheet -->
+      <aside class="scene-panel" aria-label="Commercial scene breakdown">
+        <h2>Editorial Cut Sheet (30.0s)</h2>
+
+        <button type="button" class="scene-item active" data-scene="0" onclick="jumpToTime(0)">
+          <span class="scene-time">00.0s – 05.5s</span>
+          <span class="scene-title">Act I: The Surge Fault</span>
+          <span class="scene-caption">7:14 PM grid drop. A 1.5 HP compressor kicks in, spiking draw to 3,850W and tripping an undersized inverter.</span>
+        </button>
+
+        <button type="button" class="scene-item" data-scene="1" onclick="jumpToTime(5.5)">
+          <span class="scene-time">05.5s – 12.5s</span>
+          <span class="scene-title">Act II: Appliance-Level Sizing</span>
+          <span class="scene-caption">Live load audit across refrigeration, borehole pump, HVAC, and lighting—calculating continuous kW and starting surge.</span>
+        </button>
+
+        <button type="button" class="scene-item" data-scene="2" onclick="jumpToTime(12.5)">
+          <span class="scene-time">12.5s – 19.0s</span>
+          <span class="scene-title">Act III: Blackout Lifeline Simulation</span>
+          <span class="scene-caption">Isolating critical circuits on a 13.5 kWh LiFePO4 bank extends overnight outage autonomy from 4.8 hours to 19.2 hours.</span>
+        </button>
+
+        <button type="button" class="scene-item" data-scene="3" onclick="jumpToTime(19.0)">
+          <span class="scene-time">19.0s – 25.0s</span>
+          <span class="scene-title">Act IV: 25-Year Cashflow Proof</span>
+          <span class="scene-caption">Compounding utility tariff and generator fuel displacement plotted over 25 years, hitting break-even at Year 3.4.</span>
+        </button>
+
+        <button type="button" class="scene-item" data-scene="4" onclick="jumpToTime(25.0)">
+          <span class="scene-time">25.0s – 30.0s</span>
+          <span class="scene-title">Act V: End Slate &amp; Call to Action</span>
+          <span class="scene-caption">Solar Pulse™ emblem lockup, URL, and direct sizing prompt.</span>
+        </button>
+      </aside>
+    </div>
+
+    <!-- ── PRODUCTION AD COPY & VOICEOVER SCRIPTS ── -->
+    <section class="scripts-section">
+      <div class="scripts-header">
+        <h2>Production Ad Copy &amp; Voiceover Scripts</h2>
+        <p>
+          Written in direct engineering prose without marketing clichés, buzzwords, or filler. Ready for LinkedIn sponsored posts, video voiceovers, and installer outreach.
+        </p>
+      </div>
+
+      <div class="scripts-grid">
+        <div class="script-card">
+          <div>
+            <div class="script-meta">30-SECOND VOICEOVER SCRIPT (16:9 &amp; 9:16)</div>
+            <h3>Broadcast Commercial Voiceover</h3>
+            <div class="script-body" id="script-vo">[00:00] Most solar installations don't fail on the roof. They fail in the sizing math.
+[00:05] When the grid drops at 7 PM and a borehole pump or AC compressor kicks on, a rough estimate trips the inverter.
+[00:12] Solar Pulse models your exact appliance loads, motor starting surge, and critical backup circuits before you buy a single panel.
+[00:19] Test live battery drain during a blackout, and compare your 25-year payback against grid tariffs and generator fuel.
+[00:25] Size the load. Prove the payback. Run your numbers free at solar-pulse1.web.app.</div>
+          </div>
+          <button type="button" class="ctrl-btn" onclick="copyAdText('script-vo', this)">Copy Voiceover Script</button>
+        </div>
+
+        <div class="script-card">
+          <div>
+            <div class="script-meta">LINKEDIN / X VIDEO AD CAPTION</div>
+            <h3>Direct Problem-Solution Post</h3>
+            <div class="script-body" id="script-linkedin">A 3.5 kVA inverter looks enough on paper—until a 750W water pump and a 1.5 HP air conditioner start on the same phase.
+
+We built Solar Pulse&trade; so homeowners, facility managers, and solar contractors can audit real electrical loads before committing capital.
+
+In one workspace:
+- Calculate daily kWh, continuous inverter kW, and inductive surge headroom
+- Stress-test LiFePO4 battery duration under simulated grid blackouts
+- Model 25-year cumulative cashflow against utility inflation and diesel generator runtime
+
+Run a complete sizing audit in your browser (no sign-up required for the calculator):
+https://solar-pulse1.web.app/#/calculator</div>
+          </div>
+          <button type="button" class="ctrl-btn" onclick="copyAdText('script-linkedin', this)">Copy LinkedIn Ad Copy</button>
+        </div>
+
+        <div class="script-card">
+          <div>
+            <div class="script-meta">B2B SOLAR INSTALLER / EPC OUTREACH</div>
+            <h3>Contractor Proposal Pitch</h3>
+            <div class="script-body" id="script-b2b">When a client asks why they need a 5 kW hybrid inverter and 13.5 kWh of storage instead of a cheaper 3 kW quote, show them the telemetry.
+
+Solar Pulse&trade; gives installers an interactive load and ROI workstation to walk clients through:
+1. Critical vs. non-critical load separation during grid outages
+2. Exact 400W panel count adjusted for regional peak sun hours and roof tilt
+3. Year-by-year payback curves factoring in generator fuel savings
+
+Launch the sizing workstation:
+https://solar-pulse1.web.app</div>
+          </div>
+          <button type="button" class="ctrl-btn" onclick="copyAdText('script-b2b', this)">Copy B2B Installer Copy</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('adCanvas');
+    const ctx = canvas.getContext('2d');
+    const scrubber = document.getElementById('scrubber');
+    const timecodeDisplay = document.getElementById('timecodeDisplay');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const audioBtn = document.getElementById('audioBtn');
+    const exportVideoBtn = document.getElementById('exportVideoBtn');
+    const sceneItems = document.querySelectorAll('.scene-item');
+
+    const DURATION = 30.0;
+    let currentTime = 0;
+    let isPlaying = false;
+    let lastFrameTs = 0;
+    let aspect = '16:9';
+    let soundEnabled = true;
+    let audioCtx = null;
+    let lastCueIndex = -1;
+    let activeRecorder = null;
+
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function easeOutCubic(x) { return 1 - Math.pow(1 - clamp(x, 0, 1), 3); }
+    function easeInOutCubic(x) {
+      const t = clamp(x, 0, 1);
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    // Procedural broadcast sound cues (Web Audio API — zero external MP3 dependencies)
+    function triggerAudioCue(cueId) {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) return;
+          audioCtx = new AudioContextClass();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+
+        if (cueId === 0) {
+          // Act I: Low sub-bass pulse + fault alert tone
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(110, now);
+          osc.frequency.exponentialRampToValueAtTime(52, now + 0.45);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+          osc.connect(gain).connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.52);
+        } else if (cueId === 1 || cueId === 2 || cueId === 3) {
+          // Precision telemetry tick + warm harmonicfifth
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          const freqs = [220, 277.18, 329.63];
+          osc.frequency.setValueAtTime(freqs[cueId - 1], now);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.connect(gain).connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.36);
+        } else if (cueId === 4) {
+          // Act V: Resolve chord (A2 + E3 + C#4)
+          [110, 164.81, 277.18].forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.04);
+            gain.gain.setValueAtTime(0.06, now + idx * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.0008, now + 1.1);
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start(now + idx * 0.04);
+            osc.stop(now + 1.15);
+          });
+        }
+      } catch (_) {}
+    }
+
+    function setAspect(nextAspect) {
+      aspect = nextAspect;
+      document.getElementById('btn16x9').classList.toggle('active', aspect === '16:9');
+      document.getElementById('btn9x16').classList.toggle('active', aspect === '9:16');
+      if (aspect === '16:9') {
+        canvas.width = 1920;
+        canvas.height = 1080;
+        canvas.classList.remove('vertical');
+      } else {
+        canvas.width = 1080;
+        canvas.height = 1920;
+        canvas.classList.add('vertical');
+      }
+      renderFrame(currentTime);
+    }
+
+    function drawGridBackground(w, h) {
+      ctx.fillStyle = '#070b13';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.05)';
+      ctx.lineWidth = 1;
+      const step = Math.round(Math.min(w, h) / 14);
+      for (let x = 0; x < w; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y < h; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawTopHud(w, h, t, actLabel) {
+      const padX = Math.round(w * 0.06);
+      const padY = Math.round(h * 0.055);
+      const scale = Math.min(w, h) / 1080;
+
+      // Brand mark mini sun-pulse
+      ctx.save();
+      ctx.font = `700 ${Math.round(22 * scale)}px "Plus Jakarta Sans", sans-serif`;
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText('SOLAR PULSE', padX, padY);
+
+      ctx.font = `500 ${Math.round(18 * scale)}px "Plus Jakarta Sans", sans-serif`;
+      ctx.fillStyle = '#64748b';
+      const tc = `TC 00:${String(Math.floor(t)).padStart(2, '0')}.${String(Math.floor((t % 1) * 10))}`;
+      ctx.textAlign = 'right';
+      ctx.fillText(`${actLabel}  |  ${tc}`, w - padX, padY);
+      ctx.restore();
+
+      // Bottom progress bar
+      ctx.fillStyle = '#161f30';
+      ctx.fillRect(padX, h - Math.round(36 * scale), w - padX * 2, Math.round(4 * scale));
+      ctx.fillStyle = '#f97316';
+      ctx.fillRect(padX, h - Math.round(36 * scale), (w - padX * 2) * (t / DURATION), Math.round(4 * scale));
+    }
+
+    function drawSolarEmblem(cx, cy, radius) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      const s = radius / 40;
+      ctx.scale(s, s);
+
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(0, 0, 32, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(249, 115, 22, 0.35)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 12 Rays
+      ctx.fillStyle = '#f97316';
+      for (let i = 0; i < 12; i++) {
+        ctx.save();
+        ctx.rotate((i * 30 * Math.PI) / 180);
+        ctx.beginPath();
+        ctx.moveTo(0, -39);
+        ctx.lineTo(-4, -26);
+        ctx.lineTo(4, -26);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Inner disk
+      ctx.beginPath();
+      ctx.arc(0, 0, 23, 0, Math.PI * 2);
+      ctx.fillStyle = '#0b1120';
+      ctx.fill();
+      ctx.strokeStyle = '#f97316';
+      ctx.lineWidth = 2.8;
+      ctx.stroke();
+
+      // Pulse wave
+      ctx.beginPath();
+      ctx.moveTo(-22, 0);
+      ctx.lineTo(-10, 0);
+      ctx.lineTo(-5, -16);
+      ctx.lineTo(1, 14);
+      ctx.lineTo(6, -8);
+      ctx.lineTo(10, 0);
+      ctx.lineTo(22, 0);
+      ctx.strokeStyle = '#fde047';
+      ctx.lineWidth = 3.2;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function renderAct1(w, h, localT) {
+      // 0.0s to 5.5s: The Surge Fault
+      const padX = Math.round(w * 0.06);
+      const scale = Math.min(w, h) / 1080;
+      const p1 = easeOutCubic(localT / 1.0);
+      const isFault = localT > 2.1;
+
+      ctx.save();
+      ctx.font = `600 ${Math.round(22 * scale)}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = isFault ? '#ef4444' : '#f97316';
+      ctx.fillText(
+        isFault ? 'FAULT DETECTED // INVERTER OVERLOAD TRIP' : '19:14 WATTMETER TELEMETRY // GRID OFFLINE',
+        padX,
+        Math.round(h * 0.22)
+      );
+
+      ctx.font = `800 ${Math.round((w > h ? 68 : 52) * scale)}px Inter, sans-serif`;
+      ctx.fillStyle = '#f8fafc';
+      ctx.globalAlpha = p1;
+      ctx.fillText('Most solar installs fail', padX, Math.round(h * 0.32));
+      ctx.fillText('in the sizing math.', padX, Math.round(h * 0.40));
+
+      // Oscilloscope box
+      const boxY = Math.round(h * 0.48);
+      const boxH = Math.round(h * 0.28);
+      const boxW = w - padX * 2;
+      ctx.fillStyle = '#0f1623';
+      ctx.strokeStyle = isFault ? '#ef4444' : '#1e293b';
+      ctx.lineWidth = 2;
+      ctx.fillRect(padX, boxY, boxW, boxH);
+      ctx.strokeRect(padX, boxY, boxW, boxH);
+
+      // Draw live waveform
+      ctx.beginPath();
+      const waveProgress = clamp(localT / 4.2, 0, 1);
+      const steps = 180;
+      for (let i = 0; i <= steps * waveProgress; i++) {
+        const ratio = i / steps;
+        const x = padX + ratio * boxW;
+        let y = boxY + boxH * 0.55;
+        if (ratio < 0.48) {
+          y += Math.sin(ratio * 45) * (boxH * 0.12);
+        } else if (ratio >= 0.48 && ratio < 0.62) {
+          // Surge spike
+          const spike = Math.sin((ratio - 0.48) * 90) * (boxH * 0.42);
+          y -= Math.abs(spike);
+        } else {
+          // Flatline trip
+          y = boxY + boxH * 0.72;
+        }
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = isFault ? '#ef4444' : '#f97316';
+      ctx.lineWidth = Math.round(4 * scale);
+      ctx.stroke();
+
+      // Readout inside box
+      const watts = localT < 2.0 ? Math.round(1420 + localT * 120) : localT < 2.5 ? 3850 : 0;
+      ctx.font = `700 ${Math.round(32 * scale)}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = isFault ? '#ef4444' : '#f8fafc';
+      ctx.fillText(
+        isFault ? `PEAK INRUSH: 3,850W  [3.5 kVA INVERTER TRIPPED]` : `ACTIVE LOAD: ${watts}W`,
+        padX + Math.round(28 * scale),
+        boxY + Math.round(48 * scale)
+      );
+
+      ctx.font = `500 ${Math.round(24 * scale)}px Inter, sans-serif`;
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText(
+        'A 1.5 HP compressor + borehole pump draws 2.5x starting surge. Guessing costs thousands.',
+        padX,
+        boxY + boxH + Math.round(54 * scale)
+      );
+      ctx.restore();
+    }
+
+    function renderAct2(w, h, localT) {
+      // 5.5s to 12.5s (7.0s duration): Appliance-Level Sizing
+      const padX = Math.round(w * 0.06);
+      const scale = Math.min(w, h) / 1080;
+      const p = easeOutCubic(localT / 1.2);
+
+      ctx.save();
+      ctx.font = `600 ${Math.round(20 * scale)}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = '#f97316';
+      ctx.fillText('STEP 01 // APPLIANCE-LEVEL LOAD & SURGE ENGINE', padX, Math.round(h * 0.19));
+
+      ctx.font = `800 ${Math.round((w > h ? 54 : 42) * scale)}px Inter, sans-serif`;
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText('Model every watt before you buy.', padX, Math.round(h * 0.27));
+
+      const rows = [
+        { name: 'Inverter Split AC (1.5 HP)', cat: 'HVAC', watts: '1,100W', hrs: '6.0h', kwh: '6.60 kWh', crit: false },
+        { name: 'Submersible Borehole Pump', cat: 'MOTOR SURGE', watts: '750W (1,875W peak)', hrs: '1.0h', kwh: '0.75 kWh', crit: false },
+        { name: 'Chest Deep Freezer + Fridge', cat: 'CRITICAL', watts: '330W', hrs: '20.0h', kwh: '6.60 kWh', crit: true },
+        { name: 'LED Lighting & Workstations', cat: 'CRITICAL', watts: '295W', hrs: '8.0h', kwh: '2.36 kWh', crit: true }
+      ];
+
+      const tableTop = Math.round(h * 0.34);
+      const rowH = Math.round(h * 0.095);
+      const tableW = w - padX * 2;
+
+      rows.forEach((r, idx) => {
+        const rowAppear = clamp((localT - idx * 0.45) / 0.7, 0, 1);
+        if (rowAppear <= 0) return;
+        const y = tableTop + idx * (rowH + Math.round(12 * scale));
+
+        ctx.globalAlpha = easeOutCubic(rowAppear);
+        ctx.fillStyle = '#0f1623';
+        ctx.strokeStyle = r.crit ? 'rgba(16, 185, 129, 0.45)' : '#1e293b';
+        ctx.lineWidth = 1.5;
+        ctx.fillRect(padX, y, tableW, rowH);
+        ctx.strokeRect(padX, y, tableW, rowH);
+
+        ctx.font = `700 ${Math.round(24 * scale)}px Inter, sans-serif`;
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillText(r.name, padX + Math.round(24 * scale), y + rowH * 0.60);
+
+        if (w > h) {
+          ctx.font = `600 ${Math.round(17 * scale)}px "JetBrains Mono", monospace`;
+          ctx.fillStyle = r.crit ? '#10b981' : '#94a3b8';
+          ctx.fillText(r.cat, padX + tableW * 0.42, y + rowH * 0.60);
+
+          ctx.fillStyle = '#cbd5e1';
+          ctx.fillText(r.watts, padX + tableW * 0.60, y + rowH * 0.60);
+        }
+
+        ctx.font = `700 ${Math.round(22 * scale)}px "JetBrains Mono", monospace`;
+        ctx.fillStyle = '#f97316';
+        ctx.textAlign = 'right';
+        ctx.fillText(r.kwh, padX + tableW - Math.round(24 * scale), y + rowH * 0.60);
+        ctx.textAlign = 'left';
+      });
+
+      // Summary Output Strip
+      const sumP = clamp((localT - 2.0) / 1.0, 0, 1);
+      if (sumP > 0) {
+        ctx.globalAlpha = easeOutCubic(sumP);
+        const barY = Math.round(h * 0.79);
+        const barH = Math.round(h * 0.11);
+        ctx.fillStyle = '#161f30';
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 2;
+        ctx.fillRect(padX, barY, tableW, barH);
+        ctx.strokeRect(padX, barY, tableW, barH);
+
+        ctx.font = `700 ${Math.round(24 * scale)}px "JetBrains Mono", monospace`;
+        ctx.fillStyle = '#f8fafc';
+        const summaryText = w > h
+          ? 'DAILY LOAD: 16.31 kWh   |   ARRAY: 5.2 kW (13 × 400W)   |   INVERTER: 5.0 kW (9.0 kW SURGE)'
+          : '16.3 kWh/day  •  5.2 kW Solar  •  5.0 kW Inverter';
+        ctx.fillText(summaryText, padX + Math.round(24 * scale), barY + barH * 0.62);
+      }
+      ctx.restore();
+    }
+
+    function renderAct3(w, h, localT) {
+      // 12.5s to 19.0s (6.5s duration): Blackout Lifeline Simulation
+      const padX = Math.round(w * 0.06);
+      const scale = Math.min(w, h) / 1080;
+      const boxW = w - padX * 2;
+
+      ctx.save();
+      ctx.font = `600 ${Math.round(20 * scale)}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = '#10b981';
+      ctx.fillText('STEP 02 // LIVE BLACKOUT LIFELINE STRESS-TEST', padX, Math.round(h * 0.19));
+
+      ctx.font = `800 ${Math.round((w > h ? 54 : 42) * scale)}px Inter, sans-serif`;
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText('Know how long your battery lasts at night.', padX, Math.round(h * 0.27));
+
+      // Two comparison cards: Unmanaged vs Critical Load Shield
+      const cardY = Math.round(h * 0.35);
+      const cardH = Math.round(h * 0.44);
+      const gap = Math.round(28 * scale);
+      const colW = w > h ? (boxW - gap) / 2 : boxW;
+      const colH = w > h ? cardH : Math.round(cardH * 0.48);
+
+      // Card 1: Unmanaged All-House Load
+      ctx.fillStyle = '#0f1623';
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.fillRect(padX, cardY, colW, colH);
+      ctx.strokeRect(padX, cardY, colW, colH);
+
+      ctx.font = `700 ${Math.round(20 * scale)}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = '#ef4444';
+      ctx.fillText('UNMANAGED BACKUP (ALL LOADS ON)', padX + Math.round(28 * scale), cardY + Math.round(48 * scale));
+
+      ctx.font = `800 ${Math.round(64 * scale)}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText('4.8 Hours', padX + Math.round(28 * scale), cardY + Math.round(130 * scale));
+
+      ctx.font = `500 ${Math.round(21 * scale)}px Inter, sans-serif`;
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('2,475W continuous draw drains 13.5 kWh before 12:00 AM.', padX + Math.round(28 * scale), cardY + Math.round(180 * scale));
+
+      // Card 2: Solar Pulse Critical Shield Active
+      const c2X = w > h ? padX + colW + gap : padX;
+      const c2Y = w > h ? cardY : cardY + colH + gap;
+      const appear2 = easeOutCubic(clamp((localT - 0.8) / 1.0, 0, 1));
+      ctx.globalAlpha = appear2;
+      ctx.fillStyle = '#0f1623';
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.fillRect(c2X, c2Y, colW, colH);
+      ctx.strokeRect(c2X, c2Y, colW, colH);
+
+      ctx.font = `700 ${Math.round(20 * scale)}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = '#10b981';
+      ctx.fillText('CRITICAL SHIELD ACTIVE (625W ESSENTIAL)', c2X + Math.round(28 * scale), c2Y + Math.round(48 * scale));
+
+      const hoursVal = (4.8 + easeOutCubic(clamp((localT - 1.0) / 2.2, 0, 1)) * 14.4).toFixed(1);
+      ctx.font = `800 ${Math.round(64 * scale)}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = '#10b981';
+      ctx.fillText(`${hoursVal} Hours`, c2X + Math.round(28 * scale), c2Y + Math.round(130 * scale));
+
+      ctx.font = `500 ${Math.round(21 * scale)}px Inter, sans-serif`;
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText('Full overnight autonomy on 1× 13.5 kWh LiFePO4 bank.', c2X + Math.round(28 * scale), c2Y + Math.round(180 * scale));
+      ctx.restore();
+    }
+
+    function renderAct4(w, h, localT) {
+      // 19.0s to 25.0s (6.0s duration): 25-Year Cashflow Proof
+      const padX = Math.round(w * 0.06);
+      const scale = Math.min(w, h) / 1080;
+      const boxW = w - padX * 2;
+
+      ctx.save();
+      ctx.font = `600 ${Math.round(20 * scale)}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = '#f97316';
+      ctx.fillText('STEP 03 // 25-YEAR COMPOUNDING CASHFLOW & PAYBACK', padX, Math.round(h * 0.19));
+
+      ctx.font = `800 ${Math.round((w > h ? 54 : 40) * scale)}px Inter, sans-serif`;
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText('Break-even in 3.4 years. Proven on the curve.', padX, Math.round(h * 0.27));
+
+      const chartY = Math.round(h * 0.34);
+      const chartH = Math.round(h * 0.46);
+      ctx.fillStyle = '#0f1623';
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(padX, chartY, boxW, chartH);
+      ctx.strokeRect(padX, chartY, boxW, chartH);
+
+      const drawP = easeInOutCubic(clamp(localT / 3.2, 0, 1));
+      const innerX = padX + Math.round(40 * scale);
+      const innerW = boxW - Math.round(80 * scale);
+      const baseY = chartY + chartH - Math.round(44 * scale);
+      const topY = chartY + Math.round(48 * scale);
+
+      // Red curve: Utility + Diesel Generator cumulative cost
+      ctx.beginPath();
+      const maxPts = 50;
+      for (let i = 0; i <= maxPts * drawP; i++) {
+        const r = i / maxPts;
+        const x = innerX + r * innerW;
+        const y = baseY - Math.pow(r, 1.45) * (baseY - topY);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = Math.round(4 * scale);
+      ctx.stroke();
+
+      // Green curve: Solar Pulse Sized System
+      ctx.beginPath();
+      for (let i = 0; i <= maxPts * drawP; i++) {
+        const r = i / maxPts;
+        const x = innerX + r * innerW;
+        const y = (baseY - (baseY - topY) * 0.22) - r * (baseY - topY) * 0.12;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = Math.round(4 * scale);
+      ctx.stroke();
+
+      // Legend & Net Savings Summary
+      ctx.font = `700 ${Math.round(24 * scale)}px "Plus Jakarta Sans", sans-serif`;
+      ctx.fillStyle = '#ef4444';
+      ctx.fillText('GRID + GENERATOR: -$68,400', innerX, chartY + Math.round(48 * scale));
+
+      ctx.fillStyle = '#10b981';
+      ctx.fillText('SOLAR PULSE NET SAVINGS: +$49,200 (25-YR)', innerX, chartY + Math.round(86 * scale));
+      ctx.restore();
+    }
+
+    function renderAct5(w, h, localT) {
+      // 25.0s to 30.0s (5.0s duration): End Slate
+      const scale = Math.min(w, h) / 1080;
+      const p = easeOutCubic(clamp(localT / 1.0, 0, 1));
+      const cx = w / 2;
+      const cy = h * 0.36;
+
+      ctx.save();
+      ctx.globalAlpha = p;
+      drawSolarEmblem(cx, cy, Math.round(76 * scale));
+
+      ctx.textAlign = 'center';
+      ctx.font = `800 ${Math.round((w > h ? 72 : 54) * scale)}px "Plus Jakarta Sans", sans-serif`;
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText('Size the load. Prove the payback.', cx, Math.round(h * 0.56));
+
+      ctx.font = `500 ${Math.round(26 * scale)}px "Plus Jakarta Sans", sans-serif`;
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('Appliance Load Calculator  •  Blackout Simulator  •  25-Year ROI', cx, Math.round(h * 0.63));
+
+      // Solid CTA box
+      const btnW = Math.round(520 * scale);
+      const btnH = Math.round(68 * scale);
+      const btnX = cx - btnW / 2;
+      const btnY = Math.round(h * 0.70);
+      ctx.fillStyle = '#f97316';
+      ctx.fillRect(btnX, btnY, btnW, btnH);
+
+      ctx.font = `700 ${Math.round(26 * scale)}px "Plus Jakarta Sans", sans-serif`;
+      ctx.fillStyle = '#070b13';
+      ctx.fillText('solar-pulse1.web.app', cx, btnY + Math.round(43 * scale));
+      ctx.restore();
+    }
+
+    function renderFrame(t) {
+      const w = canvas.width;
+      const h = canvas.height;
+      drawGridBackground(w, h);
+
+      let actIndex = 0;
+      let actLabel = 'ACT I // SURGE FAULT';
+      if (t < 5.5) {
+        actIndex = 0;
+        actLabel = 'ACT I // SURGE FAULT';
+        renderAct1(w, h, t);
+      } else if (t < 12.5) {
+        actIndex = 1;
+        actLabel = 'ACT II // APPLIANCE SIZING';
+        renderAct2(w, h, t - 5.5);
+      } else if (t < 19.0) {
+        actIndex = 2;
+        actLabel = 'ACT III // BLACKOUT LIFELINE';
+        renderAct3(w, h, t - 12.5);
+      } else if (t < 25.0) {
+        actIndex = 3;
+        actLabel = 'ACT IV // 25-YEAR ROI';
+        renderAct4(w, h, t - 19.0);
+      } else {
+        actIndex = 4;
+        actLabel = 'ACT V // SOLAR PULSE';
+        renderAct5(w, h, t - 25.0);
+      }
+
+      drawTopHud(w, h, t, actLabel);
+
+      if (isPlaying && actIndex !== lastCueIndex) {
+        lastCueIndex = actIndex;
+        triggerAudioCue(actIndex);
+      }
+
+      sceneItems.forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === actIndex);
+      });
+
+      scrubber.value = t.toFixed(2);
+      timecodeDisplay.textContent = `00:${String(Math.floor(t)).padStart(2, '0')}.${Math.floor((t % 1) * 10)} / 00:30.0`;
+    }
+
+    function tick(nowTs) {
+      if (!isPlaying) return;
+      if (!lastFrameTs) lastFrameTs = nowTs;
+      const dt = (nowTs - lastFrameTs) / 1000;
+      lastFrameTs = nowTs;
+
+      currentTime += dt;
+      if (currentTime >= DURATION) {
+        currentTime = DURATION;
+        renderFrame(currentTime);
+        isPlaying = false;
+        playPauseBtn.textContent = 'Replay Commercial';
+        if (activeRecorder && activeRecorder.state === 'recording') {
+          activeRecorder.stop();
+        }
+        return;
+      }
+
+      renderFrame(currentTime);
+      requestAnimationFrame(tick);
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        isPlaying = false;
+        playPauseBtn.textContent = 'Resume Commercial';
+      } else {
+        if (currentTime >= DURATION) currentTime = 0;
+        lastCueIndex = -1;
+        isPlaying = true;
+        lastFrameTs = 0;
+        playPauseBtn.textContent = 'Pause';
+        requestAnimationFrame(tick);
+      }
+    }
+
+    function restartAd() {
+      currentTime = 0;
+      lastCueIndex = -1;
+      isPlaying = true;
+      lastFrameTs = 0;
+      playPauseBtn.textContent = 'Pause';
+      requestAnimationFrame(tick);
+    }
+
+    function jumpToTime(sec) {
+      currentTime = clamp(sec, 0, DURATION);
+      lastCueIndex = -1;
+      renderFrame(currentTime);
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      audioBtn.textContent = `Sound: ${soundEnabled ? 'On' : 'Muted'}`;
+    }
+
+    scrubber.addEventListener('input', (e) => {
+      currentTime = parseFloat(e.target.value) || 0;
+      renderFrame(currentTime);
+    });
+
+    canvas.addEventListener('click', togglePlay);
+
+    function exportCommercialVideo() {
+      if (typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
+        alert('Your browser does not support direct canvas video recording. Please use Chrome, Edge, or Firefox on desktop.');
+        return;
+      }
+      if (activeRecorder && activeRecorder.state === 'recording') {
+        activeRecorder.stop();
+        return;
+      }
+
+      const stream = canvas.captureStream(60);
+      const mimeTypes = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm'
+      ];
+      const mimeType = mimeTypes.find((m) => MediaRecorder.isTypeSupported(m)) || '';
+      const chunks = [];
+
+      activeRecorder = new MediaRecorder(stream, mimeType ? { mimeType, videoBitsPerSecond: 8_000_000 } : undefined);
+      activeRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+      activeRecorder.onstop = () => {
+        exportVideoBtn.classList.remove('recording');
+        exportVideoBtn.textContent = 'Export Video (.webm)';
+        const blob = new Blob(chunks, { type: mimeType || 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `solar-pulse-commercial-${aspect === '16:9' ? '16x9' : '9x16'}.webm`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      };
+
+      exportVideoBtn.classList.add('recording');
+      exportVideoBtn.textContent = 'Recording 30s Cut... (Click to Stop Early)';
+      restartAd();
+      activeRecorder.start(200);
+    }
+
+    function copyAdText(id, btn) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      navigator.clipboard.writeText(el.innerText).then(() => {
+        const prev = btn.textContent;
+        btn.textContent = 'Copied to Clipboard';
+        setTimeout(() => { btn.textContent = prev; }, 2200);
+      });
+    }
+
+    // Initial render
+    renderFrame(0);
+  </script>
+</body>
+</html>
