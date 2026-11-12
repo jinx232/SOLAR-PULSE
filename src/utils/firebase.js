@@ -14,6 +14,13 @@ import {
   updatePassword,
   updateProfile,
 } from 'firebase/auth';
+import {
+  BASE_LOCKOUT_MS,
+  consumeRateLimitSlot,
+  formatLockoutCountdown,
+  getAccountSecurityStatus,
+  recordLocalLoginOutcome,
+} from './loginSecurity';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyCQ9TqTeLNWX7AUCx10GVNSqu-EA8A_8ec',
@@ -44,6 +51,99 @@ export const functions = getFunctions(app, import.meta.env.VITE_FUNCTIONS_REGION
 export const callInitializeTransaction = (data) => httpsCallable(functions, 'initializeTransaction')(data);
 export const callVerifyTransaction = (data) => httpsCallable(functions, 'verifyTransaction')(data);
 export const callDeleteMyData = () => httpsCallable(functions, 'deleteMyData')();
+export const callCheckLoginGuard = (data) => httpsCallable(functions, 'checkLoginGuard')(data);
+export const callRecordLoginAttempt = (data) => httpsCallable(functions, 'recordLoginAttempt')(data);
+
+/**
+ * Login endpoint wrapper with sliding-window rate limiting and 5-strike progressive account lockout.
+ */
+export const secureSignInWithRateLimit = async (rawEmail, password) => {
+  const email = String(rawEmail || '').trim().toLowerCase();
+
+  // 1. Pre-flight client rate limit & lockout check
+  const preCheck = consumeRateLimitSlot(email);
+  if (!preCheck.allowed) {
+    const waitLabel = formatLockoutCountdown(preCheck.retryAfterSeconds);
+    const msg = preCheck.isLocked
+      ? `Account temporarily locked due to multiple failed sign-in attempts. Please wait ${waitLabel}.`
+      : `Too many sign-in requests. Rate limit active — please wait ${waitLabel}.`;
+    const err = new Error(msg);
+    err.code = preCheck.reason;
+    err.securityStatus = preCheck;
+    throw err;
+  }
+
+  // 2. Server-side checkLoginGuard (enforces IP sliding-window rate limit & cross-session lockout)
+  try {
+    await callCheckLoginGuard({ email });
+  } catch (guardErr) {
+    const details = guardErr?.details || {};
+    if (guardErr?.code === 'functions/resource-exhausted' || details.reason) {
+      const lockedUntilMs = Number(details.lockedUntilMs || (Date.now() + (Number(details.retryAfterSeconds || 60) * 1000)));
+      const synced = recordLocalLoginOutcome(email, {
+        success: false,
+        serverState: {
+          failedAttempts: details.reason === 'account-locked' ? 5 : preCheck.failedAttempts,
+          lockedUntilMs,
+          lockoutCount: 1,
+        },
+      });
+      const waitLabel = formatLockoutCountdown(synced.retryAfterSeconds || details.retryAfterSeconds || 60);
+      const msg = details.reason === 'account-locked'
+        ? `Account temporarily locked due to multiple failed sign-in attempts. Please wait ${waitLabel}.`
+        : `Too many login requests from your network. Please wait ${waitLabel}.`;
+      const err = new Error(msg);
+      err.code = details.reason || 'rate-limited';
+      err.securityStatus = synced;
+      throw err;
+    }
+    // If cloud function is unreachable/unprovisioned, continue with client + Firebase Auth enforcement
+  }
+
+  // 3. Perform Firebase Authentication
+  try {
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    recordLocalLoginOutcome(email, { success: true });
+    callRecordLoginAttempt({ email, success: true }).catch(() => {});
+    return credential;
+  } catch (authErr) {
+    const isTooManyRequests = authErr?.code === 'auth/too-many-requests';
+    let serverState = null;
+
+    try {
+      const res = await callRecordLoginAttempt({ email, success: false });
+      if (res?.data) serverState = res.data;
+    } catch (_) {}
+
+    const updatedStatus = recordLocalLoginOutcome(email, {
+      success: false,
+      forceLockoutMs: isTooManyRequests ? BASE_LOCKOUT_MS : 0,
+      serverState,
+    });
+
+    if (updatedStatus.isLocked || isTooManyRequests) {
+      const waitLabel = formatLockoutCountdown(updatedStatus.retryAfterSeconds || 900);
+      const lockErr = new Error(
+        `Account locked after 5 failed sign-in attempts. For your security, please wait ${waitLabel} before trying again.`
+      );
+      lockErr.code = 'account-locked';
+      lockErr.securityStatus = updatedStatus;
+      throw lockErr;
+    }
+
+    const rem = updatedStatus.remainingAttempts;
+    const warningSuffix = rem <= 2
+      ? ` Warning: ${rem} attempt${rem === 1 ? '' : 's'} remaining before 15-minute account lockout.`
+      : ` (${rem} attempt${rem === 1 ? '' : 's'} remaining before lockout).`;
+
+    const friendlyErr = new Error(`Invalid email or password.${warningSuffix}`);
+    friendlyErr.code = authErr?.code || 'auth/invalid-credential';
+    friendlyErr.securityStatus = updatedStatus;
+    throw friendlyErr;
+  }
+};
+
+export { getAccountSecurityStatus, formatLockoutCountdown };
 
 export {
   createUserWithEmailAndPassword,

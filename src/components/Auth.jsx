@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Sun, Leaf, Battery, ShieldCheck, ArrowRight, Download, Sparkles, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sun, Leaf, Battery, ShieldCheck, ShieldAlert, Lock, ArrowRight, Zap } from 'lucide-react';
 import {
   auth,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
+  secureSignInWithRateLimit,
+  getAccountSecurityStatus,
+  formatLockoutCountdown,
   updateProfile,
 } from '../utils/firebase';
 
@@ -14,6 +16,20 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
   const [confirmPassword, setConfirmPassword] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [securityStatus, setSecurityStatus] = useState(() => getAccountSecurityStatus(''));
+
+  // Refresh lockout & rate-limit countdown every second when active or when email changes
+  useEffect(() => {
+    const refreshStatus = () => {
+      const current = getAccountSecurityStatus(email);
+      setSecurityStatus(current);
+    };
+    refreshStatus();
+    const timer = window.setInterval(refreshStatus, 1000);
+    return () => window.clearInterval(timer);
+  }, [email]);
+
+  const isSignInBlocked = authView === 'signin' && !securityStatus.allowed;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -24,11 +40,26 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
       return;
     }
 
+    if (authView === 'signin') {
+      const preStatus = getAccountSecurityStatus(email);
+      if (!preStatus.allowed) {
+        setSecurityStatus(preStatus);
+        const waitStr = formatLockoutCountdown(preStatus.retryAfterSeconds);
+        setStatusMessage(
+          preStatus.isLocked
+            ? `Account locked due to too many failed attempts. Try again in ${waitStr}.`
+            : `Rate limit active. Please wait ${waitStr} before trying again.`
+        );
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
       if (authView === 'signin') {
-        await signInWithEmailAndPassword(auth, email, password);
+        await secureSignInWithRateLimit(email, password);
+        setSecurityStatus(getAccountSecurityStatus(email));
         setStatusMessage('Signed in successfully. Redirecting...');
         onAuthenticate();
       } else {
@@ -40,6 +71,11 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
 
       setLoading(false);
     } catch (error) {
+      if (error?.securityStatus) {
+        setSecurityStatus(error.securityStatus);
+      } else {
+        setSecurityStatus(getAccountSecurityStatus(email));
+      }
       setStatusMessage(error.message);
       setLoading(false);
     }
@@ -209,11 +245,78 @@ export default function Auth({ authView, setAuthView, onAuthenticate, onGuestLog
               </label>
             )}
 
-            <button className="auth-submit-btn" type="submit" disabled={loading} aria-busy={loading}>
-              {loading ? 'Authenticating...' : authView === 'signin' ? 'Sign In to Station →' : 'Create Account →'}
+            <button
+              className="auth-submit-btn"
+              type="submit"
+              disabled={loading || isSignInBlocked}
+              aria-busy={loading}
+              style={isSignInBlocked ? { opacity: 0.55, cursor: 'not-allowed', filter: 'grayscale(0.35)' } : undefined}
+            >
+              {loading
+                ? 'Authenticating...'
+                : isSignInBlocked
+                  ? `${securityStatus.isLocked ? 'Account Locked' : 'Rate Limited'} (${formatLockoutCountdown(securityStatus.retryAfterSeconds)})`
+                  : authView === 'signin'
+                    ? 'Sign In to Station →'
+                    : 'Create Account →'}
             </button>
 
-            {statusMessage && (
+            {authView === 'signin' && isSignInBlocked && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.35)',
+                  color: '#fca5a5',
+                  fontSize: '0.84rem',
+                  lineHeight: 1.45,
+                }}
+              >
+                <Lock size={17} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <strong style={{ display: 'block', color: '#f87171', marginBottom: '2px' }}>
+                    {securityStatus.isLocked ? 'Security Lockout Engaged' : 'Login Rate Limit Active'}
+                  </strong>
+                  <span>
+                    {securityStatus.isLocked
+                      ? `Too many failed sign-in attempts for this account. Please wait ${formatLockoutCountdown(securityStatus.retryAfterSeconds)} before trying again.`
+                      : `Too many rapid sign-in requests. Cooldown expires in ${formatLockoutCountdown(securityStatus.retryAfterSeconds)}.`}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {authView === 'signin' && !isSignInBlocked && securityStatus.failedAttempts > 0 && (
+              <div
+                role="status"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '8px',
+                  padding: '8px 12px',
+                  borderRadius: '10px',
+                  backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                  border: '1px solid rgba(249, 115, 22, 0.28)',
+                  color: '#fdba74',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <ShieldAlert size={14} style={{ color: '#f97316', flexShrink: 0 }} />
+                  Brute-force protection active
+                </span>
+                <strong>{securityStatus.remainingAttempts} of 5 attempts left</strong>
+              </div>
+            )}
+
+            {statusMessage && !isSignInBlocked && (
               <p className="auth-status-message" role="alert" aria-live="polite">{statusMessage}</p>
             )}
           </form>

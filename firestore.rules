@@ -54,6 +54,18 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /loginLockouts/{accountHash} {
+      // Managed strictly by server-side Cloud Functions (checkLoginGuard / recordLoginAttempt)
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /rateLimits/{clientHash} {
+      // Managed strictly by server-side Cloud Functions
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /supportTickets/{ticketId} {
       // Length caps, field allowlist, and bot/spoof mitigation
       allow create: if request.resource.data.keys().hasOnly([

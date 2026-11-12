@@ -16,6 +16,13 @@ const {
   isValidReference,
 } = require('./lib/payments');
 const { fulfilPayment } = require('./lib/fulfil');
+const {
+  normalizeEmail,
+  hashIdentifier,
+  evaluateRateLimit,
+  evaluateAccountLockout,
+  computeNextLockoutState,
+} = require('./lib/authGuard');
 
 // Explicit region (closest supported region to West Africa). Change here AND set
 // VITE_FUNCTIONS_REGION in the web app's .env to the same value.
@@ -376,4 +383,118 @@ exports.deleteMyData = onCall(async (request) => {
 
   return { deleted: true };
 });
+
+/* ------------------------------------------------------------------ */
+/* 6. Login Rate Limiting & Progressive Account Lockout                */
+/* ------------------------------------------------------------------ */
+
+const extractClientIp = (request) => {
+  const forwarded = request.rawRequest?.headers?.['x-forwarded-for'];
+  if (typeof forwarded === 'string' && forwarded.trim()) {
+    return forwarded.split(',')[0].trim();
+  }
+  return request.rawRequest?.ip || 'unknown-ip';
+};
+
+exports.checkLoginGuard = onCall(async (request) => {
+  const email = normalizeEmail(request.data?.email);
+  if (!email || !email.includes('@') || email.length > 254) {
+    throw new HttpsError('invalid-argument', 'A valid email address is required.');
+  }
+
+  const clientIp = extractClientIp(request);
+  const ipDocRef = db.collection('rateLimits').doc(hashIdentifier('ip', clientIp));
+  const accountDocRef = db.collection('loginLockouts').doc(hashIdentifier('acct', email));
+  const nowMs = Date.now();
+
+  return db.runTransaction(async (tx) => {
+    const [ipSnap, accountSnap] = await Promise.all([
+      tx.get(ipDocRef),
+      tx.get(accountDocRef),
+    ]);
+
+    const rateEval = evaluateRateLimit(ipSnap.exists ? ipSnap.data() : {}, nowMs);
+    if (!rateEval.allowed) {
+      throw new HttpsError(
+        'resource-exhausted',
+        `Too many login requests from this network. Please wait ${rateEval.retryAfterSeconds}s before trying again.`,
+        {
+          reason: 'rate-limited',
+          retryAfterSeconds: rateEval.retryAfterSeconds,
+          lockedUntilMs: rateEval.lockedUntilMs,
+        },
+      );
+    }
+
+    const lockoutEval = evaluateAccountLockout(accountSnap.exists ? accountSnap.data() : {}, nowMs);
+    if (!lockoutEval.allowed) {
+      throw new HttpsError(
+        'resource-exhausted',
+        `Account temporarily locked due to multiple failed sign-in attempts. Try again in ${Math.ceil(lockoutEval.retryAfterSeconds / 60)} minute(s).`,
+        {
+          reason: 'account-locked',
+          retryAfterSeconds: lockoutEval.retryAfterSeconds,
+          lockedUntilMs: lockoutEval.lockedUntilMs,
+          remainingAttempts: 0,
+        },
+      );
+    }
+
+    tx.set(ipDocRef, {
+      timestamps: rateEval.updatedTimestamps,
+      updatedAtMs: nowMs,
+    }, { merge: true });
+
+    return {
+      allowed: true,
+      remainingAttempts: lockoutEval.remainingAttempts,
+      failedAttempts: lockoutEval.failedAttempts,
+    };
+  });
+});
+
+exports.recordLoginAttempt = onCall(async (request) => {
+  const email = normalizeEmail(request.data?.email);
+  const success = Boolean(request.data?.success);
+  if (!email || !email.includes('@') || email.length > 254) {
+    throw new HttpsError('invalid-argument', 'A valid email address is required.');
+  }
+
+  // Prevent unauthenticated callers from spoofing `success: true` to clear a lockout
+  if (success) {
+    const authedEmail = normalizeEmail(request.auth?.token?.email);
+    if (!request.auth || authedEmail !== email) {
+      throw new HttpsError('permission-denied', 'Authenticated session does not match email.');
+    }
+  }
+
+  const accountDocRef = db.collection('loginLockouts').doc(hashIdentifier('acct', email));
+  const nowMs = Date.now();
+
+  return db.runTransaction(async (tx) => {
+    const accountSnap = await tx.get(accountDocRef);
+    const nextState = computeNextLockoutState(
+      accountSnap.exists ? accountSnap.data() : {},
+      { success, nowMs },
+    );
+
+    tx.set(accountDocRef, {
+      failedAttempts: nextState.failedAttempts,
+      lockedUntilMs: nextState.lockedUntilMs,
+      lockoutCount: nextState.lockoutCount,
+      lastFailedAtMs: nextState.lastFailedAtMs,
+      lastSuccessAtMs: nextState.lastSuccessAtMs,
+      updatedAtMs: nowMs,
+    }, { merge: true });
+
+    return {
+      isLocked: nextState.isLocked,
+      remainingAttempts: nextState.remainingAttempts,
+      retryAfterSeconds: nextState.retryAfterSeconds,
+      lockedUntilMs: nextState.lockedUntilMs,
+      failedAttempts: nextState.failedAttempts,
+    };
+  });
+});
+
 
